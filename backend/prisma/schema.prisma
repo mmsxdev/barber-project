@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BARBER
+  SECRETARY
+}
+
+enum FinanceType {
+  INCOME
+  EXPENSE
+}
+
+enum SchedulingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  cpf      String    @unique
+  name     String
+  password String
+  role     Role      @default(BARBER) // Valor padrão adicionado aqui
+  createdSchedulings Scheduling[] @relation("CreatedSchedulings")
+  barberSchedulings  Scheduling[] @relation("BarberSchedulings")
+}
+
+model Product {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String
+  price           Float
+  quantityInStock Int
+  createdAt       DateTime  @default(now())
+  finances        Finance[]
+}
+
+model Finance {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        FinanceType
+  value       Float
+  description String
+  date        DateTime  @default(now())
+  product     Product?  @relation(fields: [productId], references: [id])
+  productId   String?   @db.ObjectId
+}
+
+model Scheduling {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  clientName   String
+  dateTime     DateTime
+  service      String
+  status       SchedulingStatus
+  createdBy    User      @relation("CreatedSchedulings", fields: [userId], references: [id])
+  userId       String    @db.ObjectId
+  barber       User      @relation("BarberSchedulings", fields: [barberId], references: [id])
+  barberId     String    @db.ObjectId
+}

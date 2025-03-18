@@ -1,0 +1,33 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Logs e temporários
+*.log
+*.tmp
+*.pid
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# Builds
+dist/
+build/
+
+# Banco de dados local
+*.db
+*.sqlite
+
+# Frontend específico
+frontend/.env
+frontend/dist/
+frontend/node_modules/
+
+# Backend específico
+backend/.env
+backend/node_modules/
+backend/prisma/migrations/

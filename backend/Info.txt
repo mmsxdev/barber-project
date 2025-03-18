@@ -1,0 +1,43 @@
+// HTTP METODOS
+// GET: Buscar uma informação
+// POST: Inserir (Criar) uma informação
+// PUT: Alterar uma informação
+// DELETE: Deletar uma informação
+// PATCH: Alterar uma informação específica
+
+//Rota precisa de 2 coisas:
+//1 - Endereço (exemplo: /users)
+//2 - Método HTTP (GET, POST, PUT, DELETE)
+
+//Criar uma api de usuarios
+//1- Criação de um usuário
+//2- Buscar um usuário
+//3- Listar todos os usuários
+//4- Alterar um usuário
+//5- Deletar um usuário
+
+//Query params (GET) consultas
+//exemple: http://localhost:3000/users?search=Diego
+
+//Route params (GET, PUT, DELETE) buscar, editar e deletar
+//exemple: http://localhost:3000/users/1
+
+//Body (POST e PUT) criar e editar
+//exemplo: {
+//  "name": "Miguel",
+//  "email": miguel@gmail"
+//  "password": "123456"}
+//app.use(express.json());
+
+//HTTP STATUS
+//2XX SUCESSO
+//4XX ERRO FRONTEND
+//5XX ERRO BACKEND
+
+//BD MONGO
+//msxdev7
+//n81MzUPZr7VK553q
+//mongodb+srv://msxdev7:n81MzUPZr7VK553q@barbeariaproject.tf2ig.mongodb.net/?retryWrites=true&w=majority&appName=BarbeariaProject
+//TOKEN JWT:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzMyNWZlNjUzNjQ3ZmEyNTA5NzM4YyIsImlhdCI6MTc0MDg0MzEwOSwiZXhwIjoxNzQwODQzMTY5fQ.vmvC6jO7O49lPlEahY4R-HarNG6v4e-KJtjcPQZ585o
+
+
