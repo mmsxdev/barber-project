@@ -2,8 +2,6 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { useAuth } from "../../contexts/index";
-import { PermissionError } from "../../components/PermissionError";
 
 function EditUser() {
   const { cpf } = useParams();
@@ -11,7 +9,6 @@ function EditUser() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(""); // 👈 Use "BARBER"
-  const { user } = useAuth();
 
   useEffect(() => {
     async function loadUser() {
@@ -31,10 +28,6 @@ function EditUser() {
     }
     loadUser();
   }, [cpf, navigate]);
-
-  if (user?.role !== "ADMIN") {
-    return <PermissionError />;
-  }
 
   async function handleUpdate() {
     const token = localStorage.getItem("token");

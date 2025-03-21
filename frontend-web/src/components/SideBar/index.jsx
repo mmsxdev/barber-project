@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/index";
@@ -9,6 +9,7 @@ import {
   CircleDollarSign,
   PackageSearch,
 } from "lucide-react";
+
 const Sidebar = ({
   handleLogout,
   toggleMenu,
@@ -18,9 +19,10 @@ const Sidebar = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
   const handleManageUsers = () => {
     if (user?.role === "ADMIN") {
-      navigate("/listar-usuario"); // 👈 Redireciona para a página de listagem
+      navigate("/listar-usuario");
     } else {
       navigate("/permission-error");
     }
@@ -39,7 +41,7 @@ const Sidebar = ({
     >
       <div className="px-6 mb-12">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
-          BarberDashboard
+          <Link to="/dashboard">BarberDashboard</Link>
         </h2>
       </div>
 
@@ -49,33 +51,40 @@ const Sidebar = ({
             to: "produtos",
             icon: <PackageSearch size={22} />,
             label: "Produtos",
+            allowedRoles: ["ADMIN", "SECRETARY"], // Cargos permitidos
           },
           {
             to: "agendamentos",
             icon: <CalendarDays size={22} />,
             label: "Agendamentos",
+            allowedRoles: ["ADMIN", "SECRETARY", "BARBER"], // Cargos permitidos
           },
           {
             to: "financas",
             icon: <CircleDollarSign size={22} />,
             label: "Finanças",
+            allowedRoles: ["ADMIN", "SECRETARY"], // Cargos permitidos
           },
         ].map((link) => (
-          <NavLink
+          <div
             key={link.to}
-            to={`/dashboard?section=${link.to}`}
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base ${
-                isActive
-                  ? "bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-white"
-                  : "hover:bg-white/5 hover:text-blue-400"
-              }`
-            }
-            onClick={toggleSidebar}
+            onClick={() => {
+              if (link.allowedRoles.includes(user?.role)) {
+                navigate(`/dashboard?section=${link.to}`); // Permite o acesso
+              } else {
+                navigate("/dashboard?section=permission-error"); // Redireciona para erro de permissão
+              }
+              toggleSidebar(); // Fecha o sidebar (em dispositivos móveis)
+            }}
+            className={`
+              bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-white"
+              flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base
+              hover:bg-black/40 hover:text-blue-500 cursor-pointer
+            `}
           >
             {link.icon}
             <span className="font-medium">{link.label}</span>
-          </NavLink>
+          </div>
         ))}
       </nav>
 

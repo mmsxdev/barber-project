@@ -21,17 +21,23 @@ function Login() {
     event.preventDefault();
 
     try {
-      const {
-        data: { token },
-      } = await api.post("/login", {
+      const response = await api.post("/login", {
         cpf: cpfRef.current.value,
         password: passwordRef.current.value,
       });
-      localStorage.setItem("token", token);
-      console.log(token);
-      navigate("/dashboard?section=agendamentos");
+
+      // Verifica se o token foi retornado corretamente
+      const token = response.data.token; // ou response.data.access_token, dependendo do backend
+      if (!token) {
+        throw new Error("Token não encontrado na resposta");
+      }
+
+      localStorage.setItem("token", token); // Salva o token no localStorage
+      console.log("Token salvo:", token); // Log para debug
+      navigate("/dashboard"); // Redireciona para o dashboard
     } catch (error) {
-      error && alert("Senha ou CPF inválidos");
+      console.error("Erro ao fazer login:", error);
+      alert("Senha ou CPF inválidos");
     }
   }
 
@@ -111,4 +117,5 @@ function Login() {
     </div>
   );
 }
+
 export default Login;

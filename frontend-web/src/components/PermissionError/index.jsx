@@ -11,7 +11,7 @@ export const PermissionError = () => {
           Você não tem permissão para acessar esta página.
         </p>
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/dashboard")} // Redireciona para a seção "boas-vindas"
           className="w-full py-3 bg-blue-500 rounded-lg font-semibold text-white hover:bg-blue-600 transition-colors"
         >
           Voltar ao Dashboard
@@ -20,3 +20,5 @@ export const PermissionError = () => {
     </div>
   );
 };
+
+export default PermissionError;

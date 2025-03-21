@@ -1,17 +1,22 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/SideBar/index.jsx";
-import Loading from "../../components/Loading"; // Adicione esta linha
+import Loading from "../../components/Loading";
 
+// Importações lazy
 const ProdutosSection = lazy(() => import("../../components/Products"));
 const AgendamentosSection = lazy(() => import("../../components/Schedule"));
 const FinancasSection = lazy(() =>
   import("../../components/FinancesManagement")
 );
+const PermissionError = lazy(() => import("../../components/PermissionError"));
+const BoasVindasSection = lazy(() =>
+  import("../../components/WelcomeDashboard")
+);
 
 function Dashboard() {
   const [searchParams] = useSearchParams();
-  const section = searchParams.get("section") || "produtos";
+  const section = searchParams.get("section") || "boas-vindas"; // Seção padrão é "boas-vindas"
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -49,10 +54,16 @@ function Dashboard() {
             <FinancasSection />
           </Suspense>
         );
+      case "permission-error":
+        return (
+          <Suspense fallback={<Loading message="Carregando Erro..." />}>
+            <PermissionError />
+          </Suspense>
+        );
       default:
         return (
           <Suspense fallback={<Loading />}>
-            <ProdutosSection />
+            <BoasVindasSection /> {/* Seção padrão */}
           </Suspense>
         );
     }

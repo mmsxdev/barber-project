@@ -22,7 +22,7 @@ function App() {
             <Route path="/deletar-usuario/:cpf" element={<UsersDelete />} />
             <Route path="/listar-usuario/" element={<UsersList />} />
             <Route path="/editar-usuario/:cpf" element={<UsersEdit />} />
-            <Route path="permission-error" element={<PermissionError />} />
+            <Route path="/permission-error" element={<PermissionError />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

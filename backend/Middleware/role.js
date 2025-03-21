@@ -1,4 +1,3 @@
-// Middlewares/role.js
 export const checkRole = (allowedRoles) => (req, res, next) => {
   const userRole = req.userRole; // Obtido do middleware auth
 

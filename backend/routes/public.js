@@ -72,10 +72,15 @@ router.post("/login", apiLimiter, async (request, response) => {
     }
 
     //Gera um token de autenticação JWT para o usuário
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
-      expiresIn: "20h",
-      issuer: "http://localhost:5173",
-    });
+    const token = jwt.sign(
+      { id: user.id, role: user.role.toUpperCase() },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "20h",
+        algorithm: "HS256",
+        issuer: "http://localhost:5173",
+      }
+    );
     response
       .header(
         "Strict-Transport-Security",
