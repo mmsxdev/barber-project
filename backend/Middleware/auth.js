@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const allowedOrigins = []; // Defina os domínios permitidos se necessário
 
 const auth = (request, response, next) => {
   const token = request.headers.authorization;
@@ -16,17 +17,17 @@ const auth = (request, response, next) => {
     const decoded = jwt.verify(
       token.replace("Bearer ", ""),
       JWT_SECRET,
-      { algorithms: ["HS256"] } // Force algoritmo específico
+      { algorithms: ["HS256"] } // Força um algoritmo específico
     );
-    request.userId = decoded.id;
-    request.userRole = decoded.role;
+    // Cria um objeto user para manter os dados do usuário
+    request.user = { id: decoded.id, role: decoded.role };
   } catch (error) {
     return response
       .status(401)
       .json({ message: "Token inválido ou expirado!" });
   }
 
-  // Adicione verificação de origem se necessário
+  // Se necessário, verifique a origem da requisição (para produção)
   if (
     process.env.NODE_ENV === "production" &&
     !allowedOrigins.includes(request.headers.origin)

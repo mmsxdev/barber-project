@@ -1,7 +1,8 @@
 import express from "express";
 import publicRoutes from "./routes/public.js";
 import privateRoutes from "./routes/private.js";
-import products from "./routes/products.js";
+import productsRoutes from "./routes/products.js";
+import financeRoutes from "./routes/finance.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
 
@@ -25,7 +26,8 @@ app.use(
 app.use(express.json());
 app.use("/", publicRoutes);
 app.use("/", auth, privateRoutes);
-app.use("/", auth, products);
+app.use("/", auth, productsRoutes);
+app.use("/", auth, financeRoutes);
 
 // Após a configuração do CORS
 app.use((req, res, next) => {
