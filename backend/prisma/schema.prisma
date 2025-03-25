@@ -28,9 +28,10 @@ model User {
   cpf      String    @unique
   name     String
   password String
-  role     Role      @default(BARBER) // Valor padrão adicionado aqui
+  role     Role      @default(BARBER)
   createdSchedulings Scheduling[] @relation("CreatedSchedulings")
   barberSchedulings  Scheduling[] @relation("BarberSchedulings")
+  finances           Finance[]
 }
 
 model Product {
@@ -44,23 +45,26 @@ model Product {
 }
 
 model Finance {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   type        FinanceType
   value       Float
   description String
-  date        DateTime  @default(now())
-  product     Product?  @relation(fields: [productId], references: [id])
-  productId   String?   @db.ObjectId
+  date        DateTime   @default(now())
+  product     Product?   @relation(fields: [productId], references: [id])
+  productId   String?    @db.ObjectId
+  userId      String     @db.ObjectId
+  user        User       @relation(fields: [userId], references: [id])
 }
 
 model Scheduling {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientName   String
-  dateTime     DateTime
-  service      String
-  status       SchedulingStatus
-  createdBy    User      @relation("CreatedSchedulings", fields: [userId], references: [id])
-  userId       String    @db.ObjectId
-  barber       User      @relation("BarberSchedulings", fields: [barberId], references: [id])
-  barberId     String    @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  clientName  String
+  dateTime    DateTime
+  service     String
+  status      SchedulingStatus @default(CONFIRMED)
+  createdBy   User       @relation("CreatedSchedulings", fields: [userId], references: [id])
+  userId      String     @db.ObjectId
+  barber      User       @relation("BarberSchedulings", fields: [barberId], references: [id])
+  barberId    String     @db.ObjectId
+  createdAt   DateTime   @default(now())
 }

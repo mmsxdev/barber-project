@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import api from "../../services/api"; // Importe o axios configurado
+import api from "../../services/api";
 
 function ProdutosSection() {
   const nameProductRef = useRef();
@@ -23,6 +23,22 @@ function ProdutosSection() {
     loadProdutos();
   }, []);
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(price);
+  };
+
+  const parsePrice = (priceString) => {
+    if (typeof priceString === "number") return priceString;
+
+    let cleaned = priceString.replace(/[^\d,]/g, "");
+    cleaned = cleaned.replace(",", ".");
+    const value = parseFloat(cleaned);
+    return isNaN(value) ? 0 : value;
+  };
+
   const handleCreateProduct = async (event) => {
     event.preventDefault();
 
@@ -35,58 +51,94 @@ function ProdutosSection() {
     try {
       await api.post("/produtos", {
         name: nameProductRef.current.value,
-        price: parseFloat(priceProductRef.current.value),
+        price: parsePrice(priceProductRef.current.value),
         description: descriptionProductRef.current.value,
         quantityInStock: parseInt(quantityProductRef.current.value),
       });
       alert("Produto cadastrado com sucesso");
       loadProdutos();
+      nameProductRef.current.value = "";
+      priceProductRef.current.value = "";
+      descriptionProductRef.current.value = "";
+      quantityProductRef.current.value = "";
     } catch (error) {
       console.error("Erro ao cadastrar produto:", error);
       alert("Erro ao cadastrar produto");
     }
   };
 
-  // Função para deletar um produto
   const handleDeleteProduct = async (id) => {
-    try {
-      await api.delete(`/produtos/${id}`);
-      alert("Produto deletado com sucesso");
-      loadProdutos(); // Recarrega a lista de produtos
-    } catch (error) {
-      console.error("Erro ao deletar produto:", error);
-      alert("Erro ao deletar produto");
+    if (window.confirm("Tem certeza que deseja deletar este produto?")) {
+      try {
+        await api.delete(`/produtos/${id}`);
+        alert("Produto deletado com sucesso");
+        loadProdutos();
+      } catch (error) {
+        console.error("Erro ao deletar produto:", error);
+        alert("Erro ao deletar produto");
+      }
     }
   };
 
-  // Função para atualizar um produto
   const handleUpdateProduct = async (event) => {
     event.preventDefault();
 
     try {
       await api.put(`/produtos/${produtoEditando.id}`, {
         name: nameProductRef.current.value,
-        price: parseFloat(priceProductRef.current.value),
+        price: parsePrice(priceProductRef.current.value),
         description: descriptionProductRef.current.value,
-        quantityInStock: parseInt(quantityProductRef.current.value), // Corrigido para quantityInStock
+        quantityInStock: parseInt(quantityProductRef.current.value),
       });
       alert("Produto atualizado com sucesso");
-      setProdutoEditando(null); // Fecha o modal de edição
-      loadProdutos(); // Recarrega a lista de produtos
+      setProdutoEditando(null);
+      loadProdutos();
     } catch (error) {
       console.error("Erro ao atualizar produto:", error);
       alert("Erro ao atualizar produto");
     }
   };
 
-  // Função para abrir o modal de edição
   const openEditModal = (produto) => {
     setProdutoEditando(produto);
     nameProductRef.current.value = produto.name;
-    priceProductRef.current.value = produto.price;
+    priceProductRef.current.value = produto.price.toFixed(2).replace(".", ",");
     descriptionProductRef.current.value = produto.description;
-    quantityProductRef.current.value = produto.quantityInStock; // Corrigido para quantityInStock
+    quantityProductRef.current.value = produto.quantityInStock;
   };
+
+  useEffect(() => {
+    const priceInput = priceProductRef.current;
+
+    const handlePriceInput = (e) => {
+      let value = e.target.value;
+      value = value.replace(/[^\d,]/g, "");
+
+      const commaCount = value.split(",").length - 1;
+      if (commaCount > 1) {
+        value = value.substring(0, value.lastIndexOf(","));
+      }
+
+      if (commaCount === 1) {
+        const parts = value.split(",");
+        if (parts[1].length > 2) {
+          value = parts[0] + "," + parts[1].substring(0, 2);
+        }
+      }
+
+      e.target.value = value;
+    };
+
+    if (priceInput) {
+      priceInput.addEventListener("input", handlePriceInput);
+    }
+
+    return () => {
+      if (priceInput) {
+        priceInput.removeEventListener("input", handlePriceInput);
+      }
+    };
+  }, []);
 
   return (
     <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white min-h-screen">
@@ -94,7 +146,6 @@ function ProdutosSection() {
         Gerenciamento de Produtos
       </h2>
 
-      {/* Formulário para adicionar/editar produto */}
       <form
         onSubmit={produtoEditando ? handleUpdateProduct : handleCreateProduct}
         className="mb-8 bg-white/10 p-6 rounded-lg backdrop-blur-lg border border-white/10"
@@ -110,7 +161,7 @@ function ProdutosSection() {
           <input
             type="text"
             ref={priceProductRef}
-            placeholder="Preço"
+            placeholder="Preço (ex: 50,00)"
             className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -125,6 +176,7 @@ function ProdutosSection() {
             type="number"
             ref={quantityProductRef}
             placeholder="Quantidade em estoque"
+            min="0"
             className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -146,42 +198,60 @@ function ProdutosSection() {
         )}
       </form>
 
-      {/* Lista de produtos */}
       <div className="bg-white/10 p-6 rounded-lg backdrop-blur-lg border border-white/10">
         <h3 className="text-xl font-semibold mb-4 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
           Lista de Produtos
         </h3>
-        <ul className="space-y-4">
-          {produtos.map((produto) => (
-            <li
-              key={produto.id}
-              className="p-4 rounded-lg bg-white/5 border border-white/10"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-bold">{produto.name}</p>
-                  <p>{produto.description}</p>
-                  <p>Preço: R$ {produto.price.toFixed(2)}</p>
-                  <p>Quantidade em estoque: {produto.quantityInStock}</p>
+        {produtos.length === 0 ? (
+          <p className="text-center py-4">Nenhum produto cadastrado</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {produtos.map((produto) => (
+              <div
+                key={produto.id}
+                className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex flex-col"
+              >
+                <div className="flex-grow">
+                  <h4 className="font-bold text-lg mb-2 truncate">
+                    {produto.name}
+                  </h4>
+                  <p className="text-sm text-gray-300 mb-3 line-clamp-2">
+                    {produto.description}
+                  </p>
+                  <p className="text-blue-300 font-medium mb-1">
+                    {formatPrice(produto.price)}
+                  </p>
+                  <p className="text-sm">
+                    Estoque:{" "}
+                    <span
+                      className={
+                        produto.quantityInStock > 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }
+                    >
+                      {produto.quantityInStock}
+                    </span>
+                  </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-4 pt-3 border-t border-white/10">
                   <button
                     onClick={() => openEditModal(produto)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-all"
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-all text-sm flex-grow"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(produto.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-all"
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-all text-sm flex-grow"
                   >
                     Deletar
                   </button>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

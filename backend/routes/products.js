@@ -6,10 +6,17 @@ import { checkRole } from "../Middleware/role.js";
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Middleware de autenticação aplicado a todas as rotas deste arquivo
 router.use(auth);
 
-// Rota para listar todos os produtos
+const formatPriceForDatabase = (priceInput) => {
+  if (typeof priceInput === "number") return priceInput;
+
+  const priceStr = priceInput.toString();
+  const normalized = priceStr.replace(/\./g, "").replace(",", ".");
+  const value = parseFloat(normalized);
+  return Math.round(value * 100) / 100;
+};
+
 router.get("/produtos", checkRole(["SECRETARY", "ADMIN"]), async (req, res) => {
   try {
     const produtos = await prisma.product.findMany();
@@ -20,7 +27,6 @@ router.get("/produtos", checkRole(["SECRETARY", "ADMIN"]), async (req, res) => {
   }
 });
 
-// Rota para adicionar um novo produto
 router.post(
   "/produtos",
   checkRole(["SECRETARY", "ADMIN"]),
@@ -34,12 +40,14 @@ router.post(
     }
 
     try {
+      const formattedPrice = formatPriceForDatabase(price);
+
       const novoProduto = await prisma.product.create({
         data: {
           name,
-          price: parseFloat(price),
+          price: formattedPrice,
           description,
-          quantityInStock: parseInt(quantityInStock), // Corrigido para quantityInStock
+          quantityInStock: parseInt(quantityInStock),
         },
       });
       res.status(201).json(novoProduto);
@@ -50,7 +58,6 @@ router.post(
   }
 );
 
-// Rota para atualizar um produto existente
 router.put(
   "/produtos/:id",
   checkRole(["SECRETARY", "ADMIN"]),
@@ -65,13 +72,15 @@ router.put(
     }
 
     try {
+      const formattedPrice = formatPriceForDatabase(price);
+
       const produtoAtualizado = await prisma.product.update({
-        where: { id: parseInt(id) },
+        where: { id: id },
         data: {
           name,
-          price: parseFloat(price),
+          price: formattedPrice,
           description,
-          quantityInStock: parseInt(quantityInStock), // Corrigido para quantityInStock
+          quantityInStock: parseInt(quantityInStock),
         },
       });
       res.status(200).json(produtoAtualizado);
@@ -82,7 +91,6 @@ router.put(
   }
 );
 
-// Rota para deletar um produto
 router.delete(
   "/produtos/:id",
   checkRole(["SECRETARY", "ADMIN"]),
@@ -91,9 +99,9 @@ router.delete(
 
     try {
       await prisma.product.delete({
-        where: { id: parseInt(id) },
+        where: { id: id },
       });
-      res.status(204).send(); // 204 No Content
+      res.status(204).send();
     } catch (error) {
       console.error("Erro ao deletar produto:", error);
       res.status(500).json({ error: "Erro ao deletar produto" });
