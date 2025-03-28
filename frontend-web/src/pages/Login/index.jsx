@@ -1,17 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import api from "../../services/api";
+import { validateCPF, formatCPF } from "../../utils/cpfValidator";
 
 function Login() {
   const navigate = useNavigate();
+  const [cpfError, setCpfError] = useState("");
 
-  const maskCPF = (input) => {
-    let cpf = input.value.replace(/\D/g, "");
-    cpf = cpf
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{2})$/, "$1-$2");
-    input.value = cpf;
+  const handleCPFChange = (e) => {
+    const input = e.target;
+    const formattedCPF = formatCPF(input.value);
+    input.value = formattedCPF;
+
+    // Valida o CPF
+    const validation = validateCPF(formattedCPF);
+    setCpfError(validation.isValid ? "" : validation.message);
   };
 
   const cpfRef = useRef();
@@ -20,21 +23,27 @@ function Login() {
   async function handleSubmit(event) {
     event.preventDefault();
 
+    // Valida o CPF antes de enviar
+    const validation = validateCPF(cpfRef.current.value);
+    if (!validation.isValid) {
+      setCpfError(validation.message);
+      return;
+    }
+
     try {
       const response = await api.post("/login", {
-        cpf: cpfRef.current.value,
+        cpf: cpfRef.current.value.replace(/\D/g, ""), // Remove formatação antes de enviar
         password: passwordRef.current.value,
       });
 
       // Verifica se o token foi retornado corretamente
-      const token = response.data.token; // ou response.data.access_token, dependendo do backend
+      const token = response.data.token;
       if (!token) {
         throw new Error("Token não encontrado na resposta");
       }
 
-      localStorage.setItem("token", token); // Salva o token no localStorage
-      console.log("Token salvo:", token); // Log para debug
-      navigate("/dashboard"); // Redireciona para o dashboard
+      localStorage.setItem("token", token);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Senha ou CPF inválidos");
@@ -57,9 +66,14 @@ function Login() {
               <input
                 type="text"
                 placeholder="CPF"
-                className="w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-slate-100 placeholder:text-slate-400 transition-all"
+                className={`w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border ${
+                  cpfError
+                    ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/30"
+                    : "border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                } text-slate-100 placeholder:text-slate-400 transition-all`}
                 ref={cpfRef}
-                onChange={(e) => maskCPF(e.target)}
+                onChange={handleCPFChange}
+                maxLength={14}
               />
               <svg
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
@@ -71,10 +85,11 @@ function Login() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
                 />
               </svg>
             </div>
+            {cpfError && <p className="text-red-500 text-sm">{cpfError}</p>}
 
             <div className="relative">
               <input
@@ -99,7 +114,15 @@ function Login() {
             </div>
           </div>
 
-          <button className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg font-semibold text-white hover:from-blue-600 hover:to-indigo-600 transition-all hover:scale-[1.01] active:scale-95 shadow-lg hover:shadow-xl">
+          <button
+            type="submit"
+            disabled={!!cpfError}
+            className={`w-full py-3.5 rounded-lg font-semibold text-white transition-all hover:scale-[1.01] active:scale-95 shadow-lg hover:shadow-xl ${
+              cpfError
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+            }`}
+          >
             Entrar
           </button>
         </form>

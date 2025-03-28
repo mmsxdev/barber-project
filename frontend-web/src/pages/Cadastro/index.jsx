@@ -1,33 +1,43 @@
 import { Link } from "react-router-dom";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import api from "../../services/api";
+import { validateCPF, formatCPF } from "../../utils/cpfValidator";
 
 function Cadastro() {
-  const maskCPF = (input) => {
-    let cpf = input.value.replace(/\D/g, "");
-    cpf = cpf
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{2})$/, "$1-$2");
-    input.value = cpf;
-  };
-
+  const [cpfError, setCpfError] = useState("");
   const nameRef = useRef();
   const cpfRef = useRef();
   const passwordRef = useRef();
 
+  const handleCPFChange = (e) => {
+    const input = e.target;
+    const formattedCPF = formatCPF(input.value);
+    input.value = formattedCPF;
+
+    // Valida o CPF
+    const validation = validateCPF(formattedCPF);
+    setCpfError(validation.isValid ? "" : validation.message);
+  };
+
   async function handleSubmit(event) {
     event.preventDefault();
+
+    // Valida o CPF antes de enviar
+    const validation = validateCPF(cpfRef.current.value);
+    if (!validation.isValid) {
+      setCpfError(validation.message);
+      return;
+    }
 
     try {
       await api.post("/cadastro", {
         name: nameRef.current.value,
-        cpf: cpfRef.current.value,
+        cpf: cpfRef.current.value.replace(/\D/g, ""), // Remove formatação antes de enviar
         password: passwordRef.current.value,
       });
-      alert("Usuário cadastrado com sucesso");
+      alert("Usuário cadastrado com sucesso");
     } catch (error) {
-      error && alert("Erro ao cadastrar usuário");
+      error && alert("Erro ao cadastrar usuário");
     }
   }
 
@@ -52,6 +62,7 @@ function Cadastro() {
                 placeholder: "CPF",
                 ref: cpfRef,
                 maxLength: 14,
+                onChange: handleCPFChange,
               },
               {
                 icon: "lock",
@@ -66,12 +77,12 @@ function Cadastro() {
                   placeholder={field.placeholder}
                   type={field.type || "text"}
                   maxLength={field.maxLength}
-                  onChange={
-                    field.placeholder === "CPF"
-                      ? (e) => maskCPF(e.target)
-                      : undefined
-                  }
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 text-slate-100 placeholder:text-slate-400 transition-all"
+                  onChange={field.onChange}
+                  className={`w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border ${
+                    field.placeholder === "CPF" && cpfError
+                      ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/30"
+                      : "border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30"
+                  } text-slate-100 placeholder:text-slate-400 transition-all`}
                 />
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
@@ -106,9 +117,20 @@ function Cadastro() {
                 </svg>
               </div>
             ))}
+            {cpfError && (
+              <p className="text-red-500 text-sm mt-1">{cpfError}</p>
+            )}
           </div>
 
-          <button className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg font-semibold text-white hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-[1.01] active:scale-95 shadow-lg hover:shadow-xl">
+          <button
+            type="submit"
+            disabled={!!cpfError}
+            className={`w-full py-3.5 rounded-lg font-semibold text-white transition-all hover:scale-[1.01] active:scale-95 shadow-lg hover:shadow-xl ${
+              cpfError
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+            }`}
+          >
             Cadastrar
           </button>
         </form>

@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { checkRole } from "../Middleware/role.js";
 import auth from "../Middleware/auth.js";
+import { validateCPF } from "../Middleware/cpfValidator.js";
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -16,7 +17,7 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 //CADASTRO DE USUÁRIO
-router.post("/cadastro", apiLimiter, async (request, response) => {
+router.post("/cadastro", apiLimiter, validateCPF, async (request, response) => {
   //Tenta cadastrar um usuário
   try {
     //Recebe os dados do usuário
@@ -50,7 +51,7 @@ router.post("/cadastro", apiLimiter, async (request, response) => {
 });
 
 //LOGIN DE USUÁRIOS
-router.post("/login", apiLimiter, async (request, response) => {
+router.post("/login", apiLimiter, validateCPF, async (request, response) => {
   //Tenta logar um usuário
   try {
     const userInfo = request.body;

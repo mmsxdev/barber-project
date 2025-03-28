@@ -1,11 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import api from "../../services/api";
+import { useTheme } from "../../contexts/ThemeContext";
 
 function ProdutosSection() {
   const nameProductRef = useRef();
   const priceProductRef = useRef();
   const descriptionProductRef = useRef();
   const quantityProductRef = useRef();
+  const { isDarkMode } = useTheme();
 
   const [produtos, setProdutos] = useState([]);
   const [produtoEditando, setProdutoEditando] = useState(null);
@@ -141,35 +143,55 @@ function ProdutosSection() {
   }, []);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white min-h-screen">
+    <div
+      className={`p-6 min-h-screen ${
+        isDarkMode ? "text-white" : "text-gray-900"
+      }`}
+    >
       <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
         Gerenciamento de Produtos
       </h2>
 
       <form
         onSubmit={produtoEditando ? handleUpdateProduct : handleCreateProduct}
-        className="mb-8 bg-white/10 p-6 rounded-lg backdrop-blur-lg border border-white/10"
+        className={`mb-8 ${
+          isDarkMode
+            ? "bg-white/10 border-white/10"
+            : "bg-white border-gray-200"
+        } p-6 rounded-lg backdrop-blur-lg border shadow-lg`}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             ref={nameProductRef}
             placeholder="Nome do produto"
-            className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`p-2 rounded border ${
+              isDarkMode
+                ? "bg-white/5 border-white/10 text-white"
+                : "bg-white border-gray-300 text-gray-900"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             required
           />
           <input
             type="text"
             ref={priceProductRef}
             placeholder="Preço (ex: 50,00)"
-            className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`p-2 rounded border ${
+              isDarkMode
+                ? "bg-white/5 border-white/10 text-white"
+                : "bg-white border-gray-300 text-gray-900"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             required
           />
           <input
             type="text"
             ref={descriptionProductRef}
             placeholder="Descrição"
-            className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`p-2 rounded border ${
+              isDarkMode
+                ? "bg-white/5 border-white/10 text-white"
+                : "bg-white border-gray-300 text-gray-900"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             required
           />
           <input
@@ -177,7 +199,11 @@ function ProdutosSection() {
             ref={quantityProductRef}
             placeholder="Quantidade em estoque"
             min="0"
-            className="p-2 rounded bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`p-2 rounded border ${
+              isDarkMode
+                ? "bg-white/5 border-white/10 text-white"
+                : "bg-white border-gray-300 text-gray-900"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             required
           />
         </div>
@@ -198,43 +224,71 @@ function ProdutosSection() {
         )}
       </form>
 
-      <div className="bg-white/10 p-6 rounded-lg backdrop-blur-lg border border-white/10">
+      <div
+        className={`${
+          isDarkMode
+            ? "bg-white/10 border-white/10"
+            : "bg-white border-gray-200"
+        } p-6 rounded-lg backdrop-blur-lg border shadow-lg`}
+      >
         <h3 className="text-xl font-semibold mb-4 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
           Lista de Produtos
         </h3>
         {produtos.length === 0 ? (
-          <p className="text-center py-4">Nenhum produto cadastrado</p>
+          <p
+            className={`text-center py-4 ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            Nenhum produto cadastrado
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {produtos.map((produto) => (
               <div
                 key={produto.id}
-                className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex flex-col"
+                className={`p-4 rounded-lg ${
+                  isDarkMode
+                    ? "bg-white/5 border-white/10"
+                    : "bg-gray-50 border-gray-200"
+                } border hover:bg-white/10 transition-all flex flex-col`}
               >
                 <div className="flex-grow">
                   <h4 className="font-bold text-lg mb-2 truncate">
                     {produto.name}
                   </h4>
-                  <p className="text-sm text-gray-300 mb-3 line-clamp-2">
+                  <p
+                    className={`text-sm mb-3 line-clamp-2 ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     {produto.description}
                   </p>
-                  <p className="text-blue-300 font-medium mb-1">
+                  <p className="text-blue-500 font-medium mb-1">
                     {formatPrice(produto.price)}
                   </p>
-                  <p className="text-sm">
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     Estoque:{" "}
                     <span
                       className={
                         produto.quantityInStock > 0
-                          ? "text-green-400"
-                          : "text-red-400"
+                          ? "text-green-500"
+                          : "text-red-500"
                       }
                     >
                       {produto.quantityInStock}
                     </span>
                   </p>
                 </div>
-                <div className="flex gap-2 mt-4 pt-3 border-t border-white/10">
+                <div
+                  className={`flex gap-2 mt-4 pt-3 border-t ${
+                    isDarkMode ? "border-white/10" : "border-gray-200"
+                  }`}
+                >
                   <button
                     onClick={() => openEditModal(produto)}
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-all text-sm flex-grow"

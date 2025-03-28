@@ -8,23 +8,26 @@ import UsersDelete from "./pages/Deletar Usuarios";
 import UsersEdit from "./pages/Editar Usuarios";
 import { AuthProvider } from "./contexts/index";
 import { PermissionError } from "./components/PermissionError";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
   return (
     <div className="">
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/deletar-usuario/:cpf" element={<UsersDelete />} />
-            <Route path="/listar-usuario/" element={<UsersList />} />
-            <Route path="/editar-usuario/:cpf" element={<UsersEdit />} />
-            <Route path="/permission-error" element={<PermissionError />} />
-          </Routes>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/deletar-usuario/:cpf" element={<UsersDelete />} />
+              <Route path="/listar-usuario/" element={<UsersList />} />
+              <Route path="/editar-usuario/:cpf" element={<UsersEdit />} />
+              <Route path="/permission-error" element={<PermissionError />} />
+            </Routes>
+          </AuthProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </div>
   );

@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import auth from "../Middleware/auth.js";
 import bcrypt from "bcrypt";
 import { checkRole } from "../Middleware/role.js";
+import { validateCPF } from "../Middleware/cpfValidator.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -35,6 +36,7 @@ router.get("/listar-usuarios", checkRole(["ADMIN"]), async (req, res) => {
 router.delete(
   "/deletar-usuario/:cpf",
   checkRole(["ADMIN"]),
+  validateCPF,
   async (req, res) => {
     try {
       const { cpf } = req.params;
@@ -52,57 +54,67 @@ router.delete(
 );
 
 // 👇 EDITAR USUÁRIO (APENAS ADMIN)
-router.patch("/editar-usuario/:cpf", checkRole(["ADMIN"]), async (req, res) => {
-  try {
-    const { cpf } = req.params;
-    const { name, password, role } = req.body;
+router.patch(
+  "/editar-usuario/:cpf",
+  checkRole(["ADMIN"]),
+  validateCPF,
+  async (req, res) => {
+    try {
+      const { cpf } = req.params;
+      const { name, password, role } = req.body;
 
-    const validRoles = ["ADMIN", "BARBER", "SECRETARY"];
+      const validRoles = ["ADMIN", "BARBER", "SECRETARY"];
 
-    if (role && !validRoles.includes(role)) {
-      return res.status(400).json({ message: "Role inválida!" });
+      if (role && !validRoles.includes(role)) {
+        return res.status(400).json({ message: "Role inválida!" });
+      }
+      // Valida se a role é válida (opcional, mas recomendado)
+
+      const hashedPassword = password
+        ? await bcrypt.hash(password, 10)
+        : undefined;
+
+      const user = await prisma.user.update({
+        where: { cpf },
+        data: {
+          name,
+          role, // Permite alterar a role (apenas ADMIN chega aqui)
+          ...(hashedPassword && { password: hashedPassword }),
+        },
+        select: { id: true, name: true, cpf: true, role: true }, // Não retornar senha
+      });
+
+      res.status(200).json({ message: "Usuário editado com sucesso!", user });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro no servidor!" });
     }
-    // Valida se a role é válida (opcional, mas recomendado)
-
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : undefined;
-
-    const user = await prisma.user.update({
-      where: { cpf },
-      data: {
-        name,
-        role, // Permite alterar a role (apenas ADMIN chega aqui)
-        ...(hashedPassword && { password: hashedPassword }),
-      },
-      select: { id: true, name: true, cpf: true, role: true }, // Não retornar senha
-    });
-
-    res.status(200).json({ message: "Usuário editado com sucesso!", user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erro no servidor!" });
   }
-});
+);
 
 // 👇 LISTAR UM USUÁRIO ESPECÍFICO (APENAS ADMIN)
-router.get("/listar-usuario/:cpf", checkRole(["ADMIN"]), async (req, res) => {
-  try {
-    const { cpf } = req.params;
-    const user = await prisma.user.findUnique({
-      where: { cpf },
-      select: { id: true, name: true, cpf: true, role: true },
-    });
+router.get(
+  "/listar-usuario/:cpf",
+  checkRole(["ADMIN"]),
+  validateCPF,
+  async (req, res) => {
+    try {
+      const { cpf } = req.params;
+      const user = await prisma.user.findUnique({
+        where: { cpf },
+        select: { id: true, name: true, cpf: true, role: true },
+      });
 
-    if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado!" });
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado!" });
+      }
+
+      res.status(200).json({ user });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erro no servidor!" });
     }
-
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erro no servidor!" });
   }
-});
+);
 
 export default router;

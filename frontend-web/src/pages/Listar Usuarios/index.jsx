@@ -2,8 +2,11 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTheme } from "../../contexts/ThemeContext";
+
 function UsersList() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
@@ -22,10 +25,20 @@ function UsersList() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-4 md:p-6">
+    <div
+      className={`min-h-screen ${
+        isDarkMode
+          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
+          : "bg-gradient-to-br from-gray-50 via-white to-gray-50"
+      } p-4 md:p-6`}
+    >
       <button
         onClick={() => navigate("/dashboard")}
-        className="fixed md:absolute top-4 left-4 bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition-colors text-slate-100 z-10 shadow-lg"
+        className={`fixed md:absolute top-4 left-4 backdrop-blur-sm p-2 rounded-lg transition-colors z-10 shadow-lg ${
+          isDarkMode
+            ? "bg-white/10 hover:bg-white/20 text-slate-100"
+            : "bg-white/80 hover:bg-white text-gray-700"
+        }`}
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
@@ -39,7 +52,11 @@ function UsersList() {
           {allUsers.map((user) => (
             <li
               key={user.cpf}
-              className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow hover:bg-white/10"
+              className={`group rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow ${
+                isDarkMode
+                  ? "bg-white/5 backdrop-blur-sm hover:bg-white/10"
+                  : "bg-white/80 backdrop-blur-sm hover:bg-white"
+              }`}
             >
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -58,13 +75,23 @@ function UsersList() {
                       />
                     </svg>
                   </div>
-                  <h2 className="text-xl font-semibold text-slate-100 truncate">
+                  <h2
+                    className={`text-xl font-semibold truncate ${
+                      isDarkMode ? "text-slate-100" : "text-gray-900"
+                    }`}
+                  >
                     {user.name}
                   </h2>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-slate-300 font-mono text-sm bg-black/20 px-3 py-1.5 rounded-md truncate">
+                  <p
+                    className={`font-mono text-sm px-3 py-1.5 rounded-md truncate ${
+                      isDarkMode
+                        ? "text-slate-300 bg-black/20"
+                        : "text-gray-600 bg-gray-100"
+                    }`}
+                  >
                     CPF: {user.cpf}
                   </p>
                 </div>
@@ -72,13 +99,21 @@ function UsersList() {
                 <div className="flex gap-3 mt-4">
                   <Link
                     to={`/editar-usuario/${user.cpf}`}
-                    className="flex-1 text-center py-2 px-4 bg-blue-500/20 text-blue-400 rounded-md hover:bg-blue-500/30 transition-colors font-medium text-sm"
+                    className={`flex-1 text-center py-2 px-4 rounded-md transition-colors font-medium text-sm ${
+                      isDarkMode
+                        ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
+                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                    }`}
                   >
                     Editar
                   </Link>
                   <Link
                     to={`/deletar-usuario/${user.cpf}`}
-                    className="flex-1 text-center py-2 px-4 bg-red-500/20 text-red-400 rounded-md hover:bg-red-500/30 transition-colors font-medium text-sm"
+                    className={`flex-1 text-center py-2 px-4 rounded-md transition-colors font-medium text-sm ${
+                      isDarkMode
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        : "bg-red-50 text-red-600 hover:bg-red-100"
+                    }`}
                   >
                     Deletar
                   </Link>

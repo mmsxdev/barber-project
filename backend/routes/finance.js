@@ -148,7 +148,7 @@ router.put(
     try {
       const { id } = req.params;
       const updatedFinance = await prisma.finance.update({
-        where: { id: parseInt(id) },
+        where: { id: req.params.id },
         data: req.body,
       });
 
@@ -166,13 +166,16 @@ router.delete(
   checkRole(["SECRETARY", "ADMIN"]),
   async (req, res) => {
     try {
-      await prisma.finance.delete({ where: { id: parseInt(req.params.id) } });
+      // Remover parseInt() pois o ID é String
+      await prisma.finance.delete({ where: { id: req.params.id } });
       res.status(204).end();
     } catch (error) {
-      console.error("Erro ao deletar registro financeiro:", error);
-      res.status(400).json({ error: "Erro ao deletar registro financeiro." });
+      console.error("Erro ao deletar:", error);
+      res.status(400).json({
+        error: error.message || "Erro ao deletar registro financeiro.",
+        details: error.meta?.cause,
+      });
     }
   }
 );
-
 export default router;

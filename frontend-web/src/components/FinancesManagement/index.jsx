@@ -14,6 +14,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useTheme } from "../../contexts/ThemeContext";
 
 ChartJS.register(
   CategoryScale,
@@ -50,6 +51,7 @@ export default function Finance() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const { isDarkMode } = useTheme();
 
   const loadData = useCallback(async () => {
     try {
@@ -60,17 +62,11 @@ export default function Finance() {
         ...(filter.category && { category: filter.category }),
       });
 
-      console.log("URL da requisição:", `/finances?${financeParams}`); // Adicione esta linha
-
       const [financesRes, summaryRes, productsRes] = await Promise.all([
         api.get(`/finances?${financeParams}`),
         api.get(`/finances/summary?${financeParams}`),
         api.get("/produtos"),
       ]);
-
-      console.log("Dados recebidos - Finanças:", financesRes.data); // Adicione esta linha
-      console.log("Dados recebidos - Resumo:", summaryRes.data); // Adicione esta linha
-      console.log("Dados recebidos - Produtos:", productsRes.data); // Adicione esta linha
 
       setFinances(financesRes.data);
       setSummary({
@@ -157,11 +153,11 @@ export default function Finance() {
   const handleDelete = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir este registro?")) {
       try {
-        await api.delete(`/finances/${id}`);
+        await api.delete(`/finances/${id.toString()}`);
         setSuccess("Registro excluído com sucesso!");
         await loadData();
       } catch (error) {
-        error && setError("Erro ao excluir registro");
+        setError(error.response?.data?.details || "Erro ao excluir registro");
       }
     }
   };
@@ -243,384 +239,428 @@ export default function Finance() {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white min-h-screen">
+    <div
+      className={`p-6 min-h-screen ${
+        isDarkMode ? "text-white" : "text-gray-900"
+      }`}
+    >
       <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent animate-fade-in">
         Gestão Financeira
       </h2>
 
-      {/* Mensagens de status */}
-      <div className="space-y-4 mb-6">
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-300 p-4 rounded-lg animate-fade-in">
-            {error}
+      {/* Alertas */}
+      {(error || success) && (
+        <div
+          className={`fixed top-14 right-1/3 p-4 rounded-lg border z-50 ${
+            error
+              ? "bg-red-500/10 border-red-500/20 text-red-300"
+              : "bg-green-500/10 border-green-500/20 text-green-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {error ? "❌" : "✅"} {error || success}
           </div>
-        )}
-        {success && (
-          <div className="bg-green-500/10 border border-green-500/20 text-green-300 p-4 rounded-lg animate-fade-in">
-            {success}
-          </div>
-        )}
+        </div>
+      )}
+
+      {/* Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <h3 className="text-sm font-medium mb-1">Receitas</h3>
+          <p className="text-2xl font-bold text-green-500">
+            {formatCurrency(summary.totalIncome)}
+          </p>
+        </div>
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <h3 className="text-sm font-medium mb-1">Despesas</h3>
+          <p className="text-2xl font-bold text-red-500">
+            {formatCurrency(summary.totalExpense)}
+          </p>
+        </div>
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <h3 className="text-sm font-medium mb-1">Saldo</h3>
+          <p
+            className={`text-2xl font-bold ${
+              summary.balance >= 0 ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            {formatCurrency(summary.balance)}
+          </p>
+        </div>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {[
-          { title: "Receitas", value: summary.totalIncome, color: "green" },
-          { title: "Despesas", value: summary.totalExpense, color: "red" },
-          {
-            title: "Saldo",
-            value: summary.balance,
-            color: summary.balance >= 0 ? "green" : "red",
-          },
-        ].map((item, index) => (
-          <div
-            key={index}
-            className={`p-4 rounded-lg border transition-all duration-300 hover:scale-[1.02] ${`bg-${item.color}-500/10 border-${item.color}-500/20`}`}
-          >
-            <h3 className="text-sm text-gray-300 mb-1">{item.title}</h3>
-            <p className="text-xl md:text-2xl font-bold">
-              {formatCurrency(item.value)}
-            </p>
+      {/* Filtros */}
+      <div
+        className={`p-4 rounded-lg mb-6 ${
+          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
+        } border shadow-lg`}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-slate-300" : "text-gray-700"
+              }`}
+            >
+              Data Inicial
+            </label>
+            <input
+              type="date"
+              name="startDate"
+              value={filter.startDate}
+              onChange={handleFilterChange}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
           </div>
-        ))}
+          <div>
+            <label
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-slate-300" : "text-gray-700"
+              }`}
+            >
+              Data Final
+            </label>
+            <input
+              type="date"
+              name="endDate"
+              value={filter.endDate}
+              onChange={handleFilterChange}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+          <div>
+            <label
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-slate-300" : "text-gray-700"
+              }`}
+            >
+              Tipo
+            </label>
+            <select
+              name="type"
+              value={filter.type}
+              onChange={handleFilterChange}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            >
+              <option value="">Todos</option>
+              <option value="INCOME">Receita</option>
+              <option value="EXPENSE">Despesa</option>
+            </select>
+          </div>
+          <div>
+            <label
+              className={`block text-sm font-medium mb-1 ${
+                isDarkMode ? "text-slate-300" : "text-gray-700"
+              }`}
+            >
+              Categoria
+            </label>
+            <select
+              name="category"
+              value={filter.category}
+              onChange={handleFilterChange}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                isDarkMode
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            >
+              <option value="">Todas</option>
+              <option value="SERVICE">Serviço</option>
+              <option value="PRODUCT_SALE">Produto</option>
+              <option value="SALARY">Salário</option>
+              <option value="RENT">Aluguel</option>
+              <option value="MAINTENANCE">Manutenção</option>
+              <option value="OTHER">Outro</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="lg:col-span-2 bg-white/5 p-4 rounded-lg border border-white/10 transition-all duration-300 hover:border-white/20">
-          <h3 className="text-lg font-semibold mb-4">Fluxo Financeiro</h3>
-          <div className="h-64 md:h-80">
-            <Line
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    labels: { color: "#fff" },
-                  },
-                },
-                scales: {
-                  x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" },
-                  },
-                  y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" },
-                  },
-                },
-              }}
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <h3 className="text-lg font-semibold mb-4">Fluxo de Caixa</h3>
+          <Line data={chartData} />
         </div>
-
-        <div className="bg-white/5 p-4 rounded-lg border border-white/10 transition-all duration-300 hover:border-white/20">
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
           <h3 className="text-lg font-semibold mb-4">
             Distribuição por Categoria
           </h3>
-          <div className="h-64 md:h-80">
-            <Pie
-              data={categoryData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    labels: { color: "#fff" },
-                  },
-                },
-              }}
-            />
-          </div>
+          <Pie data={categoryData} />
         </div>
       </div>
 
-      {/* Formulário e Tabela */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Formulário */}
-        <div className="lg:col-span-1 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10 transition-all duration-300 h-full flex flex-col">
-          {/* Header com efeito de gradiente */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-center">
-              <span className="bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
-                {editingId ? "✏️ Editar Registro" : "✨ Novo Registro"}
-              </span>
-            </h3>
-            <div className="mt-2 mb-4 h-[2px] bg-gradient-to-r from-blue-400/30 to-purple-400/30 w-3/4 mx-auto"></div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-            <div className="space-y-4 flex-1">
-              {/* Tipo */}
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">
-                  Tipo *
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all"
-                  required
-                >
-                  <option value="INCOME">Receita</option>
-                  <option value="EXPENSE">Despesa</option>
-                </select>
-              </div>
-
-              {/* Categoria */}
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">
-                  Categoria *
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all"
-                  required
-                >
-                  <option value="SERVICE">Serviço</option>
-                  <option value="PRODUCT_SALE">Venda</option>
-                  <option value="SALARY">Salário</option>
-                  <option value="RENT">Aluguel</option>
-                  <option value="MAINTENANCE">Manutenção</option>
-                  <option value="OTHER">Outro</option>
-                </select>
-              </div>
-
-              {/* Campo de Valor */}
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">
-                  Valor *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    R$
-                  </span>
-                  <input
-                    type="number"
-                    name="value"
-                    value={formData.value}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-800 border border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all"
-                    step="0.01"
-                    min="0"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Campo de Descrição */}
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">
-                  Descrição *
-                </label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all"
-                  required
-                />
-              </div>
-
-              {/* Seletor de Produto */}
-              {formData.type === "INCOME" &&
-                formData.category === "PRODUCT_SALE" && (
-                  <div>
-                    <label className="block text-sm font-medium text-blue-100 mb-2">
-                      Produto *
-                    </label>
-                    <select
-                      name="productId"
-                      value={formData.productId}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all"
-                      required
-                    >
-                      <option value="">Selecione um produto</option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name} - {formatCurrency(product.price)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-            </div>
-
-            {/* Botões fixos na base */}
-            <div className="mt-6 pt-4 border-t border-white/10">
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/20"
-                >
-                  {editingId ? "Atualizar" : "Adicionar"}
-                </button>
-
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-4 bg-slate-700 text-slate-300 py-2 rounded-lg font-medium hover:bg-slate-600 transition-all"
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div className="lg:col-span-3 bg-white/5 p-6 rounded-lg border border-white/10">
-          {/* Cabeçalho com filtros */}
-          <div className="flex flex-col gap-4 mb-4">
-            <h3 className="text-lg font-semibold">Registros Financeiros</h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 w-full">
-              <input
-                type="date"
-                name="startDate"
-                value={filter.startDate}
-                onChange={handleFilterChange}
-                className="p-2 rounded bg-white/5 border border-white/10 text-sm focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="date"
-                name="endDate"
-                value={filter.endDate}
-                onChange={handleFilterChange}
-                className="p-2 rounded bg-white/5 border border-white/10 text-sm focus:ring-2 focus:ring-blue-400"
-              />
+      {/* Formulário */}
+      <div
+        className={`p-4 rounded-lg mb-6 ${
+          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
+        } border shadow-lg`}
+      >
+        <h3 className="text-lg font-semibold mb-4">
+          {editingId ? "Editar Registro" : "Novo Registro"}
+        </h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Tipo
+              </label>
               <select
                 name="type"
-                value={filter.type}
-                onChange={handleFilterChange}
-                className="p-2 rounded bg-white/5 border border-white/10 text-sm focus:ring-2 focus:ring-blue-400"
+                value={formData.type}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                required
               >
-                <option value="">Todos tipos</option>
-                <option value="INCOME">Receitas</option>
-                <option value="EXPENSE">Despesas</option>
+                <option value="INCOME">Receita</option>
+                <option value="EXPENSE">Despesa</option>
               </select>
+            </div>
+            <div>
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Valor
+              </label>
+              <input
+                type="number"
+                name="value"
+                value={formData.value}
+                onChange={handleInputChange}
+                step="0.01"
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                required
+              />
+            </div>
+            <div>
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Descrição
+              </label>
+              <input
+                type="text"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                required
+              />
+            </div>
+            <div>
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Categoria
+              </label>
               <select
                 name="category"
-                value={filter.category}
-                onChange={handleFilterChange}
-                className="p-2 rounded bg-white/5 border border-white/10 text-sm focus:ring-2 focus:ring-blue-400"
+                value={formData.category}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                required
               >
-                <option value="">Todas categorias</option>
                 <option value="SERVICE">Serviço</option>
-                <option value="PRODUCT_SALE">Venda</option>
+                <option value="PRODUCT_SALE">Produto</option>
                 <option value="SALARY">Salário</option>
                 <option value="RENT">Aluguel</option>
                 <option value="MAINTENANCE">Manutenção</option>
                 <option value="OTHER">Outro</option>
               </select>
             </div>
+            {formData.category === "PRODUCT_SALE" && (
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    isDarkMode ? "text-slate-300" : "text-gray-700"
+                  }`}
+                >
+                  Produto
+                </label>
+                <select
+                  name="productId"
+                  value={formData.productId}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 rounded-lg border ${
+                    isDarkMode
+                      ? "bg-slate-700 border-slate-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  required
+                >
+                  <option value="">Selecione um produto</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg transition-all"
+            >
+              {editingId ? "Atualizar" : "Criar"}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-all"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
-          {/* Tabela */}
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="p-2 md:p-3 text-left text-sm md:text-base">
-                    Data
-                  </th>
-                  <th className="p-2 md:p-3 text-left text-sm md:text-base">
-                    Tipo
-                  </th>
-                  <th className="p-2 md:p-3 text-left text-sm md:text-base">
-                    Categoria
-                  </th>
-                  <th className="p-2 md:p-3 text-left text-sm md:text-base">
-                    Descrição
-                  </th>
-                  <th className="p-2 md:p-3 text-left text-sm md:text-base">
-                    Produto
-                  </th>
-                  <th className="p-2 md:p-3 text-right text-sm md:text-base">
-                    Valor
-                  </th>
-                  <th className="p-2 md:p-3 text-right text-sm md:text-base">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {finances.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="p-3 text-center text-sm md:text-base"
+      {/* Lista de Registros */}
+      <div
+        className={`p-4 rounded-lg ${
+          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
+        } border shadow-lg`}
+      >
+        <h3 className="text-lg font-semibold mb-4">Registros</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr
+                className={`border-b ${
+                  isDarkMode ? "border-white/10" : "border-gray-200"
+                }`}
+              >
+                <th className="text-left py-2 px-4">Data</th>
+                <th className="text-left py-2 px-4">Tipo</th>
+                <th className="text-left py-2 px-4">Categoria</th>
+                <th className="text-left py-2 px-4">Descrição</th>
+                <th className="text-right py-2 px-4">Valor</th>
+                <th className="text-center py-2 px-4">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {finances.map((finance) => (
+                <tr
+                  key={finance.id}
+                  className={`border-b ${
+                    isDarkMode ? "border-white/10" : "border-gray-200"
+                  }`}
+                >
+                  <td className="py-2 px-4">{formatDate(finance.date)}</td>
+                  <td className="py-2 px-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        finance.type === "INCOME"
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-red-500/20 text-red-400"
+                      }`}
                     >
-                      Nenhum registro encontrado
-                    </td>
-                  </tr>
-                ) : (
-                  finances.map((finance) => (
-                    <tr
-                      key={finance.id}
-                      className="border-b border-white/10 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="p-2 md:p-3 whitespace-nowrap text-sm md:text-base">
-                        {formatDate(finance.date)}
-                      </td>
-                      <td className="p-2 md:p-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            finance.type === "INCOME"
-                              ? "bg-green-500/20 text-green-300"
-                              : "bg-red-500/20 text-red-300"
-                          }`}
-                        >
-                          {finance.type === "INCOME" ? "Receita" : "Despesa"}
-                        </span>
-                      </td>
-                      <td className="p-2 md:p-3 text-sm md:text-base max-w-[120px] truncate">
-                        {finance.category}
-                      </td>
-                      <td className="p-2 md:p-3 text-sm md:text-base max-w-[150px] truncate">
-                        {finance.description}
-                      </td>
-                      <td className="p-2 md:p-3 text-sm md:text-base max-w-[100px] truncate">
-                        {finance.product?.name || "-"}
-                      </td>
-                      <td
-                        className={`p-2 md:p-3 text-right text-sm md:text-base ${
-                          finance.type === "INCOME"
-                            ? "text-green-300"
-                            : "text-red-300"
-                        }`}
+                      {finance.type === "INCOME" ? "Receita" : "Despesa"}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4">{finance.category}</td>
+                  <td className="py-2 px-4">{finance.description}</td>
+                  <td
+                    className={`py-2 px-4 text-right ${
+                      finance.type === "INCOME"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {formatCurrency(finance.value)}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEdit(finance)}
+                        className="text-blue-500 hover:text-blue-400"
                       >
-                        {formatCurrency(finance.value)}
-                      </td>
-                      <td className="p-2 md:p-3 text-right">
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            onClick={() => handleEdit(finance)}
-                            className="text-blue-400 hover:text-blue-300 text-sm md:text-base px-2 py-1 rounded hover:bg-white/10 transition-colors"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDelete(finance.id)}
-                            className="text-red-400 hover:text-red-300 text-sm md:text-base px-2 py-1 rounded hover:bg-white/10 transition-colors"
-                          >
-                            Excluir
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => handleDelete(finance.id)}
+                        className="text-red-500 hover:text-red-400"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -2,10 +2,12 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 function DeleteUser() {
   const { cpf } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -40,11 +42,25 @@ function DeleteUser() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-8 space-y-6 hover:shadow-2xl transition-shadow">
+    <div
+      className={`min-h-screen ${
+        isDarkMode
+          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
+          : "bg-gradient-to-br from-gray-50 via-white to-gray-50"
+      } flex items-center justify-center p-4 backdrop-blur-sm`}
+    >
+      <div
+        className={`backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-8 space-y-6 hover:shadow-2xl transition-shadow ${
+          isDarkMode ? "bg-white/10" : "bg-white/80"
+        }`}
+      >
         <button
           onClick={() => navigate("/listar-usuario")}
-          className="absolute top-4 left-4 bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition-colors text-slate-100"
+          className={`absolute top-4 left-4 backdrop-blur-sm p-2 rounded-lg transition-colors ${
+            isDarkMode
+              ? "bg-white/10 hover:bg-white/20 text-slate-100"
+              : "bg-white/80 hover:bg-white text-gray-700"
+          }`}
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -70,12 +86,32 @@ function DeleteUser() {
 
         {user && (
           <div className="space-y-6">
-            <div className="bg-white/5 p-4 rounded-xl border border-red-400/20">
-              <p className="text-slate-200 text-center">
-                <span className="block text-lg font-semibold text-red-200">
+            <div
+              className={`p-4 rounded-xl border ${
+                isDarkMode
+                  ? "bg-white/5 border-red-400/20"
+                  : "bg-red-50 border-red-200"
+              }`}
+            >
+              <p
+                className={`text-center ${
+                  isDarkMode ? "text-slate-200" : "text-gray-700"
+                }`}
+              >
+                <span
+                  className={`block text-lg font-semibold ${
+                    isDarkMode ? "text-red-200" : "text-red-600"
+                  }`}
+                >
                   {user.name}
                 </span>
-                <span className="text-sm font-mono opacity-75">{user.cpf}</span>
+                <span
+                  className={`text-sm font-mono ${
+                    isDarkMode ? "opacity-75" : "text-gray-500"
+                  }`}
+                >
+                  {user.cpf}
+                </span>
               </p>
             </div>
 
@@ -89,7 +125,11 @@ function DeleteUser() {
 
               <button
                 onClick={() => navigate("/listar-usuario")}
-                className="w-full py-3.5 bg-transparent border border-red-400/30 text-red-300 rounded-lg font-semibold hover:bg-red-500/10 transition-all"
+                className={`w-full py-3.5 rounded-lg font-semibold transition-all ${
+                  isDarkMode
+                    ? "bg-transparent border border-red-400/30 text-red-300 hover:bg-red-500/10"
+                    : "bg-transparent border border-red-200 text-red-600 hover:bg-red-50"
+                }`}
               >
                 Cancelar
               </button>

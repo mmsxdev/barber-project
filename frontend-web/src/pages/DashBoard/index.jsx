@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/SideBar/index.jsx";
 import Loading from "../../components/Loading";
+import { useTheme } from "../../contexts/ThemeContext";
 
 // Importações lazy
 const ProdutosSection = lazy(() => import("../../components/Products"));
@@ -20,6 +21,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,10 +72,20 @@ function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative">
+    <div
+      className={`flex min-h-screen relative ${
+        isDarkMode
+          ? "bg-gradient-to-br from-slate-900 to-slate-800"
+          : "bg-gradient-to-br from-gray-50 to-white"
+      }`}
+    >
       <button
         onClick={toggleSidebar}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 focus:outline-none"
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${
+          isDarkMode
+            ? "bg-white/10 text-white hover:bg-white/20"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        } focus:outline-none`}
       >
         <svg
           className="w-6 h-6"
@@ -105,7 +117,11 @@ function Dashboard() {
         />
       )}
 
-      <main className="flex-grow p-6 ml-0 transition-all md:p-8 lg:ml-64">
+      <main
+        className={`flex-grow p-6 ml-0 transition-all md:p-8 lg:ml-64 ${
+          isDarkMode ? "text-white" : "text-gray-900"
+        }`}
+      >
         <div className="max-w-7xl mx-auto">
           <Suspense fallback={<Loading />}>{renderSection()}</Suspense>
         </div>

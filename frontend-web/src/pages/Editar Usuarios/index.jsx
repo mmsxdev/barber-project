@@ -2,13 +2,15 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 function EditUser() {
   const { cpf } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); // 👈 Use "BARBER"
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     async function loadUser() {
@@ -56,11 +58,25 @@ function EditUser() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex items-center justify-center p-4">
-      <div className="backdrop-blur-lg bg-white/10 rounded-2xl shadow-xl w-full max-w-md p-8 space-y-6 hover:shadow-2xl transition-shadow">
+    <div
+      className={`min-h-screen ${
+        isDarkMode
+          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
+          : "bg-gradient-to-br from-gray-50 via-white to-gray-50"
+      } flex items-center justify-center p-4`}
+    >
+      <div
+        className={`backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-8 space-y-6 hover:shadow-2xl transition-shadow ${
+          isDarkMode ? "bg-white/10" : "bg-white/80"
+        }`}
+      >
         <button
           onClick={() => navigate("/listar-usuario")}
-          className="absolute top-4 left-4 bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition-colors text-slate-100"
+          className={`absolute top-4 left-4 backdrop-blur-sm p-2 rounded-lg transition-colors ${
+            isDarkMode
+              ? "bg-white/10 hover:bg-white/20 text-slate-100"
+              : "bg-white/80 hover:bg-white text-gray-700"
+          }`}
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -69,7 +85,9 @@ function EditUser() {
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-300 mb-2">
             Editar Usuário
           </h1>
-          <p className="text-slate-300">Atualize os dados do usuário</p>
+          <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
+            Atualize os dados do usuário
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -78,11 +96,17 @@ function EditUser() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-slate-100 placeholder:text-slate-400 transition-all"
+              className={`w-full pl-12 pr-4 py-3 backdrop-blur-sm rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all ${
+                isDarkMode
+                  ? "bg-white/5 border-white/10 text-slate-100 placeholder:text-slate-400"
+                  : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
+              }`}
               placeholder="Nome"
             />
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                isDarkMode ? "text-slate-400" : "text-gray-400"
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -100,17 +124,19 @@ function EditUser() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full pl-12 pr-10 py-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-slate-100 appearance-none hover:bg-white/10 transition-colors"
+              className={`w-full pl-12 pr-10 py-3 backdrop-blur-sm rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 appearance-none transition-colors ${
+                isDarkMode
+                  ? "bg-white/5 border-white/10 text-slate-100 hover:bg-white/10"
+                  : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50"
+              }`}
             >
               <option value="ADMIN">Administrador</option>
-              <option value="BARBER">Barbeiro</option> {/* 👈 Use "BARBER" */}
-              <option value="SECRETARY">Secretária</option>{" "}
-              {/* 👈 Use "SECRETARY" */}
+              <option value="BARBER">Barbeiro</option>
+              <option value="SECRETARY">Secretária</option>
             </select>
 
-            {/* Ícone do lado esquerdo */}
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-400"
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-400`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -123,9 +149,10 @@ function EditUser() {
               />
             </svg>
 
-            {/* Ícone da seta */}
             <svg
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+              className={`absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                isDarkMode ? "text-slate-400" : "text-gray-400"
+              } pointer-events-none`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -144,11 +171,17 @@ function EditUser() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-slate-100 placeholder:text-slate-400 transition-all"
+              className={`w-full pl-12 pr-4 py-3 backdrop-blur-sm rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 transition-all ${
+                isDarkMode
+                  ? "bg-white/5 border-white/10 text-slate-100 placeholder:text-slate-400"
+                  : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
+              }`}
               placeholder="Nova Senha"
             />
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                isDarkMode ? "text-slate-400" : "text-gray-400"
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

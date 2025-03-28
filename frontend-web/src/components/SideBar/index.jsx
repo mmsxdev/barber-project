@@ -2,12 +2,15 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/index";
+import { useTheme } from "../../contexts/ThemeContext";
 import {
   LogOut,
   Settings,
   CalendarDays,
   CircleDollarSign,
   PackageSearch,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -19,6 +22,7 @@ const Sidebar = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleManageUsers = () => {
     if (user?.role === "ADMIN") {
@@ -32,8 +36,14 @@ const Sidebar = ({
     <div
       className={`
       fixed inset-y-0 left-0 z-50
-      bg-gradient-to-b from-slate-900/80 to-slate-800/80 backdrop-blur-lg
-      w-64 text-white flex-col pt-8 h-full shadow-xl border-r border-white/10
+      ${
+        isDarkMode
+          ? "bg-gradient-to-b from-slate-900/80 to-slate-800/80"
+          : "bg-gradient-to-b from-white/80 to-gray-50/80"
+      } backdrop-blur-lg
+      w-64 flex-col pt-8 h-full shadow-xl border-r ${
+        isDarkMode ? "border-white/10" : "border-gray-200"
+      }
       transform transition-transform duration-300 ease-in-out
       ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0
@@ -77,9 +87,12 @@ const Sidebar = ({
               toggleSidebar(); // Fecha o sidebar (em dispositivos móveis)
             }}
             className={`
-              bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-white"
-              flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base
-              hover:bg-black/40 hover:text-blue-500 cursor-pointer
+              ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-white hover:bg-black/40 hover:text-blue-500"
+                  : "bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+              }
+              flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base cursor-pointer
             `}
           >
             {link.icon}
@@ -90,10 +103,20 @@ const Sidebar = ({
 
       <div className="absolute bottom-6 w-full px-4 space-y-3">
         {isMenuOpen && (
-          <div className="fixed bottom-33 ml-0 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl min-w-[224px] border border-white/10 lg:ml-0">
+          <div
+            className={`fixed bottom-48 ml-0 ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-400"
+            } backdrop-blur-lg rounded-xl shadow-2xl min-w-[224px] border lg:ml-0`}
+          >
             <div
               onClick={handleManageUsers}
-              className="p-3 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-slate-200 flex items-center gap-2"
+              className={`p-3 rounded-lg ${
+                isDarkMode
+                  ? "hover:bg-white/10 text-slate-200"
+                  : "hover:bg-gray-200 text-gray-700"
+              } cursor-pointer transition-colors flex items-center gap-2`}
             >
               <svg
                 className="w-5 h-5 text-blue-500"
@@ -114,11 +137,27 @@ const Sidebar = ({
         )}
 
         <button
+          onClick={toggleTheme}
+          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base ${
+            isDarkMode
+              ? "text-white hover:bg-white/5 hover:text-blue-400"
+              : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+          }`}
+        >
+          {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
+          <span className="font-medium">
+            {isDarkMode ? "Tema Claro" : "Tema Escuro"}
+          </span>
+        </button>
+
+        <button
           onClick={toggleMenu}
           className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base ${
             isMenuOpen
               ? "bg-blue-500/30 text-white"
-              : "hover:bg-white/5 hover:text-blue-400"
+              : isDarkMode
+              ? "text-white hover:bg-white/5 hover:text-blue-400"
+              : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
           }`}
         >
           <Settings size={22} />
@@ -127,7 +166,11 @@ const Sidebar = ({
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/20 hover:text-red-300 transition-all text-sm md:text-base"
+          className={`w-full flex items-center gap-3 p-3 rounded-xl ${
+            isDarkMode
+              ? "text-white hover:bg-red-500/20 hover:text-red-300"
+              : "text-gray-700 hover:bg-red-50 hover:text-red-600"
+          } transition-all text-sm md:text-base`}
         >
           <LogOut size={22} />
           <span className="font-medium">Sair</span>
