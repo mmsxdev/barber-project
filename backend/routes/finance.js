@@ -74,11 +74,6 @@ router.get("/finances", checkRole(["SECRETARY", "ADMIN"]), async (req, res) => {
       ...(category && { category }),
     };
 
-    console.log("Filtro UTC:", {
-      start: start?.toISOString(),
-      end: end?.toISOString(),
-    });
-
     const finances = await prisma.finance.findMany({
       where,
       include: {
@@ -88,7 +83,6 @@ router.get("/finances", checkRole(["SECRETARY", "ADMIN"]), async (req, res) => {
       orderBy: { date: "desc" },
     });
 
-    console.log(`Registros encontrados: ${finances.length}`);
     res.json(finances);
   } catch (error) {
     console.error("Erro ao buscar registros:", error);
