@@ -9,6 +9,10 @@ export default defineConfig({
   },
   base: "/",
   build: {
+    commonjsOptions: {
+      transformMixedEsModules: true, // Crucial para alguns pacotes
+      include: [/react-hook-form/, /react-icons/, /node_modules/],
+    },
     outDir: "dist",
     assetsDir: "assets",
     sourcemap: true,
@@ -29,6 +33,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": "/src",
+      "react-hook-form": "react-hook-form/dist/index.cjs",
+      "react-icons": "react-icons",
     },
   },
 });
