@@ -26,6 +26,16 @@ const Schedule = () => {
     status: "CONFIRMED",
   });
 
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
   const loadBarbers = useCallback(async () => {
     try {
       const response = await api.get("/schedulings/barbers");
@@ -151,13 +161,13 @@ const Schedule = () => {
         </div>
       </div>
 
-      {/* Alertas */}
+      {/* Alertas - Updated to be fixed and float */}
       {(error || success) && (
         <div
-          className={`fixed top-14 right-1/3 p-4 rounded-lg border z-50 ${
+          className={`fixed top-4 right-4 p-4 rounded-lg border shadow-lg z-50 transition-opacity duration-300 ${
             error
-              ? "bg-red-500/10 border-red-500/20 text-red-300"
-              : "bg-green-500/10 border-green-500/20 text-green-300"
+              ? "bg-red-500/10 border-red-500/20 text-red-500"
+              : "bg-green-500/10 border-green-500/20 text-green-500"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -166,11 +176,11 @@ const Schedule = () => {
         </div>
       )}
 
-      {/* Calendário */}
+      {/* Calendário - Adjusted width to full container */}
       <div
         className={`${
           isDarkMode ? "bg-slate-900 border-white" : "bg-white border-gray-200"
-        } p-6 rounded-xl border shadow-lg`}
+        } p-4 md:p-6 rounded-xl border shadow-lg w-full overflow-x-auto`}
       >
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -192,6 +202,20 @@ const Schedule = () => {
           height="calc(100vh - 200px)"
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
+          allDaySlot={true}
+          allDayText="Dia inteiro"
+          slotDuration="01:00:00"
+          eventDurationEditable={true}
+          eventOverlap={false}
+          forceEventDuration={true}
+          defaultTimedEventDuration="01:00:00"
+          eventTimeFormat={{
+            hour: "2-digit",
+            minute: "2-digit",
+            meridiem: false,
+          }}
+          expandRows={true}
+          contentHeight="auto"
           eventContent={(eventInfo) => (
             <div className="flex flex-col p-2">
               <div className="font-medium">{eventInfo.event.title}</div>
@@ -216,17 +240,14 @@ const Schedule = () => {
             day: "Dia",
             list: "Lista",
           }}
-          theme={isDarkMode ? "dark" : "light"}
-          buttonClassNames={`${
+          buttonClassNames={
             isDarkMode
-              ? "bg-slate-800 text-white hover:bg-slate-700"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-          } px-3 py-1 rounded-lg border ${
-            isDarkMode ? "border-slate-700" : "border-gray-200"
-          }`}
-          dayCellClassNames={`${isDarkMode ? "text-white" : "text-gray-700"}`}
-          slotLabelClassNames={`${isDarkMode ? "text-white" : "text-gray-700"}`}
-          nowIndicatorClassNames={`${isDarkMode ? "bg-red-500" : "bg-red-600"}`}
+              ? "bg-slate-800 text-white hover:bg-slate-700 border-slate-700"
+              : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300"
+          }
+          dayCellClassNames={isDarkMode ? "text-white" : "text-gray-700"}
+          slotLabelClassNames={isDarkMode ? "text-white" : "text-gray-700"}
+          nowIndicatorClassNames={isDarkMode ? "bg-red-500" : "bg-red-600"}
           dayHeaderClassNames={`${
             isDarkMode ? "text-white" : "text-gray-700"
           } font-semibold`}
@@ -234,6 +255,22 @@ const Schedule = () => {
           titleClassNames={`${
             isDarkMode ? "text-white" : "text-gray-900"
           } text-xl font-bold`}
+          customButtons={{}}
+          views={{
+            timeGridWeek: {
+              slotLabelFormat: {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              },
+            },
+          }}
+          slotLabelContent={(args) => {
+            return <span className="px-2">{args.text}</span>;
+          }}
+          allDayClassNames={
+            isDarkMode ? "text-white bg-slate-800" : "text-gray-700 bg-gray-50"
+          }
         />
       </div>
 

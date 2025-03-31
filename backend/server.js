@@ -4,6 +4,7 @@ import privateRoutes from "./routes/private.js";
 import productsRoutes from "./routes/products.js";
 import financeRoutes from "./routes/finance.js";
 import schedulingRoutes from "./routes/scheduling.js";
+import reportRoutes from "./routes/reportRoutes.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
 
@@ -30,6 +31,7 @@ app.use("/", auth, privateRoutes);
 app.use("/", auth, productsRoutes);
 app.use("/", auth, financeRoutes);
 app.use("/", auth, schedulingRoutes);
+app.use("/reports", auth, reportRoutes);
 
 // Após a configuração do CORS
 app.use((req, res, next) => {
