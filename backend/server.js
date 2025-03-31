@@ -13,7 +13,7 @@ const app = express();
 // Configuração segura do CORS
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? ["https://seu-site-real.com"] // Altere para seu domínio em produção
+    ? ["https://barber-project-lake.vercel.app/"] // Altere para seu domínio em produção
     : ["http://localhost:5173"]; // Porta do seu frontend (Vite/React)
 
 app.use(
