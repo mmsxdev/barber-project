@@ -238,6 +238,38 @@ export default function Finance() {
     ],
   };
 
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: "left",
+        align: "center",
+        labels: {
+          boxWidth: 12,
+          padding: 15,
+          font: {
+            size: 11,
+          },
+        },
+      },
+      tooltip: {
+        bodyFont: {
+          size: 11,
+        },
+        titleFont: {
+          size: 12,
+        },
+      },
+    },
+    layout: {
+      margin: {
+        left: 10,
+        right: 10,
+      },
+    },
+  };
+
   return (
     <div
       className={`p-6 min-h-screen ${
@@ -429,7 +461,11 @@ export default function Finance() {
           <h3 className="text-lg font-semibold mb-4">
             Distribuição por Categoria
           </h3>
-          <Pie data={categoryData} />
+          <div className="flex justify-center items-center">
+            <div className="w-full max-w-md h-72 px-6">
+              <Pie data={categoryData} options={pieOptions} />
+            </div>
+          </div>
         </div>
       </div>
 

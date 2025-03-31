@@ -7,6 +7,9 @@ import { useTheme } from "../../contexts/ThemeContext";
 // Importações lazy
 const ProdutosSection = lazy(() => import("../../components/Products"));
 const AgendamentosSection = lazy(() => import("../../components/Schedule"));
+const RelatoriosSection = lazy(() =>
+  import("../../components/ReportGenerator")
+);
 const FinancasSection = lazy(() =>
   import("../../components/FinancesManagement")
 );
@@ -54,6 +57,12 @@ function Dashboard() {
         return (
           <Suspense fallback={<Loading message="Carregando finanças..." />}>
             <FinancasSection />
+          </Suspense>
+        );
+      case "relatorios":
+        return (
+          <Suspense fallback={<Loading message="Carregando relatorios..." />}>
+            <RelatoriosSection />
           </Suspense>
         );
       case "permission-error":

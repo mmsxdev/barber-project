@@ -11,6 +11,7 @@ import {
   PackageSearch,
   Sun,
   Moon,
+  ClipboardMinus,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -73,6 +74,12 @@ const Sidebar = ({
             to: "financas",
             icon: <CircleDollarSign size={22} />,
             label: "Finanças",
+            allowedRoles: ["ADMIN", "SECRETARY"], // Cargos permitidos
+          },
+          {
+            to: "relatorios",
+            icon: <ClipboardMinus size={22} />,
+            label: "Relatórios",
             allowedRoles: ["ADMIN", "SECRETARY"], // Cargos permitidos
           },
         ].map((link) => (
