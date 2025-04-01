@@ -30,6 +30,11 @@ app.set("trust proxy", 1);
 app.options("*", cors());
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.send("Backend Barber Online");
+});
 app.use("/", publicRoutes);
 app.use("/", auth, privateRoutes);
 app.use("/", auth, productsRoutes);

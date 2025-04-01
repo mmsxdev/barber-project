@@ -82,6 +82,12 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
         issuer: "http://localhost:5173",
       }
     );
+
+    response.header("Access-Control-Allow-Origin");
+    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    response.header("Access-Control-Allow-Headers", "Content-Type");
+    //Caso ocorra um erro, exibe a mensagem abaixo
+
     response
       .header(
         "Strict-Transport-Security",
@@ -89,11 +95,6 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
       )
       .status(200)
       .json({ message: "Login realizado com sucesso! Token abaixo:", token });
-
-    response.header("Access-Control-Allow-Origin");
-    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    response.header("Access-Control-Allow-Headers", "Content-Type");
-    //Caso ocorra um erro, exibe a mensagem abaixo
   } catch (error) {
     response.status(500).json({ error: "Erro no servidor!" });
   }
