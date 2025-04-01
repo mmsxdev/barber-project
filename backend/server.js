@@ -16,7 +16,14 @@ const allowedOrigins =
     ? ["https://barber-project-nine.vercel.app"] // Altere para seu domínio em produção
     : ["http://localhost:5173"]; // Porta do seu frontend (Vite/React)
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    credentials: true, // Se estiver usando cookies/tokens
+  })
+);
 
 app.use(express.json());
 app.use("/", publicRoutes);
