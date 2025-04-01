@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   next();
 });
 
-PrismaClient.$connect()
+PrismaClient.$queryRaw`SELECT 1`
   .then(() => {
     console.log("Banco de dados conectado!!");
   })
