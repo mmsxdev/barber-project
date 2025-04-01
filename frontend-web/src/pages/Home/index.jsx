@@ -275,29 +275,26 @@ const Home = () => {
                 name: "Pomada Modeladora",
                 price: "R$ 45,90",
                 description: "Fixação forte com brilho natural",
-                image:
-                  "https://via.placeholder.com/300x300/EEE/003366?text=Pomada",
+                image: "https://placehold.co/300x300/EEE/003366?text=Pomada",
               },
               {
                 name: "Óleo para Barba",
                 price: "R$ 39,90",
                 description: "Hidratação e crescimento saudável",
                 image:
-                  "https://via.placeholder.com/300x300/EEE/003366?text=Óleo+Barba",
+                  "https://placehold.co/300x300/EEE/003366?text=Óleo+Barba",
               },
               {
                 name: "Shampoo Antiqueda",
                 price: "R$ 54,90",
                 description: "Combate a queda e caspa",
-                image:
-                  "https://via.placeholder.com/300x300/EEE/003366?text=Shampoo",
+                image: "https://placehold.co/300x300/EEE/003366?text=Shampoo",
               },
               {
                 name: "Kit Barber Pro",
                 price: "R$ 129,90",
                 description: "Kit completo para cuidados diários",
-                image:
-                  "https://via.placeholder.com/300x300/EEE/003366?text=Kit+Pro",
+                image: "https://placehold.co/300x300/EEE/003366?text=Kit+Pro",
               },
             ].map((product, index) => (
               <div
