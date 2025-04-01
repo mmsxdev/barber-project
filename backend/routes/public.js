@@ -52,12 +52,14 @@ router.post("/cadastro", apiLimiter, validateCPF, async (request, response) => {
 
 //LOGIN DE USUÁRIOS
 router.post("/login", apiLimiter, validateCPF, async (request, response) => {
+  console.log("Login realizado!!");
   //Tenta logar um usuário
   try {
     const userInfo = request.body;
     const user = await prisma.user.findUnique({
       where: { cpf: userInfo.cpf },
     });
+    console.log("Cpf recebido: ", request.body.cpf);
     //Se o usuário não existir, exibe a mensagem abaixo
     if (!user) {
       return response.status(404).json({ error: "Usuário não encontrado!" });
@@ -96,6 +98,7 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
       .status(200)
       .json({ message: "Login realizado com sucesso! Token abaixo:", token });
   } catch (error) {
+    console.log("Erro no login: ", error);
     response.status(500).json({ error: "Erro no servidor!" });
   }
 });
