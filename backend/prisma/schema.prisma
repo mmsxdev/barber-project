@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("MONGODB_URL")
+  directUrl = env("MONGODB_URL")
 }
 
 enum Role {
