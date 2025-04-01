@@ -7,6 +7,7 @@ import schedulingRoutes from "./routes/scheduling.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
+import { PrismaClient } from "@prisma/client";
 
 const app = express();
 
@@ -47,8 +48,7 @@ app.use((req, res, next) => {
   next();
 });
 
-prisma
-  .$connect()
+PrismaClient.connect()
   .then(() => {
     console.log("Banco de dados conectado!!");
   })
