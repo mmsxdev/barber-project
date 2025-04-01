@@ -9,6 +9,8 @@ import auth from "./Middleware/auth.js";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
+
 const app = express();
 
 // Configuração segura do CORS
@@ -48,7 +50,8 @@ app.use((req, res, next) => {
   next();
 });
 
-PrismaClient.$queryRaw`SELECT 1`
+prisma
+  .$connect()
   .then(() => {
     console.log("Banco de dados conectado!!");
   })
