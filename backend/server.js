@@ -11,17 +11,14 @@ import cors from "cors";
 const app = express();
 
 // Configuração segura do CORS
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? ["https://barber-project-nine.vercel.app"] // Altere para seu domínio em produção
-    : ["http://localhost:5173"]; // Porta do seu frontend (Vite/React)
-
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: ["https://barber-project-nine.vercel.app", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
     credentials: true, // Se estiver usando cookies/tokens
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
@@ -49,6 +46,15 @@ app.use((req, res, next) => {
   res.header("Permissions-Policy", "geolocation=(), microphone=()");
   next();
 });
+
+prisma
+  .$connect()
+  .then(() => {
+    console.log("Banco de dados conectado!!");
+  })
+  .catch((error) => {
+    console.log("Erro ao conectar no banco de dados: ", error);
+  });
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
