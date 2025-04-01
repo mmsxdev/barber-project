@@ -85,12 +85,12 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
       }
     );
 
-    response.header("Access-Control-Allow-Origin");
-    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    response.header("Access-Control-Allow-Headers", "Content-Type");
-    //Caso ocorra um erro, exibe a mensagem abaixo
-
     response
+      .header(
+        "Access-Control-Allow-Origin",
+        "https://barber-project-nine.vercel.app"
+      )
+      .header("Access-Control-Allow-Credentials", "true")
       .header(
         "Strict-Transport-Security",
         "max-age=63072000; includeSubDomains"
