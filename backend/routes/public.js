@@ -81,7 +81,10 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
       {
         expiresIn: "20h",
         algorithm: "HS256",
-        issuer: "http://localhost:5173",
+        issuer:
+          process.env.NODE_ENV === "production"
+            ? "https://barber-project-nine.vercel.app"
+            : "http://localhost:5173",
       }
     );
 
