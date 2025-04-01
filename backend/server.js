@@ -27,6 +27,8 @@ app.use(
 
 app.set("trust proxy", 1);
 
+app.options("*", cors());
+
 app.use(express.json());
 app.use("/", publicRoutes);
 app.use("/", auth, privateRoutes);
