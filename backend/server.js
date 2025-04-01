@@ -9,33 +9,26 @@ import auth from "./Middleware/auth.js";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 const app = express();
+const prisma = new PrismaClient();
+// Configuração segura do CORS
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://barber-project-nine.vercel.app"] // Altere para seu domínio em produção
+    : ["http://localhost:5173"]; // Porta do seu frontend (Vite/React)
 
-// Configuração CORS Atualizada (testada em produção)
-const corsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = [
-      "https://barber-project-nine.vercel.app",
-      "http://localhost:5173",
-    ];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    credentials: true, // Se estiver usando cookies/tokens
+  })
+);
 
 app.set("trust proxy", 1);
-app.options("*", cors(corsOptions)); // Habilitar preflight para todas as rotas
+
+app.options("*", cors());
 
 app.use(express.json());
 
