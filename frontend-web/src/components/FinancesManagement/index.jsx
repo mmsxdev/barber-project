@@ -627,10 +627,10 @@ export default function Finance() {
       <div
         className={`p-4 rounded-lg ${
           isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        } border shadow-lg`}
+        } border shadow-lg overflow-x-auto`}
       >
         <h3 className="text-lg font-semibold mb-4">Registros</h3>
-        <div className="overflow-x-auto">
+        <div className="min-w-full">
           <table className="w-full">
             <thead>
               <tr
@@ -638,12 +638,24 @@ export default function Finance() {
                   isDarkMode ? "border-white/10" : "border-gray-200"
                 }`}
               >
-                <th className="text-left py-2 px-4">Data</th>
-                <th className="text-left py-2 px-4">Tipo</th>
-                <th className="text-left py-2 px-4">Categoria</th>
-                <th className="text-left py-2 px-4">Descrição</th>
-                <th className="text-right py-2 px-4">Valor</th>
-                <th className="text-center py-2 px-4">Ações</th>
+                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Data
+                </th>
+                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Tipo
+                </th>
+                <th className="hidden sm:table-cell text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Categoria
+                </th>
+                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Descrição
+                </th>
+                <th className="text-right py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Valor
+                </th>
+                <th className="text-center py-2 px-2 sm:px-4 text-sm sm:text-base">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -654,8 +666,10 @@ export default function Finance() {
                     isDarkMode ? "border-white/10" : "border-gray-200"
                   }`}
                 >
-                  <td className="py-2 px-4">{formatDate(finance.date)}</td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
+                    {formatDate(finance.date)}
+                  </td>
+                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         finance.type === "INCOME"
@@ -666,10 +680,14 @@ export default function Finance() {
                       {finance.type === "INCOME" ? "Receita" : "Despesa"}
                     </span>
                   </td>
-                  <td className="py-2 px-4">{finance.category}</td>
-                  <td className="py-2 px-4">{finance.description}</td>
+                  <td className="hidden sm:table-cell py-2 px-2 sm:px-4 text-sm sm:text-base">
+                    {finance.category}
+                  </td>
+                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
+                    {finance.description}
+                  </td>
                   <td
-                    className={`py-2 px-4 text-right ${
+                    className={`py-2 px-2 sm:px-4 text-right text-sm sm:text-base ${
                       finance.type === "INCOME"
                         ? "text-green-500"
                         : "text-red-500"
@@ -677,7 +695,7 @@ export default function Finance() {
                   >
                     {formatCurrency(finance.value)}
                   </td>
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-2 px-2 sm:px-4 text-center text-sm sm:text-base">
                     <div className="flex justify-center gap-2">
                       <button
                         onClick={() => handleEdit(finance)}

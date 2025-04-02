@@ -180,7 +180,7 @@ const Schedule = () => {
       <div
         className={`${
           isDarkMode ? "bg-slate-900 border-white" : "bg-white border-gray-200"
-        } p-4 md:p-6 rounded-xl border shadow-lg w-full overflow-x-auto`}
+        } p-2 md:p-6 rounded-xl border shadow-lg w-full overflow-x-auto`}
       >
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -217,9 +217,11 @@ const Schedule = () => {
           expandRows={true}
           contentHeight="auto"
           eventContent={(eventInfo) => (
-            <div className="flex flex-col p-2">
-              <div className="font-medium">{eventInfo.event.title}</div>
-              <div className="text-xs opacity-75 mt-1">
+            <div className="flex flex-col p-1 sm:p-2">
+              <div className="font-medium text-xs sm:text-sm">
+                {eventInfo.event.title}
+              </div>
+              <div className="text-[10px] sm:text-xs opacity-75 mt-0.5 sm:mt-1">
                 {eventInfo.event.extendedProps.barber}
               </div>
             </div>
@@ -242,19 +244,27 @@ const Schedule = () => {
           }}
           buttonClassNames={
             isDarkMode
-              ? "bg-slate-800 text-white hover:bg-slate-700 border-slate-700"
-              : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300"
+              ? "bg-slate-800 text-white hover:bg-slate-700 border-slate-700 text-xs sm:text-sm"
+              : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300 text-xs sm:text-sm"
           }
-          dayCellClassNames={isDarkMode ? "text-white" : "text-gray-700"}
-          slotLabelClassNames={isDarkMode ? "text-white" : "text-gray-700"}
+          dayCellClassNames={
+            isDarkMode
+              ? "text-white text-xs sm:text-sm"
+              : "text-gray-700 text-xs sm:text-sm"
+          }
+          slotLabelClassNames={
+            isDarkMode
+              ? "text-white text-xs sm:text-sm"
+              : "text-gray-700 text-xs sm:text-sm"
+          }
           nowIndicatorClassNames={isDarkMode ? "bg-red-500" : "bg-red-600"}
           dayHeaderClassNames={`${
             isDarkMode ? "text-white" : "text-gray-700"
-          } font-semibold`}
+          } font-semibold text-xs sm:text-sm`}
           titleFormat={{ year: "numeric", month: "long" }}
           titleClassNames={`${
             isDarkMode ? "text-white" : "text-gray-900"
-          } text-xl font-bold`}
+          } text-lg sm:text-xl font-bold`}
           customButtons={{}}
           views={{
             timeGridWeek: {
@@ -266,27 +276,33 @@ const Schedule = () => {
             },
           }}
           slotLabelContent={(args) => {
-            return <span className="px-2">{args.text}</span>;
+            return (
+              <span className="px-1 sm:px-2 text-xs sm:text-sm">
+                {args.text}
+              </span>
+            );
           }}
           allDayClassNames={
-            isDarkMode ? "text-white bg-slate-800" : "text-gray-700 bg-gray-50"
+            isDarkMode
+              ? "text-white bg-slate-800 text-xs sm:text-sm"
+              : "text-gray-700 bg-gray-50 text-xs sm:text-sm"
           }
         />
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 sm:p-4 z-50 backdrop-blur-sm">
           <div
             className={`${
               isDarkMode
                 ? "bg-slate-800 border-slate-700"
                 : "bg-white border-gray-200"
-            } rounded-xl p-6 w-full max-w-md border shadow-2xl`}
+            } rounded-xl p-4 sm:p-6 w-full max-w-md border shadow-2xl`}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h3
-                className={`text-xl font-semibold ${
+                className={`text-lg sm:text-xl font-semibold ${
                   isDarkMode ? "text-slate-100" : "text-gray-900"
                 }`}
               >
@@ -307,10 +323,10 @@ const Schedule = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${
+                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
@@ -322,7 +338,7 @@ const Schedule = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, clientName: e.target.value })
                   }
-                  className={`w-full px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 ${
+                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-slate-100"
                       : "bg-white border-gray-300 text-gray-900"
@@ -333,7 +349,7 @@ const Schedule = () => {
 
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${
+                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
@@ -345,7 +361,7 @@ const Schedule = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, dateTime: e.target.value })
                   }
-                  className={`w-full px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 ${
+                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-slate-100"
                       : "bg-white border-gray-300 text-gray-900"
@@ -356,7 +372,7 @@ const Schedule = () => {
 
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${
+                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
@@ -368,7 +384,7 @@ const Schedule = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, service: e.target.value })
                   }
-                  className={`w-full px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 ${
+                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-slate-100"
                       : "bg-white border-gray-300 text-gray-900"
@@ -379,7 +395,7 @@ const Schedule = () => {
 
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${
+                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
@@ -390,7 +406,7 @@ const Schedule = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, barberId: e.target.value })
                   }
-                  className={`w-full px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 ${
+                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-slate-100"
                       : "bg-white border-gray-300 text-gray-900"
@@ -408,7 +424,7 @@ const Schedule = () => {
 
               <div>
                 <label
-                  className={`block text-sm font-medium mb-2 ${
+                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
@@ -419,7 +435,7 @@ const Schedule = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, status: e.target.value })
                   }
-                  className={`w-full px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 ${
+                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-slate-100"
                       : "bg-white border-gray-300 text-gray-900"
@@ -431,10 +447,10 @@ const Schedule = () => {
                 </select>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg transition-all"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg transition-all text-sm sm:text-base"
                 >
                   {selectedEvent ? "Atualizar" : "Criar"}
                 </button>
@@ -442,7 +458,7 @@ const Schedule = () => {
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-all text-sm sm:text-base"
                   >
                     Excluir
                   </button>

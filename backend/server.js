@@ -22,34 +22,32 @@ app.use(
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-    credentials: true, // Se estiver usando cookies/tokens
+    credentials: true,
   })
 );
 
 app.set("trust proxy", 1);
 
-app.options("*", cors());
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
   res.send("Backend Barber Online");
 });
-app.use("/", publicRoutes);
-app.use("/", auth, privateRoutes);
-app.use("/", auth, productsRoutes);
-app.use("/", auth, financeRoutes);
-app.use("/", auth, schedulingRoutes);
-app.use("/reports", auth, reportRoutes);
 
-// Após a configuração do CORS
+// Middleware de segurança
 app.use((req, res, next) => {
   res.header("X-Frame-Options", "DENY");
   res.header("Content-Security-Policy", "default-src 'self'");
   res.header("Permissions-Policy", "geolocation=(), microphone=()");
   next();
 });
+
+app.use("/", publicRoutes);
+app.use("/", auth, privateRoutes);
+app.use("/", auth, productsRoutes);
+app.use("/", auth, financeRoutes);
+app.use("/", auth, schedulingRoutes);
+app.use("/reports", auth, reportRoutes);
 
 prisma
   .$connect()

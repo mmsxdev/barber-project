@@ -90,11 +90,6 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
 
     response
       .header(
-        "Access-Control-Allow-Origin",
-        "https://barber-project-nine.vercel.app"
-      )
-      .header("Access-Control-Allow-Credentials", "true")
-      .header(
         "Strict-Transport-Security",
         "max-age=63072000; includeSubDomains"
       )
