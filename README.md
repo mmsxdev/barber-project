@@ -11,3 +11,5 @@ Aplicativo web que estou desenvolvendo com a finalidade de agregar meu portfóli
 - Login
 
 E outras funções extras para otimizar a segurança, e funcionalidade do app web.
+
+Para testar a aplicação: https://barber-project-nine.vercel.app/
