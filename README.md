@@ -13,3 +13,4 @@ Aplicativo web que estou desenvolvendo com a finalidade de agregar meu portfóli
 E outras funções extras para otimizar a segurança, e funcionalidade do app web.
 
 Para testar a aplicação: https://barber-project-nine.vercel.app/
+minha aplicação foi de maneira gratuita pelo render.com
