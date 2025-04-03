@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/index";
+import { useAuth } from "../../contexts/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
   LogOut,
@@ -22,7 +22,7 @@ const Sidebar = ({
   toggleSidebar,
 }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
 
   const handleManageUsers = () => {
@@ -31,6 +31,12 @@ const Sidebar = ({
     } else {
       navigate("/permission-error");
     }
+  };
+
+  // Verifica se as permissões estão carregadas
+  const checkPermission = (allowedRoles) => {
+    if (loading) return true; // Se ainda estiver carregando, permite acesso temporário até verificação completa
+    return user && allowedRoles.includes(user.role);
   };
 
   return (
@@ -86,7 +92,7 @@ const Sidebar = ({
           <div
             key={link.to}
             onClick={() => {
-              if (link.allowedRoles.includes(user?.role)) {
+              if (checkPermission(link.allowedRoles)) {
                 navigate(`/dashboard?section=${link.to}`); // Permite o acesso
               } else {
                 navigate("/dashboard?section=permission-error"); // Redireciona para erro de permissão

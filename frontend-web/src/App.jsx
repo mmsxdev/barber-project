@@ -6,7 +6,7 @@ import Dashboard from "./pages/DashBoard";
 import UsersList from "./pages/Listar Usuarios";
 import UsersDelete from "./pages/Deletar Usuarios";
 import UsersEdit from "./pages/Editar Usuarios";
-import { AuthProvider } from "./contexts/index";
+import { AuthProvider } from "./contexts/AuthContext";
 import { PermissionError } from "./components/PermissionError";
 import { ThemeProvider } from "./contexts/ThemeContext";
 

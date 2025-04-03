@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/SideBar/index.jsx";
 import Loading from "../../components/Loading";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/useAuth";
 
 // Importações lazy
 const ProdutosSection = lazy(() => import("../../components/Products"));
@@ -25,6 +26,7 @@ function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isDarkMode } = useTheme();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -39,31 +41,50 @@ function Dashboard() {
     navigate("/login");
   };
 
+  // Função para verificar permissões
+  const hasPermission = (requiredRoles) => {
+    if (loading) return true; // Permite acesso durante carregamento
+    return user && requiredRoles.includes(user.role);
+  };
+
   const renderSection = () => {
+    // Se estiver carregando, mostra um spinner
+    if (loading) {
+      return <Loading message="Carregando..." />;
+    }
+
     switch (section) {
       case "produtos":
-        return (
+        return hasPermission(["ADMIN", "SECRETARY"]) ? (
           <Suspense fallback={<Loading message="Carregando produtos..." />}>
             <ProdutosSection />
           </Suspense>
+        ) : (
+          <PermissionError />
         );
       case "agendamentos":
-        return (
+        return hasPermission(["ADMIN", "SECRETARY", "BARBER"]) ? (
           <Suspense fallback={<Loading message="Carregando agendamentos..." />}>
             <AgendamentosSection />
           </Suspense>
+        ) : (
+          <PermissionError />
         );
       case "financas":
-        return (
+        return hasPermission(["ADMIN", "SECRETARY"]) ? (
           <Suspense fallback={<Loading message="Carregando finanças..." />}>
             <FinancasSection />
           </Suspense>
+        ) : (
+          <PermissionError />
         );
       case "relatorios":
-        return (
+        return hasPermission(["ADMIN", "SECRETARY"]) ? (
           <Suspense fallback={<Loading message="Carregando relatorios..." />}>
             <RelatoriosSection />
           </Suspense>
+        ) : (
+          <PermissionError />
         );
       case "permission-error":
         return (
