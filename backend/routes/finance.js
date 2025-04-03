@@ -33,6 +33,33 @@ router.post(
           .json({ error: "O valor precisa ser um número válido." });
       }
 
+      // Se for uma venda de produto, verificar e atualizar o estoque
+      if (category === "PRODUCT_SALE" && productId) {
+        const product = await prisma.product.findUnique({
+          where: { id: productId },
+        });
+
+        if (!product) {
+          return res.status(404).json({ error: "Produto não encontrado." });
+        }
+
+        if (product.quantityInStock <= 0) {
+          return res
+            .status(400)
+            .json({ error: "Produto sem estoque disponível." });
+        }
+
+        // Atualizar o estoque do produto
+        await prisma.product.update({
+          where: { id: productId },
+          data: {
+            quantityInStock: {
+              decrement: 1,
+            },
+          },
+        });
+      }
+
       const finance = await prisma.finance.create({
         data: {
           type,
@@ -141,9 +168,71 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
+      const { type, value, description, category, productId } = req.body;
+
+      // Buscar o registro financeiro atual
+      const currentFinance = await prisma.finance.findUnique({
+        where: { id },
+        include: { product: true },
+      });
+
+      if (!currentFinance) {
+        return res
+          .status(404)
+          .json({ error: "Registro financeiro não encontrado." });
+      }
+
+      // Se o registro atual é uma venda de produto, restaurar o estoque
+      if (
+        currentFinance.category === "PRODUCT_SALE" &&
+        currentFinance.productId
+      ) {
+        await prisma.product.update({
+          where: { id: currentFinance.productId },
+          data: {
+            quantityInStock: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
+      // Se a atualização é para uma venda de produto, verificar e atualizar o estoque
+      if (category === "PRODUCT_SALE" && productId) {
+        const product = await prisma.product.findUnique({
+          where: { id: productId },
+        });
+
+        if (!product) {
+          return res.status(404).json({ error: "Produto não encontrado." });
+        }
+
+        if (product.quantityInStock <= 0) {
+          return res
+            .status(400)
+            .json({ error: "Produto sem estoque disponível." });
+        }
+
+        // Atualizar o estoque do produto
+        await prisma.product.update({
+          where: { id: productId },
+          data: {
+            quantityInStock: {
+              decrement: 1,
+            },
+          },
+        });
+      }
+
       const updatedFinance = await prisma.finance.update({
-        where: { id: req.params.id },
-        data: req.body,
+        where: { id },
+        data: {
+          type,
+          value: parseFloat(value),
+          description,
+          category,
+          productId: category === "PRODUCT_SALE" ? productId : null,
+        },
       });
 
       res.json(updatedFinance);
@@ -160,7 +249,30 @@ router.delete(
   checkRole(["SECRETARY", "ADMIN"]),
   async (req, res) => {
     try {
-      // Remover parseInt() pois o ID é String
+      // Buscar o registro financeiro antes de deletar
+      const finance = await prisma.finance.findUnique({
+        where: { id: req.params.id },
+        include: { product: true },
+      });
+
+      if (!finance) {
+        return res
+          .status(404)
+          .json({ error: "Registro financeiro não encontrado." });
+      }
+
+      // Se for uma venda de produto, restaurar o estoque
+      if (finance.category === "PRODUCT_SALE" && finance.productId) {
+        await prisma.product.update({
+          where: { id: finance.productId },
+          data: {
+            quantityInStock: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
       await prisma.finance.delete({ where: { id: req.params.id } });
       res.status(204).end();
     } catch (error) {

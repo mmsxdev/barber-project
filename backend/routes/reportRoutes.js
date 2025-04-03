@@ -9,7 +9,7 @@ router.post("/monthly", async (req, res) => {
   console.log("Nova requisição de relatório:", req.body);
 
   try {
-    const { startDate, endDate, format } = req.body;
+    const { startDate, endDate, format, useAI } = req.body;
 
     if (!startDate || !endDate) {
       return res
@@ -17,10 +17,26 @@ router.post("/monthly", async (req, res) => {
         .json({ error: "Datas obrigatórias não informadas" });
     }
 
-    const reportData = await reportService.generateMonthlyReport(
-      startDate,
-      endDate
-    );
+    let reportData;
+    try {
+      if (useAI) {
+        reportData = await reportService.generateMonthlyReportWithAI(
+          startDate,
+          endDate
+        );
+      } else {
+        reportData = await reportService.generateMonthlyReport(
+          startDate,
+          endDate
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao gerar relatório:", error);
+      return res.status(500).json({
+        error:
+          "Erro ao gerar relatório: " + (error.message || "Erro desconhecido"),
+      });
+    }
 
     const fileName = `relatorio_${
       new Date().toISOString().split("T")[0]
@@ -42,11 +58,7 @@ router.post("/monthly", async (req, res) => {
       });
     });
   } catch (error) {
-    console.error("Erro completo na rota:", {
-      message: error.message,
-      stack: error.stack,
-      originalError: error,
-    });
+    console.error("Erro completo na rota:", error);
     res.status(500).json({
       error: "Falha ao gerar relatório",
       details: process.env.NODE_ENV === "development" ? error.message : null,
