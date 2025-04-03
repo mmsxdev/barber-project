@@ -86,7 +86,7 @@ function WelcomeDashboard() {
 
   return (
     <div
-      className={`h-1/2 ${
+      className={`h-1/2 rounded-xl ${
         isDarkMode
           ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
           : "bg-gradient-to-br from-gray-50 via-white to-gray-50"

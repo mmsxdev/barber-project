@@ -79,7 +79,7 @@ router.post("/login", apiLimiter, validateCPF, async (request, response) => {
       { id: user.id, role: user.role.toUpperCase() },
       process.env.JWT_SECRET,
       {
-        expiresIn: "30m",
+        expiresIn: "20h",
         algorithm: "HS256",
         issuer:
           process.env.NODE_ENV === "production"

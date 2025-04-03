@@ -272,217 +272,132 @@ export default function Finance() {
 
   return (
     <div
-      className={`p-6 min-h-screen ${
+      className={`p-1 sm:p-4 md:p-6 min-h-screen w-full overflow-x-hidden ${
         isDarkMode ? "text-white" : "text-gray-900"
       }`}
     >
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent animate-fade-in">
-        Gestão Financeira
-      </h2>
+      <div className="max-w-[2000px] mx-auto">
+        <h2 className="text-lg sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 md:mb-6 bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent animate-fade-in">
+          Gestão Financeira
+        </h2>
 
-      {/* Alertas */}
-      {(error || success) && (
-        <div
-          className={`fixed top-14 right-1/3 p-4 rounded-lg border z-50 ${
-            error
-              ? "bg-red-500/10 border-red-500/20 text-red-300"
-              : "bg-green-500/10 border-green-500/20 text-green-300"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {error ? "❌" : "✅"} {error || success}
-          </div>
-        </div>
-      )}
-
-      {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div
-          className={`p-4 rounded-lg ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-sm font-medium mb-1">Receitas</h3>
-          <p className="text-2xl font-bold text-green-500">
-            {formatCurrency(summary.totalIncome)}
-          </p>
-        </div>
-        <div
-          className={`p-4 rounded-lg ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-sm font-medium mb-1">Despesas</h3>
-          <p className="text-2xl font-bold text-red-500">
-            {formatCurrency(summary.totalExpense)}
-          </p>
-        </div>
-        <div
-          className={`p-4 rounded-lg ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-sm font-medium mb-1">Saldo</h3>
-          <p
-            className={`text-2xl font-bold ${
-              summary.balance >= 0 ? "text-green-500" : "text-red-500"
+        {/* Alertas */}
+        {(error || success) && (
+          <div
+            className={`fixed top-14 right-2 sm:right-4 p-2.5 sm:p-4 rounded-lg border z-50 ${
+              error
+                ? "bg-red-500/10 border-red-500/20 text-red-300"
+                : "bg-green-500/10 border-green-500/20 text-green-300"
             }`}
           >
-            {formatCurrency(summary.balance)}
-          </p>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div
-        className={`p-4 rounded-lg mb-6 ${
-          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        } border shadow-lg`}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-slate-300" : "text-gray-700"
-              }`}
-            >
-              Data Inicial
-            </label>
-            <input
-              type="date"
-              name="startDate"
-              value={filter.startDate}
-              onChange={handleFilterChange}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? "bg-slate-700 border-slate-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
-          </div>
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-slate-300" : "text-gray-700"
-              }`}
-            >
-              Data Final
-            </label>
-            <input
-              type="date"
-              name="endDate"
-              value={filter.endDate}
-              onChange={handleFilterChange}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? "bg-slate-700 border-slate-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
-          </div>
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-slate-300" : "text-gray-700"
-              }`}
-            >
-              Tipo
-            </label>
-            <select
-              name="type"
-              value={filter.type}
-              onChange={handleFilterChange}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? "bg-slate-700 border-slate-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              <option value="">Todos</option>
-              <option value="INCOME">Receita</option>
-              <option value="EXPENSE">Despesa</option>
-            </select>
-          </div>
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-slate-300" : "text-gray-700"
-              }`}
-            >
-              Categoria
-            </label>
-            <select
-              name="category"
-              value={filter.category}
-              onChange={handleFilterChange}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDarkMode
-                  ? "bg-slate-700 border-slate-600 text-white"
-                  : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              <option value="">Todas</option>
-              <option value="SERVICE">Serviço</option>
-              <option value="PRODUCT_SALE">Produto</option>
-              <option value="SALARY">Salário</option>
-              <option value="RENT">Aluguel</option>
-              <option value="MAINTENANCE">Manutenção</option>
-              <option value="OTHER">Outro</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div
-          className={`p-4 rounded-lg ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-lg font-semibold mb-4">Fluxo de Caixa</h3>
-          <Line data={chartData} />
-        </div>
-        <div
-          className={`p-4 rounded-lg ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-lg font-semibold mb-4">
-            Distribuição por Categoria
-          </h3>
-          <div className="flex justify-center items-center">
-            <div className="w-full max-w-md h-72 px-6">
-              <Pie data={categoryData} options={pieOptions} />
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              {error ? "❌" : "✅"} {error || success}
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Formulário */}
-      <div
-        className={`p-4 rounded-lg mb-6 ${
-          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        } border shadow-lg`}
-      >
-        <h3 className="text-lg font-semibold mb-4">
-          {editingId ? "Editar Registro" : "Novo Registro"}
-        </h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Resumo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-4 mb-2 sm:mb-4 md:mb-6">
+          <div
+            className={`p-2 sm:p-4 rounded-lg ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200"
+            } border shadow-lg`}
+          >
+            <h3 className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">
+              Receitas
+            </h3>
+            <p className="text-base sm:text-xl lg:text-2xl font-bold text-green-500">
+              {formatCurrency(summary.totalIncome)}
+            </p>
+          </div>
+          <div
+            className={`p-2 sm:p-4 rounded-lg ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200"
+            } border shadow-lg`}
+          >
+            <h3 className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">
+              Despesas
+            </h3>
+            <p className="text-base sm:text-xl lg:text-2xl font-bold text-red-500">
+              {formatCurrency(summary.totalExpense)}
+            </p>
+          </div>
+          <div
+            className={`p-2 sm:p-4 rounded-lg ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200"
+            } border shadow-lg`}
+          >
+            <h3 className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">
+              Saldo
+            </h3>
+            <p
+              className={`text-base sm:text-xl lg:text-2xl font-bold ${
+                summary.balance >= 0 ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {formatCurrency(summary.balance)}
+            </p>
+          </div>
+        </div>
+
+        {/* Filtros */}
+        <div
+          className={`p-2 sm:p-4 rounded-lg mb-2 sm:mb-4 md:mb-6 ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-4">
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${
+                className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Data Inicial
+              </label>
+              <input
+                type="date"
+                name="startDate"
+                value={filter.startDate}
+                onChange={handleFilterChange}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              />
+            </div>
+            <div>
+              <label
+                className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                  isDarkMode ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Data Final
+              </label>
+              <input
+                type="date"
+                name="endDate"
+                value={filter.endDate}
+                onChange={handleFilterChange}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                  isDarkMode
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              />
+            </div>
+            <div>
+              <label
+                className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
                   isDarkMode ? "text-slate-300" : "text-gray-700"
                 }`}
               >
@@ -490,65 +405,22 @@ export default function Finance() {
               </label>
               <select
                 name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 rounded-lg border ${
+                value={filter.type}
+                onChange={handleFilterChange}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
                   isDarkMode
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                required
               >
+                <option value="">Todos</option>
                 <option value="INCOME">Receita</option>
                 <option value="EXPENSE">Despesa</option>
               </select>
             </div>
             <div>
               <label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-slate-300" : "text-gray-700"
-                }`}
-              >
-                Valor
-              </label>
-              <input
-                type="number"
-                name="value"
-                value={formData.value}
-                onChange={handleInputChange}
-                step="0.01"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                required
-              />
-            </div>
-            <div>
-              <label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-slate-300" : "text-gray-700"
-                }`}
-              >
-                Descrição
-              </label>
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDarkMode
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                required
-              />
-            </div>
-            <div>
-              <label
-                className={`block text-sm font-medium mb-1 ${
+                className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
                   isDarkMode ? "text-slate-300" : "text-gray-700"
                 }`}
               >
@@ -556,15 +428,15 @@ export default function Finance() {
               </label>
               <select
                 name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 rounded-lg border ${
+                value={filter.category}
+                onChange={handleFilterChange}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
                   isDarkMode
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                required
               >
+                <option value="">Todas</option>
                 <option value="SERVICE">Serviço</option>
                 <option value="PRODUCT_SALE">Produto</option>
                 <option value="SALARY">Salário</option>
@@ -573,148 +445,296 @@ export default function Finance() {
                 <option value="OTHER">Outro</option>
               </select>
             </div>
-            {formData.category === "PRODUCT_SALE" && (
+          </div>
+        </div>
+
+        {/* Gráficos */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5 sm:gap-4 mb-2 sm:mb-4 md:mb-6">
+          <div
+            className={`p-2 sm:p-4 rounded-lg ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200"
+            } border shadow-lg`}
+          >
+            <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-1.5 sm:mb-4">
+              Fluxo de Caixa
+            </h3>
+            <div className="w-full h-[200px] sm:h-[300px] lg:h-[400px]">
+              <Line data={chartData} />
+            </div>
+          </div>
+          <div
+            className={`p-2 sm:p-4 rounded-lg ${
+              isDarkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200"
+            } border shadow-lg`}
+          >
+            <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-1.5 sm:mb-4">
+              Distribuição por Categoria
+            </h3>
+            <div className="flex justify-center items-center">
+              <div className="w-full max-w-md h-[200px] sm:h-[300px] lg:h-[400px] px-1 sm:px-4 lg:px-6">
+                <Pie data={categoryData} options={pieOptions} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Formulário */}
+        <div
+          className={`p-2 sm:p-4 rounded-lg mb-2 sm:mb-4 md:mb-6 ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg`}
+        >
+          <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">
+            {editingId ? "Editar Registro" : "Novo Registro"}
+          </h3>
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-4">
               <div>
                 <label
-                  className={`block text-sm font-medium mb-1 ${
+                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
                     isDarkMode ? "text-slate-300" : "text-gray-700"
                   }`}
                 >
-                  Produto
+                  Tipo
                 </label>
                 <select
-                  name="productId"
-                  value={formData.productId}
+                  name="type"
+                  value={formData.type}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 rounded-lg border ${
+                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
                     isDarkMode
                       ? "bg-slate-700 border-slate-600 text-white"
                       : "bg-white border-gray-300 text-gray-900"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 >
-                  <option value="">Selecione um produto</option>
-                  {products.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name}
-                    </option>
-                  ))}
+                  <option value="INCOME">Receita</option>
+                  <option value="EXPENSE">Despesa</option>
                 </select>
               </div>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg transition-all"
-            >
-              {editingId ? "Atualizar" : "Criar"}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-all"
-              >
-                Cancelar
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* Lista de Registros */}
-      <div
-        className={`p-4 rounded-lg ${
-          isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        } border shadow-lg overflow-x-auto`}
-      >
-        <h3 className="text-lg font-semibold mb-4">Registros</h3>
-        <div className="min-w-full">
-          <table className="w-full">
-            <thead>
-              <tr
-                className={`border-b ${
-                  isDarkMode ? "border-white/10" : "border-gray-200"
-                }`}
-              >
-                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
-                  Data
-                </th>
-                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
-                  Tipo
-                </th>
-                <th className="hidden sm:table-cell text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
-                  Categoria
-                </th>
-                <th className="text-left py-2 px-2 sm:px-4 text-sm sm:text-base">
-                  Descrição
-                </th>
-                <th className="text-right py-2 px-2 sm:px-4 text-sm sm:text-base">
+              <div>
+                <label
+                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                    isDarkMode ? "text-slate-300" : "text-gray-700"
+                  }`}
+                >
                   Valor
-                </th>
-                <th className="text-center py-2 px-2 sm:px-4 text-sm sm:text-base">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {finances.map((finance) => (
+                </label>
+                <input
+                  type="number"
+                  name="value"
+                  value={formData.value}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                    isDarkMode
+                      ? "bg-slate-700 border-slate-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                    isDarkMode ? "text-slate-300" : "text-gray-700"
+                  }`}
+                >
+                  Descrição
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                    isDarkMode
+                      ? "bg-slate-700 border-slate-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                    isDarkMode ? "text-slate-300" : "text-gray-700"
+                  }`}
+                >
+                  Categoria
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                    isDarkMode
+                      ? "bg-slate-700 border-slate-600 text-white"
+                      : "bg-white border-gray-300 text-gray-900"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  required
+                >
+                  <option value="SERVICE">Serviço</option>
+                  <option value="PRODUCT_SALE">Produto</option>
+                  <option value="SALARY">Salário</option>
+                  <option value="RENT">Aluguel</option>
+                  <option value="MAINTENANCE">Manutenção</option>
+                  <option value="OTHER">Outro</option>
+                </select>
+              </div>
+              {formData.category === "PRODUCT_SALE" && (
+                <div>
+                  <label
+                    className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                      isDarkMode ? "text-slate-300" : "text-gray-700"
+                    }`}
+                  >
+                    Produto
+                  </label>
+                  <select
+                    name="productId"
+                    value={formData.productId}
+                    onChange={handleInputChange}
+                    className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                      isDarkMode
+                        ? "bg-slate-700 border-slate-600 text-white"
+                        : "bg-white border-gray-300 text-gray-900"
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    required
+                  >
+                    <option value="">Selecione um produto</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-1.5 sm:gap-3">
+              <button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+              >
+                {editingId ? "Atualizar" : "Criar"}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+                >
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Lista de Registros */}
+        <div
+          className={`p-2 sm:p-4 rounded-lg ${
+            isDarkMode
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
+          } border shadow-lg overflow-x-auto`}
+        >
+          <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">
+            Registros
+          </h3>
+          <div className="min-w-full">
+            <table className="w-full">
+              <thead>
                 <tr
-                  key={finance.id}
                   className={`border-b ${
                     isDarkMode ? "border-white/10" : "border-gray-200"
                   }`}
                 >
-                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
-                    {formatDate(finance.date)}
-                  </td>
-                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        finance.type === "INCOME"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-red-500/20 text-red-400"
-                      }`}
-                    >
-                      {finance.type === "INCOME" ? "Receita" : "Despesa"}
-                    </span>
-                  </td>
-                  <td className="hidden sm:table-cell py-2 px-2 sm:px-4 text-sm sm:text-base">
-                    {finance.category}
-                  </td>
-                  <td className="py-2 px-2 sm:px-4 text-sm sm:text-base">
-                    {finance.description}
-                  </td>
-                  <td
-                    className={`py-2 px-2 sm:px-4 text-right text-sm sm:text-base ${
-                      finance.type === "INCOME"
-                        ? "text-green-500"
-                        : "text-red-500"
+                  <th className="text-left py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Data
+                  </th>
+                  <th className="text-left py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Tipo
+                  </th>
+                  <th className="hidden sm:table-cell text-left py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Categoria
+                  </th>
+                  <th className="text-left py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Descrição
+                  </th>
+                  <th className="text-right py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Valor
+                  </th>
+                  <th className="text-center py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {finances.map((finance) => (
+                  <tr
+                    key={finance.id}
+                    className={`border-b ${
+                      isDarkMode ? "border-white/10" : "border-gray-200"
                     }`}
                   >
-                    {formatCurrency(finance.value)}
-                  </td>
-                  <td className="py-2 px-2 sm:px-4 text-center text-sm sm:text-base">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(finance)}
-                        className="text-blue-500 hover:text-blue-400"
+                    <td className="py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                      {formatDate(finance.date)}
+                    </td>
+                    <td className="py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                      <span
+                        className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs ${
+                          finance.type === "INCOME"
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}
                       >
-                        ✎
-                      </button>
-                      <button
-                        onClick={() => handleDelete(finance.id)}
-                        className="text-red-500 hover:text-red-400"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {finance.type === "INCOME" ? "Receita" : "Despesa"}
+                      </span>
+                    </td>
+                    <td className="hidden sm:table-cell py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                      {finance.category}
+                    </td>
+                    <td className="py-1.5 sm:py-2 px-1.5 sm:px-4 text-xs sm:text-sm">
+                      {finance.description}
+                    </td>
+                    <td
+                      className={`py-1.5 sm:py-2 px-1.5 sm:px-4 text-right text-xs sm:text-sm ${
+                        finance.type === "INCOME"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {formatCurrency(finance.value)}
+                    </td>
+                    <td className="py-1.5 sm:py-2 px-1.5 sm:px-4 text-center text-xs sm:text-sm">
+                      <div className="flex justify-center gap-1 sm:gap-2">
+                        <button
+                          onClick={() => handleEdit(finance)}
+                          className="text-blue-500 hover:text-blue-400"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          onClick={() => handleDelete(finance.id)}
+                          className="text-red-500 hover:text-red-400"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

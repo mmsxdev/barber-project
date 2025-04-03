@@ -130,344 +130,651 @@ const Schedule = () => {
   };
 
   return (
-    <div
-      className={`p-6 min-h-screen ${
-        isDarkMode ? "text-slate-200" : "text-gray-900"
-      }`}
-    >
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <div className="mb-4 sm:mb-0">
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
-            Agenda de Serviços
-          </h1>
-          <p
-            className={`text-sm mt-1 ${
-              isDarkMode ? "text-slate-400" : "text-gray-600"
-            }`}
-          >
-            {format(new Date(), "MMMM yyyy", { locale: ptBR })}
-          </p>
-        </div>
-
-        <div className="flex gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20"
-          >
-            <PlusCircleIcon className="w-5 h-5" />
-            Novo Agendamento
-          </button>
-        </div>
-      </div>
-
-      {/* Alertas - Updated to be fixed and float */}
-      {(error || success) && (
+    <div className="w-full h-full flex flex-col">
+      <style>
+        {`
+          .fc-button {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            background-color: ${isDarkMode ? "#1e293b" : "#ffffff"} !important;
+            border-color: ${isDarkMode ? "#334155" : "#d1d5db"} !important;
+            color: ${isDarkMode ? "#ffffff" : "#374151"} !important;
+          }
+          .fc-button:hover {
+            background-color: ${isDarkMode ? "#334155" : "#f3f4f6"} !important;
+          }
+          .fc-button-active {
+            background-color: ${isDarkMode ? "#334155" : "#f3f4f6"} !important;
+            border-color: ${isDarkMode ? "#475569" : "#9ca3af"} !important;
+          }
+          .fc-toolbar-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: ${isDarkMode ? "#ffffff" : "#111827"};
+          }
+          .fc-toolbar {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+          }
+          .fc-toolbar-chunk {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+          }
+          .fc-daygrid-day {
+            transition: background-color 0.2s;
+          }
+          .fc-daygrid-day:hover {
+            background-color: ${
+              isDarkMode ? "rgba(30, 41, 59, 0.7)" : "rgba(243, 244, 246, 0.7)"
+            };
+          }
+          .fc-daygrid-day-frame {
+            padding: 4px !important;
+          }
+          .fc-scrollgrid-sync-inner {
+            padding: 6px 0;
+          }
+          .fc-col-header-cell {
+            padding: 8px 0 !important;
+            background-color: ${
+              isDarkMode ? "rgba(30, 41, 59, 0.5)" : "rgba(243, 244, 246, 0.7)"
+            };
+          }
+          .fc-timegrid-slot {
+            height: 55px !important;
+            border-bottom: 1px solid ${
+              isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.07)"
+            } !important;
+          }
+          .fc-timegrid-slot-lane {
+            transition: background-color 0.2s;
+          }
+          .fc-timegrid-slot-lane:hover {
+            background-color: ${
+              isDarkMode ? "rgba(30, 41, 59, 0.5)" : "rgba(243, 244, 246, 0.7)"
+            };
+          }
+          .fc-timegrid-now-indicator-line {
+            border-color: ${isDarkMode ? "#ef4444" : "#dc2626"} !important;
+            border-width: 2px;
+          }
+          .fc-day-today {
+            background-color: ${
+              isDarkMode
+                ? "rgba(59, 130, 246, 0.15)"
+                : "rgba(59, 130, 246, 0.08)"
+            } !important;
+          }
+          .fc-event {
+            cursor: pointer;
+            overflow: hidden;
+            margin: 1px 0 !important;
+          }
+          .fc-event:hover {
+            z-index: 5 !important;
+          }
+          .fc-event-main {
+            padding: 0 !important;
+          }
+          @media (min-width: 640px) {
+            .fc-button {
+              font-size: 0.875rem;
+              padding: 0.375rem 0.75rem;
+            }
+            .fc-toolbar-title {
+              font-size: 1rem;
+            }
+            .fc-toolbar {
+              gap: 1rem;
+              padding: 1rem;
+            }
+            .fc-toolbar-chunk {
+              gap: 0.5rem;
+            }
+          }
+          @media (min-width: 1024px) {
+            .fc-toolbar-title {
+              font-size: 1.125rem;
+            }
+          }
+        `}
+      </style>
+      <div className="flex-1 overflow-hidden">
         <div
-          className={`fixed top-4 right-4 p-4 rounded-lg border shadow-lg z-50 transition-opacity duration-300 ${
-            error
-              ? "bg-red-500/10 border-red-500/20 text-red-500"
-              : "bg-green-500/10 border-green-500/20 text-green-500"
+          className={`p-1 sm:p-4 md:p-6 min-h-screen w-full overflow-x-hidden ${
+            isDarkMode ? "text-slate-200" : "text-gray-900"
           }`}
         >
-          <div className="flex items-center gap-2">
-            {error ? "❌" : "✅"} {error || success}
-          </div>
-        </div>
-      )}
-
-      {/* Calendário - Adjusted width to full container */}
-      <div
-        className={`${
-          isDarkMode ? "bg-slate-900 border-white" : "bg-white border-gray-200"
-        } p-2 md:p-6 rounded-xl border shadow-lg w-full overflow-x-auto`}
-      >
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          initialView="timeGridWeek"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          weekends={true}
-          events={events}
-          select={handleDateSelect}
-          eventClick={handleEventClick}
-          locale={ptBrLocale}
-          height="calc(100vh - 200px)"
-          slotMinTime="08:00:00"
-          slotMaxTime="20:00:00"
-          allDaySlot={true}
-          allDayText="Dia inteiro"
-          slotDuration="01:00:00"
-          eventDurationEditable={true}
-          eventOverlap={false}
-          forceEventDuration={true}
-          defaultTimedEventDuration="01:00:00"
-          eventTimeFormat={{
-            hour: "2-digit",
-            minute: "2-digit",
-            meridiem: false,
-          }}
-          expandRows={true}
-          contentHeight="auto"
-          eventContent={(eventInfo) => (
-            <div className="flex flex-col p-1 sm:p-2">
-              <div className="font-medium text-xs sm:text-sm">
-                {eventInfo.event.title}
+          <div className="max-w-[2000px] mx-auto">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 sm:mb-4 md:mb-6">
+              <div className="mb-2 sm:mb-0">
+                <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
+                  Agenda de Serviços
+                </h1>
+                <p
+                  className={`text-xs sm:text-sm mt-0.5 ${
+                    isDarkMode ? "text-slate-400" : "text-gray-600"
+                  }`}
+                >
+                  {format(new Date(), "MMMM yyyy", { locale: ptBR })}
+                </p>
               </div>
-              <div className="text-[10px] sm:text-xs opacity-75 mt-0.5 sm:mt-1">
-                {eventInfo.event.extendedProps.barber}
+
+              <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center text-xs sm:text-sm"
+                >
+                  <PlusCircleIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                  Novo Agendamento
+                </button>
               </div>
             </div>
-          )}
-          eventClassNames={(eventInfo) => {
-            return eventInfo.event.extendedProps.status === "CONFIRMED"
-              ? isDarkMode
-                ? "bg-blue-500/20 border-blue-500 text-blue-400"
-                : "bg-blue-500/10 border-blue-500 text-blue-600"
-              : isDarkMode
-              ? "bg-red-500/20 border-red-500 text-red-400"
-              : "bg-red-500/10 border-red-500 text-red-600";
-          }}
-          buttonText={{
-            today: "Hoje",
-            month: "Mês",
-            week: "Semana",
-            day: "Dia",
-            list: "Lista",
-          }}
-          buttonClassNames={
-            isDarkMode
-              ? "bg-slate-800 text-white hover:bg-slate-700 border-slate-700 text-xs sm:text-sm"
-              : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300 text-xs sm:text-sm"
-          }
-          dayCellClassNames={
-            isDarkMode
-              ? "text-white text-xs sm:text-sm"
-              : "text-gray-700 text-xs sm:text-sm"
-          }
-          slotLabelClassNames={
-            isDarkMode
-              ? "text-white text-xs sm:text-sm"
-              : "text-gray-700 text-xs sm:text-sm"
-          }
-          nowIndicatorClassNames={isDarkMode ? "bg-red-500" : "bg-red-600"}
-          dayHeaderClassNames={`${
-            isDarkMode ? "text-white" : "text-gray-700"
-          } font-semibold text-xs sm:text-sm`}
-          titleFormat={{ year: "numeric", month: "long" }}
-          titleClassNames={`${
-            isDarkMode ? "text-white" : "text-gray-900"
-          } text-lg sm:text-xl font-bold`}
-          customButtons={{}}
-          views={{
-            timeGridWeek: {
-              slotLabelFormat: {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              },
-            },
-          }}
-          slotLabelContent={(args) => {
-            return (
-              <span className="px-1 sm:px-2 text-xs sm:text-sm">
-                {args.text}
-              </span>
-            );
-          }}
-          allDayClassNames={
-            isDarkMode
-              ? "text-white bg-slate-800 text-xs sm:text-sm"
-              : "text-gray-700 bg-gray-50 text-xs sm:text-sm"
-          }
-        />
-      </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 sm:p-4 z-50 backdrop-blur-sm">
-          <div
-            className={`${
-              isDarkMode
-                ? "bg-slate-800 border-slate-700"
-                : "bg-white border-gray-200"
-            } rounded-xl p-4 sm:p-6 w-full max-w-md border shadow-2xl`}
-          >
-            <div className="flex justify-between items-center mb-4 sm:mb-6">
-              <h3
-                className={`text-lg sm:text-xl font-semibold ${
-                  isDarkMode ? "text-slate-100" : "text-gray-900"
+            {/* Alertas */}
+            {(error || success) && (
+              <div
+                className={`fixed top-4 right-2 sm:right-4 p-2.5 sm:p-4 rounded-lg border shadow-lg z-50 transition-opacity duration-300 ${
+                  error
+                    ? "bg-red-500/10 border-red-500/20 text-red-500"
+                    : "bg-green-500/10 border-green-500/20 text-green-500"
                 }`}
               >
-                {selectedEvent ? "Editar Agendamento" : "Novo Agendamento"}
-              </h3>
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setSelectedEvent(null);
-                }}
-                className={
-                  isDarkMode
-                    ? "text-slate-400 hover:text-slate-200"
-                    : "text-gray-500 hover:text-gray-700"
-                }
-              >
-                ✕
-              </button>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                  {error ? "❌" : "✅"} {error || success}
+                </div>
+              </div>
+            )}
+
+            {/* Resumo de Agendamentos */}
+            <div
+              className={`mt-4 mb-6 sm:mt-6 sm:mb-8 rounded-xl border shadow-lg ${
+                isDarkMode
+                  ? "bg-slate-900 border-slate-700"
+                  : "bg-white border-gray-200"
+              }`}
+            >
+              <div className="p-3 sm:p-4 border-b border-slate-700">
+                <h2
+                  className={`text-sm sm:text-base font-semibold ${
+                    isDarkMode ? "text-slate-100" : "text-gray-900"
+                  }`}
+                >
+                  Resumo de Agendamentos
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 p-3 sm:p-4">
+                <div
+                  className={`p-3 rounded-lg ${
+                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`text-xs sm:text-sm ${
+                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    }`}
+                  >
+                    Total de Agendamentos
+                  </div>
+                  <div
+                    className={`text-lg sm:text-xl font-semibold mt-1 ${
+                      isDarkMode ? "text-slate-100" : "text-gray-900"
+                    }`}
+                  >
+                    {events.length}
+                  </div>
+                </div>
+                <div
+                  className={`p-3 rounded-lg ${
+                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`text-xs sm:text-sm ${
+                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    }`}
+                  >
+                    Confirmados
+                  </div>
+                  <div
+                    className={`text-lg sm:text-xl font-semibold mt-1 text-green-500`}
+                  >
+                    {
+                      events.filter(
+                        (e) => e.extendedProps.status === "CONFIRMED"
+                      ).length
+                    }
+                  </div>
+                </div>
+                <div
+                  className={`p-3 rounded-lg ${
+                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`text-xs sm:text-sm ${
+                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    }`}
+                  >
+                    Cancelados
+                  </div>
+                  <div
+                    className={`text-lg sm:text-xl font-semibold mt-1 text-red-500`}
+                  >
+                    {
+                      events.filter(
+                        (e) => e.extendedProps.status === "CANCELLED"
+                      ).length
+                    }
+                  </div>
+                </div>
+                <div
+                  className={`p-3 rounded-lg ${
+                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`text-xs sm:text-sm ${
+                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    }`}
+                  >
+                    Próximos 7 Dias
+                  </div>
+                  <div
+                    className={`text-lg sm:text-xl font-semibold mt-1 ${
+                      isDarkMode ? "text-slate-100" : "text-gray-900"
+                    }`}
+                  >
+                    {
+                      events.filter((e) => {
+                        const eventDate = new Date(e.start);
+                        const today = new Date();
+                        const sevenDaysFromNow = new Date(
+                          today.setDate(today.getDate() + 7)
+                        );
+                        return (
+                          eventDate >= new Date() &&
+                          eventDate <= sevenDaysFromNow
+                        );
+                      }).length
+                    }
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Cliente *
-                </label>
-                <input
-                  type="text"
-                  value={formData.clientName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, clientName: e.target.value })
-                  }
-                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-slate-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                  required
-                />
-              </div>
+            {/* Calendário */}
+            <div
+              className={`${
+                isDarkMode
+                  ? "bg-slate-900 border-slate-700"
+                  : "bg-white border-gray-200"
+              } p-0.5 sm:p-2 md:p-4 rounded-xl border shadow-lg w-full overflow-x-auto`}
+            >
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                headerToolbar={{
+                  left: "prev,next today",
+                  center: "title",
+                  right: "dayGridMonth,timeGridWeek,timeGridDay",
+                }}
+                initialView="timeGridWeek"
+                editable={true}
+                selectable={true}
+                selectMirror={true}
+                dayMaxEvents={true}
+                weekends={true}
+                events={events}
+                select={handleDateSelect}
+                eventClick={handleEventClick}
+                locale={ptBrLocale}
+                height="calc(100vh - 200px)"
+                slotMinTime="08:00:00"
+                slotMaxTime="20:00:00"
+                allDaySlot={true}
+                allDayText="Dia inteiro"
+                slotDuration="01:00:00"
+                slotLabelInterval="01:00"
+                slotHeight={55}
+                eventDurationEditable={true}
+                eventOverlap={false}
+                forceEventDuration={true}
+                defaultTimedEventDuration="01:00:00"
+                eventTimeFormat={{
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  meridiem: false,
+                }}
+                expandRows={true}
+                contentHeight="auto"
+                nowIndicator={true}
+                dayMaxEventRows={4}
+                moreLinkClick="popover"
+                eventContent={(eventInfo) => {
+                  // Determinar se o evento é na visualização de mês ou semana/dia
+                  const isMonthView = eventInfo.view.type === "dayGridMonth";
 
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Data/Hora *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.dateTime}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dateTime: e.target.value })
+                  // Renderização simplificada para visualização mensal
+                  if (isMonthView) {
+                    return (
+                      <div className="flex items-center p-1 h-full min-h-[20px] gap-1 rounded">
+                        <div
+                          className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            eventInfo.event.extendedProps.status === "CONFIRMED"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}
+                        ></div>
+                        <div className="font-medium text-[10px] truncate">
+                          {eventInfo.event.extendedProps.clientName}
+                        </div>
+                      </div>
+                    );
                   }
-                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-slate-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                  required
-                />
-              </div>
 
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Serviço *
-                </label>
-                <input
-                  type="text"
-                  value={formData.service}
-                  onChange={(e) =>
-                    setFormData({ ...formData, service: e.target.value })
+                  // Renderização completa para visualização semanal/diária
+                  return (
+                    <div className="flex flex-col p-2 h-full min-h-[50px] rounded-lg overflow-hidden relative backdrop-blur-sm">
+                      {/* Faixa de status no topo do evento */}
+                      <div
+                        className={`absolute top-0 left-0 right-0 h-1.5 ${
+                          eventInfo.event.extendedProps.status === "CONFIRMED"
+                            ? "bg-gradient-to-r from-green-400 to-green-600"
+                            : "bg-gradient-to-r from-red-400 to-red-600"
+                        }`}
+                      ></div>
+
+                      {/* Hora do evento */}
+                      <div className="flex items-center gap-1 pt-1 mb-0.5">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-2.5 h-2.5 opacity-70"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="text-[8px] font-medium opacity-90">
+                          {format(eventInfo.event.start, "HH:mm")} -{" "}
+                          {format(eventInfo.event.end, "HH:mm")}
+                        </span>
+                      </div>
+
+                      {/* Conteúdo principal */}
+                      <div className="flex-1 flex flex-col">
+                        <div className="font-bold text-[11px] sm:text-sm truncate">
+                          {eventInfo.event.extendedProps.clientName}
+                        </div>
+
+                        <div className="flex items-center mt-1 gap-1">
+                          <div className="w-2 h-2 rounded-full bg-current opacity-80"></div>
+                          <div className="text-[9px] sm:text-xs font-medium truncate">
+                            {eventInfo.event.extendedProps.service}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center mt-1.5 gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="w-2.5 h-2.5 opacity-70"
+                          >
+                            <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+                          </svg>
+                          <div className="text-[8px] sm:text-[10px] opacity-80 truncate">
+                            {eventInfo.event.extendedProps.barber}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
+                eventClassNames={(eventInfo) => {
+                  // Classes base diferentes para visualização mensal vs semanal/diária
+                  const isMonthView = eventInfo.view.type === "dayGridMonth";
+
+                  const baseClasses = isMonthView
+                    ? "shadow-sm hover:shadow-md transition-all duration-200"
+                    : "shadow-lg hover:shadow-xl transition-all duration-300";
+
+                  // Classes específicas para cada status
+                  const statusClasses =
+                    eventInfo.event.extendedProps.status === "CONFIRMED"
+                      ? isDarkMode
+                        ? isMonthView
+                          ? "bg-green-900/80 text-green-50 border border-green-700"
+                          : "bg-gradient-to-br from-green-900/90 to-green-800/90 border-l-4 border-l-green-400 text-green-50"
+                        : isMonthView
+                        ? "bg-green-100 text-green-900 border border-green-300"
+                        : "bg-gradient-to-br from-green-50 to-green-100/90 border-l-4 border-l-green-500 text-green-900"
+                      : isDarkMode
+                      ? isMonthView
+                        ? "bg-red-900/80 text-red-50 border border-red-700"
+                        : "bg-gradient-to-br from-red-900/90 to-red-800/90 border-l-4 border-l-red-400 text-red-50"
+                      : isMonthView
+                      ? "bg-red-100 text-red-900 border border-red-300"
+                      : "bg-gradient-to-br from-red-50 to-red-100/90 border-l-4 border-l-red-500 text-red-900";
+
+                  return `${baseClasses} ${statusClasses}`;
+                }}
+                slotEventOverlap={false}
+                eventMinHeight={50}
+                eventMaxStack={3}
+                eventDisplay="block"
+                eventDidMount={(info) => {
+                  // Ajusta a altura do evento baseado no conteúdo
+                  const eventEl = info.el;
+                  const contentEl = eventEl.querySelector(".fc-event-main");
+                  if (contentEl) {
+                    const contentHeight = contentEl.scrollHeight;
+                    eventEl.style.height = `${Math.max(
+                      50,
+                      contentHeight + 4
+                    )}px`;
                   }
-                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-slate-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                  required
-                />
-              </div>
+                }}
+              />
+            </div>
 
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Barbeiro *
-                </label>
-                <select
-                  value={formData.barberId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, barberId: e.target.value })
-                  }
-                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
+            {/* Modal */}
+            {isModalOpen && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 sm:p-4 z-50 backdrop-blur-sm">
+                <div
+                  className={`${
                     isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-slate-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                  required
+                      ? "bg-slate-800 border-slate-700"
+                      : "bg-white border-gray-200"
+                  } rounded-xl p-2.5 sm:p-4 md:p-6 w-full max-w-md border shadow-2xl`}
                 >
-                  <option value="">Selecione um barbeiro</option>
-                  {barbers.map((barber) => (
-                    <option key={barber.id} value={barber.id}>
-                      {barber.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className="flex justify-between items-center mb-2.5 sm:mb-4">
+                    <h3
+                      className={`text-sm sm:text-lg font-semibold ${
+                        isDarkMode ? "text-slate-100" : "text-gray-900"
+                      }`}
+                    >
+                      {selectedEvent
+                        ? "Editar Agendamento"
+                        : "Novo Agendamento"}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        setSelectedEvent(null);
+                      }}
+                      className={
+                        isDarkMode
+                          ? "text-slate-400 hover:text-slate-200"
+                          : "text-gray-500 hover:text-gray-700"
+                      }
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Status *
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  className={`w-full px-3 sm:px-4 py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-sm sm:text-base ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-slate-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                  required
-                >
-                  <option value="CONFIRMED">Confirmado</option>
-                  <option value="CANCELLED">Cancelado</option>
-                </select>
-              </div>
-
-              <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg transition-all text-sm sm:text-base"
-                >
-                  {selectedEvent ? "Atualizar" : "Criar"}
-                </button>
-                {selectedEvent && (
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-all text-sm sm:text-base"
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-2 sm:space-y-3"
                   >
-                    Excluir
-                  </button>
-                )}
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Cliente *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.clientName}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            clientName: e.target.value,
+                          })
+                        }
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-slate-100"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Data/Hora *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.dateTime}
+                        onChange={(e) =>
+                          setFormData({ ...formData, dateTime: e.target.value })
+                        }
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-slate-100"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Serviço *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.service}
+                        onChange={(e) =>
+                          setFormData({ ...formData, service: e.target.value })
+                        }
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-slate-100"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Barbeiro *
+                      </label>
+                      <select
+                        value={formData.barberId}
+                        onChange={(e) =>
+                          setFormData({ ...formData, barberId: e.target.value })
+                        }
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-slate-100"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        required
+                      >
+                        <option value="">Selecione um barbeiro</option>
+                        {barbers.map((barber) => (
+                          <option key={barber.id} value={barber.id}>
+                            {barber.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Status *
+                      </label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) =>
+                          setFormData({ ...formData, status: e.target.value })
+                        }
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-slate-100"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        required
+                      >
+                        <option value="CONFIRMED">Confirmado</option>
+                        <option value="CANCELLED">Cancelado</option>
+                      </select>
+                    </div>
+
+                    <div className="flex gap-2 sm:gap-3 mt-2.5 sm:mt-4">
+                      <button
+                        type="submit"
+                        className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+                      >
+                        {selectedEvent ? "Atualizar" : "Criar"}
+                      </button>
+                      {selectedEvent && (
+                        <button
+                          type="button"
+                          onClick={handleDelete}
+                          className="flex-1 bg-red-500 hover:bg-red-600 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+                        >
+                          Excluir
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
               </div>
-            </form>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
