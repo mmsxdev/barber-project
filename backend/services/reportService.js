@@ -563,13 +563,10 @@ class ReportService {
           );
       };
 
-      // Evento para adicionar rodapé a cada página
-      doc.on("pageAdded", () => {
-        addPageFooter();
-      });
-
       // Adicionar cabeçalho na primeira página
       addPageHeader();
+      // Adicionar rodapé na primeira página
+      addPageFooter();
 
       // Resumo Financeiro
       addSectionHeader("Resumo Financeiro");
@@ -738,6 +735,7 @@ class ReportService {
 
       doc.addPage();
       addPageHeader();
+      addPageFooter(); // Adicionar rodapé após criar a página
 
       // Agendamentos
       addSectionHeader("Agendamentos");
@@ -798,6 +796,7 @@ class ReportService {
 
       doc.addPage();
       addPageHeader();
+      addPageFooter(); // Adicionar rodapé após criar a página
 
       // Estoque
       addSectionHeader("Estoque");
@@ -885,13 +884,12 @@ class ReportService {
         addNormalText("Não há produtos com baixo estoque.");
       }
 
-      // Adicionar rodapé na última página
-      addPageFooter();
-
-      // Insights de IA (se existirem)
+      // Se houver insights de IA, adicionar uma página para eles
       if (data.aiInsights) {
         doc.addPage();
         addPageHeader();
+        addPageFooter(); // Adicionar rodapé após criar a página
+
         addSectionHeader("Insights Gerados por IA");
 
         // Processar o texto da IA para formatação adequada
@@ -899,7 +897,11 @@ class ReportService {
         let currentFont = "Helvetica";
         let currentSize = 10;
 
-        aiTextLines.forEach((line) => {
+        // Limitar o tamanho das insights para evitar problemas de memória
+        const maxLines = 100; // Limita a quantidade de linhas processadas
+        const processedLines = aiTextLines.slice(0, maxLines);
+
+        processedLines.forEach((line) => {
           // Pular linhas vazias mas manter espaço
           if (line.trim() === "") {
             doc.moveDown(0.5);
@@ -931,34 +933,20 @@ class ReportService {
           // Tratar texto comum
           doc.fillColor(colors.dark).font("Helvetica").fontSize(10);
 
-          // Substituir marcadores de negrito por formatação real
-          if (line.includes("**")) {
-            // Dividir a linha por marcadores de negrito
-            const segments = line.split(/(\*\*.*?\*\*)/g);
-            let currentPosition = doc.x;
-
-            segments.forEach((segment) => {
-              if (segment.startsWith("**") && segment.endsWith("**")) {
-                // Texto em negrito
-                const boldText = segment.substring(2, segment.length - 2);
-                doc.font("Helvetica-Bold").text(boldText, { continued: true });
-                doc.font("Helvetica");
-              } else if (segment) {
-                // Texto normal
-                doc.text(segment, { continued: true });
-              }
-            });
-
-            doc.text(""); // Terminar a linha
-          } else {
-            // Linhas com marcadores
-            if (line.trim().startsWith("-") || line.trim().startsWith("•")) {
-              doc.text(line.trim(), { indent: 10 });
-            } else {
-              doc.text(line.trim());
-            }
-          }
+          // Texto simples sem formatação complexa para evitar problemas
+          doc.text(line.trim());
         });
+
+        // Se truncamos o texto, adicionar uma nota
+        if (aiTextLines.length > maxLines) {
+          doc
+            .fillColor(colors.accent)
+            .fontSize(9)
+            .font("Helvetica-Italic")
+            .text(
+              "Nota: O texto completo dos insights foi truncado para otimizar o desempenho."
+            );
+        }
       }
 
       doc.end();
