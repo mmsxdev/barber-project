@@ -48,20 +48,46 @@ const Schedule = () => {
   const fetchEvents = async () => {
     try {
       const response = await api.get("/schedulings");
-      const formattedEvents = response.data.map((s) => ({
-        id: s.id,
-        title: `${s.clientName} • ${s.service}`,
-        start: parseISO(s.dateTime),
-        end: new Date(parseISO(s.dateTime).getTime() + 60 * 60 * 1000),
-        status: s.status,
-        barber: s.barber?.name,
-        extendedProps: {
-          clientName: s.clientName,
-          service: s.service,
-          barberId: s.barberId,
+      const formattedEvents = response.data.map((s) => {
+        // Definir cores com base no status
+        let bgColor, borderColor;
+
+        switch (s.status) {
+          case "CONFIRMED":
+            bgColor = "#4ade80"; // verde
+            borderColor = "#22c55e";
+            break;
+          case "PENDING":
+            bgColor = "#facc15"; // amarelo
+            borderColor = "#eab308";
+            break;
+          case "CANCELED":
+            bgColor = "#f87171"; // vermelho
+            borderColor = "#ef4444";
+            break;
+          default:
+            bgColor = "#facc15"; // amarelo (default)
+            borderColor = "#eab308";
+        }
+
+        return {
+          id: s.id,
+          title: `${s.clientName} • ${s.service}`,
+          start: parseISO(s.dateTime),
+          end: new Date(parseISO(s.dateTime).getTime() + 60 * 60 * 1000),
           status: s.status,
-        },
-      }));
+          barber: s.barber?.name,
+          backgroundColor: bgColor,
+          borderColor: borderColor,
+          extendedProps: {
+            clientName: s.clientName,
+            service: s.service,
+            barberId: s.barberId,
+            status: s.status,
+            barber: s.barber?.name,
+          },
+        };
+      });
       setEvents(formattedEvents);
     } catch (error) {
       error && setError("Erro ao carregar agendamentos");
@@ -185,7 +211,7 @@ const Schedule = () => {
             };
           }
           .fc-timegrid-slot {
-            height: 55px !important;
+            height: 35px !important;
             border-bottom: 1px solid ${
               isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.07)"
             } !important;
@@ -293,116 +319,138 @@ const Schedule = () => {
 
             {/* Resumo de Agendamentos */}
             <div
-              className={`mt-4 mb-6 sm:mt-6 sm:mb-8 rounded-xl border shadow-lg ${
+              className={`mt-4 mb-6 sm:mt-5 sm:mb-6 rounded-xl border shadow-lg ${
                 isDarkMode
                   ? "bg-slate-900 border-slate-700"
                   : "bg-white border-gray-200"
               }`}
             >
-              <div className="p-3 sm:p-4 border-b border-slate-700">
-                <h2
-                  className={`text-sm sm:text-base font-semibold ${
-                    isDarkMode ? "text-slate-100" : "text-gray-900"
-                  }`}
-                >
-                  Resumo de Agendamentos
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 p-3 sm:p-4">
-                <div
-                  className={`p-3 rounded-lg ${
-                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`text-xs sm:text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
+              <div className="flex flex-wrap lg:flex-nowrap items-center p-2 sm:p-3">
+                <div className="px-2 py-1 sm:py-1.5 flex items-center">
+                  <span
+                    className={`text-xs sm:text-sm font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-gray-700"
                     }`}
                   >
-                    Total de Agendamentos
-                  </div>
-                  <div
-                    className={`text-lg sm:text-xl font-semibold mt-1 ${
-                      isDarkMode ? "text-slate-100" : "text-gray-900"
-                    }`}
-                  >
-                    {events.length}
-                  </div>
+                    Resumo:
+                  </span>
                 </div>
-                <div
-                  className={`p-3 rounded-lg ${
-                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
-                  }`}
-                >
+                <div className="flex flex-wrap lg:flex-nowrap flex-1 gap-2 sm:gap-3">
                   <div
-                    className={`text-xs sm:text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    className={`flex items-center rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      isDarkMode ? "bg-slate-800/70" : "bg-gray-50/80"
                     }`}
                   >
-                    Confirmados
+                    <div
+                      className={`text-xs font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Total:
+                    </div>
+                    <div
+                      className={`text-xs font-semibold ml-1 ${
+                        isDarkMode ? "text-slate-100" : "text-gray-900"
+                      }`}
+                    >
+                      {events.length}
+                    </div>
                   </div>
                   <div
-                    className={`text-lg sm:text-xl font-semibold mt-1 text-green-500`}
-                  >
-                    {
-                      events.filter(
-                        (e) => e.extendedProps.status === "CONFIRMED"
-                      ).length
-                    }
-                  </div>
-                </div>
-                <div
-                  className={`p-3 rounded-lg ${
-                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`text-xs sm:text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    className={`flex items-center rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      isDarkMode ? "bg-slate-800/70" : "bg-gray-50/80"
                     }`}
                   >
-                    Cancelados
+                    <div
+                      className={`text-xs font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Confirmados:
+                    </div>
+                    <div
+                      className={`text-xs font-semibold ml-1 text-green-500`}
+                    >
+                      {
+                        events.filter(
+                          (e) => e.extendedProps.status === "CONFIRMED"
+                        ).length
+                      }
+                    </div>
                   </div>
                   <div
-                    className={`text-lg sm:text-xl font-semibold mt-1 text-red-500`}
-                  >
-                    {
-                      events.filter(
-                        (e) => e.extendedProps.status === "CANCELED"
-                      ).length
-                    }
-                  </div>
-                </div>
-                <div
-                  className={`p-3 rounded-lg ${
-                    isDarkMode ? "bg-slate-800" : "bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`text-xs sm:text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
+                    className={`flex items-center rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      isDarkMode ? "bg-slate-800/70" : "bg-gray-50/80"
                     }`}
                   >
-                    Próximos 7 Dias
+                    <div
+                      className={`text-xs font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Pendentes:
+                    </div>
+                    <div
+                      className={`text-xs font-semibold ml-1 text-yellow-500`}
+                    >
+                      {
+                        events.filter(
+                          (e) => e.extendedProps.status === "PENDING"
+                        ).length
+                      }
+                    </div>
                   </div>
                   <div
-                    className={`text-lg sm:text-xl font-semibold mt-1 ${
-                      isDarkMode ? "text-slate-100" : "text-gray-900"
+                    className={`flex items-center rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      isDarkMode ? "bg-slate-800/70" : "bg-gray-50/80"
                     }`}
                   >
-                    {
-                      events.filter((e) => {
-                        const eventDate = new Date(e.start);
-                        const today = new Date();
-                        const sevenDaysFromNow = new Date(
-                          today.setDate(today.getDate() + 7)
-                        );
-                        return (
-                          eventDate >= new Date() &&
-                          eventDate <= sevenDaysFromNow
-                        );
-                      }).length
-                    }
+                    <div
+                      className={`text-xs font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Cancelados:
+                    </div>
+                    <div className={`text-xs font-semibold ml-1 text-red-500`}>
+                      {
+                        events.filter(
+                          (e) => e.extendedProps.status === "CANCELED"
+                        ).length
+                      }
+                    </div>
+                  </div>
+                  <div
+                    className={`flex items-center rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      isDarkMode ? "bg-slate-800/70" : "bg-gray-50/80"
+                    }`}
+                  >
+                    <div
+                      className={`text-xs font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Próx. 7 dias:
+                    </div>
+                    <div
+                      className={`text-xs font-semibold ml-1 ${
+                        isDarkMode ? "text-slate-100" : "text-gray-900"
+                      }`}
+                    >
+                      {
+                        events.filter((e) => {
+                          const eventDate = new Date(e.start);
+                          const today = new Date();
+                          const sevenDaysFromNow = new Date(
+                            today.setDate(today.getDate() + 7)
+                          );
+                          return (
+                            eventDate >= new Date() &&
+                            eventDate <= sevenDaysFromNow
+                          );
+                        }).length
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
@@ -435,16 +483,16 @@ const Schedule = () => {
                 locale={ptBrLocale}
                 height="calc(100vh - 200px)"
                 slotMinTime="08:00:00"
-                slotMaxTime="20:00:00"
+                slotMaxTime="19:00:00"
                 allDaySlot={true}
                 allDayText="Dia inteiro"
-                slotDuration="01:00:00"
-                slotLabelInterval="01:00"
-                slotHeight={55}
+                slotDuration="00:30:00"
+                slotLabelInterval="00:30"
+                slotHeight={40}
                 eventDurationEditable={true}
                 eventOverlap={false}
                 forceEventDuration={true}
-                defaultTimedEventDuration="01:00:00"
+                defaultTimedEventDuration="00:30:00"
                 eventTimeFormat={{
                   hour: "2-digit",
                   minute: "2-digit",
@@ -467,7 +515,10 @@ const Schedule = () => {
                           className={`w-2 h-2 rounded-full flex-shrink-0 ${
                             eventInfo.event.extendedProps.status === "CONFIRMED"
                               ? "bg-green-500"
-                              : "bg-red-500"
+                              : eventInfo.event.extendedProps.status ===
+                                "CANCELED"
+                              ? "bg-red-500"
+                              : "bg-yellow-500"
                           }`}
                         ></div>
                         <div className="font-medium text-[10px] truncate">
@@ -485,7 +536,10 @@ const Schedule = () => {
                         className={`absolute top-0 left-0 right-0 h-1.5 ${
                           eventInfo.event.extendedProps.status === "CONFIRMED"
                             ? "bg-gradient-to-r from-green-400 to-green-600"
-                            : "bg-gradient-to-r from-red-400 to-red-600"
+                            : eventInfo.event.extendedProps.status ===
+                              "CANCELED"
+                            ? "bg-gradient-to-r from-red-400 to-red-600"
+                            : "bg-gradient-to-r from-yellow-400 to-yellow-600"
                         }`}
                       ></div>
 
@@ -557,13 +611,21 @@ const Schedule = () => {
                         : isMonthView
                         ? "bg-green-100 text-green-900 border border-green-300"
                         : "bg-gradient-to-br from-green-50 to-green-100/90 border-l-4 border-l-green-500 text-green-900"
+                      : eventInfo.event.extendedProps.status === "CANCELED"
+                      ? isDarkMode
+                        ? isMonthView
+                          ? "bg-red-900/80 text-red-50 border border-red-700"
+                          : "bg-gradient-to-br from-red-900/90 to-red-800/90 border-l-4 border-l-red-400 text-red-50"
+                        : isMonthView
+                        ? "bg-red-100 text-red-900 border border-red-300"
+                        : "bg-gradient-to-br from-red-50 to-red-100/90 border-l-4 border-l-red-500 text-red-900"
                       : isDarkMode
                       ? isMonthView
-                        ? "bg-red-900/80 text-red-50 border border-red-700"
-                        : "bg-gradient-to-br from-red-900/90 to-red-800/90 border-l-4 border-l-red-400 text-red-50"
+                        ? "bg-yellow-900/80 text-yellow-50 border border-yellow-700"
+                        : "bg-gradient-to-br from-yellow-900/90 to-yellow-800/90 border-l-4 border-l-yellow-400 text-yellow-50"
                       : isMonthView
-                      ? "bg-red-100 text-red-900 border border-red-300"
-                      : "bg-gradient-to-br from-red-50 to-red-100/90 border-l-4 border-l-red-500 text-red-900";
+                      ? "bg-yellow-100 text-yellow-900 border border-yellow-300"
+                      : "bg-gradient-to-br from-yellow-50 to-yellow-100/90 border-l-4 border-l-yellow-500 text-yellow-900";
 
                   return `${baseClasses} ${statusClasses}`;
                 }}
@@ -747,6 +809,7 @@ const Schedule = () => {
                         required
                       >
                         <option value="CONFIRMED">Confirmado</option>
+                        <option value="PENDING">Pendente</option>
                         <option value="CANCELED">Cancelado</option>
                       </select>
                     </div>

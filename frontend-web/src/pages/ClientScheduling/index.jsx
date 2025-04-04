@@ -58,15 +58,42 @@ const ClientScheduling = () => {
   const fetchEvents = async () => {
     try {
       const response = await publicApi.get("/public/scheduling/slots");
-      const formattedEvents = response.data.map((s) => ({
-        id: s.id,
-        title: s.status === "CONFIRMED" ? "Confirmado" : "Cancelado",
-        start: parseISO(s.dateTime),
-        end: addHours(parseISO(s.dateTime), 1),
-        backgroundColor: s.status === "CONFIRMED" ? "#FFA500" : "#ff4646",
-        borderColor: s.status === "CONFIRMED" ? "#FF8C00" : "#ff3333",
-        display: "block",
-      }));
+      const formattedEvents = response.data.map((s) => {
+        let bgColor, borderColor;
+
+        switch (s.status) {
+          case "CONFIRMED":
+            bgColor = "#4ade80"; // verde
+            borderColor = "#22c55e";
+            break;
+          case "PENDING":
+            bgColor = "#facc15"; // amarelo
+            borderColor = "#eab308";
+            break;
+          case "CANCELED":
+            bgColor = "#f87171"; // vermelho
+            borderColor = "#ef4444";
+            break;
+          default:
+            bgColor = "#facc15"; // amarelo (default)
+            borderColor = "#eab308";
+        }
+
+        return {
+          id: s.id,
+          title:
+            s.status === "CONFIRMED"
+              ? "Confirmado"
+              : s.status === "CANCELED"
+              ? "Cancelado"
+              : "Pendente",
+          start: parseISO(s.dateTime),
+          end: addHours(parseISO(s.dateTime), 1),
+          backgroundColor: bgColor,
+          borderColor: borderColor,
+          display: "block",
+        };
+      });
       setEvents(formattedEvents);
     } catch {
       setError("Não foi possível carregar os horários.");
@@ -86,10 +113,10 @@ const ClientScheduling = () => {
       return;
     }
 
-    // Verificar se o horário está dentro do expediente (8h às 18h)
+    // Verificar se o horário está dentro do expediente (8h às 19h)
     const hour = selectInfo.start.getHours();
-    if (hour < 8 || hour >= 18) {
-      setError("Horários disponíveis apenas das 8h às 18h.");
+    if (hour < 8 || hour >= 19) {
+      setError("Horários disponíveis apenas das 8h às 19h.");
       return;
     }
 
@@ -366,7 +393,7 @@ const ClientScheduling = () => {
                   }}
                   height="auto"
                   slotMinTime="08:00:00"
-                  slotMaxTime="18:00:00"
+                  slotMaxTime="19:00:00"
                   allDaySlot={false}
                   selectable={true}
                   selectMirror={true}
@@ -375,6 +402,9 @@ const ClientScheduling = () => {
                   events={events}
                   locale={ptBrLocale}
                   select={handleDateSelect}
+                  slotDuration="00:30:00"
+                  slotLabelInterval="00:30"
+                  defaultTimedEventDuration="00:30:00"
                   eventTimeFormat={{
                     hour: "2-digit",
                     minute: "2-digit",
@@ -386,18 +416,49 @@ const ClientScheduling = () => {
                     hour12: false,
                   }}
                 />
+                <style>
+                  {`
+                    .fc-col-header-cell {
+                      background-color: ${
+                        isDarkMode ? "#1e293b" : "#f3f4f6"
+                      } !important;
+                    }
+                    .fc-col-header-cell-cushion {
+                      color: ${isDarkMode ? "#e2e8f0" : "#1f2937"} !important;
+                    }
+                    .fc-timegrid-axis-cushion,
+                    .fc-timegrid-slot-label-cushion {
+                      color: ${isDarkMode ? "#e2e8f0" : "#1f2937"} !important;
+                    }
+                    .fc-theme-standard td, 
+                    .fc-theme-standard th {
+                      border-color: ${
+                        isDarkMode
+                          ? "rgba(255, 255, 255, 0.1)"
+                          : "rgba(0, 0, 0, 0.1)"
+                      } !important;
+                    }
+                    .fc-timegrid-slot {
+                      height: 40px !important;
+                    }
+                  `}
+                </style>
                 <div className="mt-4 text-sm text-center">
                   <p className="mb-1">
                     Clique em um horário disponível para agendar
                   </p>
-                  <div className="flex justify-center gap-6 mt-2">
+                  <div className="flex justify-center gap-4 mt-2 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-                      <span>Horário cancelado</span>
+                      <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
+                      <span>Confirmado</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-orange-500 rounded-sm"></div>
-                      <span>Horário confirmado</span>
+                      <div className="w-4 h-4 bg-yellow-500 rounded-sm"></div>
+                      <span>Pendente</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                      <span>Cancelado</span>
                     </div>
                   </div>
                 </div>
