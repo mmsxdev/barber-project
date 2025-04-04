@@ -6,11 +6,10 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const router = express.Router();
 
-router.use(auth);
-
-// Criar agendamento
+// Criar agendamento (rota protegida)
 router.post(
   "/schedulings",
+  auth, // Middleware de autenticação aplicado individualmente
   checkRole(["SECRETARY", "ADMIN", "BARBER"]),
   async (req, res) => {
     try {
@@ -55,8 +54,8 @@ router.post(
   }
 );
 
-// routes/scheduling.js (atualizar a rota GET /schedulings)
-router.get("/schedulings", async (req, res) => {
+// Listar agendamentos (rota protegida)
+router.get("/schedulings", auth, async (req, res) => {
   try {
     const { startDate, endDate, barberId, status } = req.query;
 
@@ -92,7 +91,7 @@ router.get("/schedulings", async (req, res) => {
   }
 });
 
-// routes/scheduling.js (adicionar esta nova rota)
+// Listar barbeiros (rota pública)
 router.get("/schedulings/barbers", async (req, res) => {
   try {
     const barbers = await prisma.user.findMany({
@@ -106,9 +105,10 @@ router.get("/schedulings/barbers", async (req, res) => {
   }
 });
 
-// Atualizar agendamento
+// Atualizar agendamento (rota protegida)
 router.put(
   "/schedulings/:id",
+  auth,
   checkRole(["SECRETARY", "ADMIN", "BARBER"]),
   async (req, res) => {
     try {
@@ -138,9 +138,10 @@ router.put(
   }
 );
 
-// Deletar agendamento
+// Deletar agendamento (rota protegida)
 router.delete(
   "/schedulings/:id",
+  auth,
   checkRole(["SECRETARY", "ADMIN"]),
   async (req, res) => {
     try {
@@ -152,5 +153,64 @@ router.delete(
     }
   }
 );
+
+// Rota para cliente fazer agendamento (pública, sem autenticação)
+router.post("/client", async (request, response) => {
+  try {
+    const { clientName, phone, dateTime, service, barberId, status } =
+      request.body;
+
+    // Validação básica
+    if (!clientName || !phone || !dateTime || !service || !barberId) {
+      return response
+        .status(400)
+        .json({ error: "Todos os campos são obrigatórios" });
+    }
+
+    // Verificar se o horário já está ocupado
+    const existingAppointment = await prisma.scheduling.findFirst({
+      where: {
+        dateTime: new Date(dateTime),
+        barberId: barberId,
+      },
+    });
+
+    if (existingAppointment) {
+      return response.status(400).json({
+        error: "Horário já agendado. Por favor, escolha outro horário.",
+      });
+    }
+
+    // Verificar se o barbeiro existe
+    const barber = await prisma.user.findUnique({
+      where: { id: barberId, role: "BARBER" },
+    });
+
+    if (!barber) {
+      return response.status(400).json({ error: "Barbeiro inválido" });
+    }
+
+    // Criar o agendamento
+    const scheduling = await prisma.scheduling.create({
+      data: {
+        clientName,
+        dateTime: new Date(dateTime),
+        service,
+        status: "PENDING", // Status inicial sempre pendente
+        barberId,
+        userId: barberId, // Usar o barbeiro como criador
+        phone, // Armazenar o telefone do cliente
+      },
+    });
+
+    response.status(201).json({
+      message: "Agendamento realizado com sucesso! Aguarde a confirmação.",
+      scheduling,
+    });
+  } catch (error) {
+    console.error("Erro ao criar agendamento de cliente:", error);
+    response.status(500).json({ error: "Erro ao processar seu agendamento." });
+  }
+});
 
 export default router;

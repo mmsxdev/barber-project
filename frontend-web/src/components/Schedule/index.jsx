@@ -368,7 +368,7 @@ const Schedule = () => {
                   >
                     {
                       events.filter(
-                        (e) => e.extendedProps.status === "CANCELLED"
+                        (e) => e.extendedProps.status === "CANCELED"
                       ).length
                     }
                   </div>
@@ -747,7 +747,7 @@ const Schedule = () => {
                         required
                       >
                         <option value="CONFIRMED">Confirmado</option>
-                        <option value="CANCELLED">Cancelado</option>
+                        <option value="CANCELED">Cancelado</option>
                       </select>
                     </div>
 

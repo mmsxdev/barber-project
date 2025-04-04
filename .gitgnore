@@ -31,3 +31,11 @@ frontend/node_modules/
 backend/.env
 backend/node_modules/
 backend/prisma/migrations/
+
+# WhatsApp Web.js
+wwebjs_auth/
+webjs_cache/
+
+# Package files na raiz (ignorar node_modules acidentalmente instalado na raiz)
+/package.json
+/package-lock.json

@@ -4,10 +4,14 @@ import privateRoutes from "./routes/private.js";
 import productsRoutes from "./routes/products.js";
 import financeRoutes from "./routes/finance.js";
 import schedulingRoutes from "./routes/scheduling.js";
+import publicSchedulingRoutes from "./routes/public-scheduling.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import webhookRoutes from "./routes/webhook.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
+// Importar o serviço do WhatsApp para inicializar
+import "./services/whatsappService.js";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -42,7 +46,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Rotas públicas (sem autenticação)
 app.use("/", publicRoutes);
+app.use("/public/scheduling", publicSchedulingRoutes);
+app.use("/webhook", webhookRoutes);
+
+// Rotas protegidas (com autenticação)
 app.use("/", auth, privateRoutes);
 app.use("/", auth, productsRoutes);
 app.use("/", auth, financeRoutes);

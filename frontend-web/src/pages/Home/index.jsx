@@ -197,12 +197,24 @@ const Home = () => {
           >
             Estilo e tradição em cada corte
           </p>
-          <a
-            href="#contato"
-            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all"
-          >
-            Agendar Horário
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="/agendar"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all w-full sm:w-auto"
+            >
+              Agendar Online
+            </a>
+            <a
+              href="#contato"
+              className={`px-8 py-3 rounded-lg transition-all border w-full sm:w-auto ${
+                isDarkMode
+                  ? "border-white/20 text-white hover:bg-white/10"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              Falar com a Secretaria
+            </a>
+          </div>
         </div>
       </section>
 
@@ -361,31 +373,31 @@ const Home = () => {
       {/* Contato Section */}
       <section
         id="contato"
-        className={`py-18 ${isDarkMode ? "bg-slate-800" : "bg-gray-50"}`}
+        className={`py-20 ${isDarkMode ? "bg-slate-900" : "bg-white"}`}
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-6">
-            Agende seu Horário
-          </h2>
-          <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4">Contato</h2>
+          <p className="text-center mb-12 max-w-2xl mx-auto">
+            Para agendamentos rápidos, use nosso{" "}
+            <a
+              href="/agendar"
+              className="text-blue-500 font-semibold hover:underline"
+            >
+              sistema online
+            </a>
+            . Caso prefira falar diretamente com a secretaria, preencha o
+            formulário abaixo para iniciar uma conversa pelo WhatsApp.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div
               className={`${
-                isDarkMode ? "bg-white/5" : "bg-white"
-              } backdrop-blur-lg rounded-xl p-6 shadow-xl`}
+                isDarkMode ? "bg-white/5" : "bg-gray-50"
+              } backdrop-blur-lg rounded-xl p-6 hover:shadow-xl transition-all`}
             >
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-semibold mb-2">
-                  Envie uma Mensagem
-                </h3>
-                <p
-                  className={`text-sm ${
-                    isDarkMode ? "text-slate-400" : "text-gray-600"
-                  }`}
-                >
-                  Preencha o formulário abaixo para agendar seu horário via
-                  WhatsApp
-                </p>
-              </div>
+              <h3 className="text-xl font-semibold mb-4">
+                Fale com a Secretaria
+              </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label
