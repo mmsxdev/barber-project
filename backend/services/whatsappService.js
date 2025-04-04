@@ -1,7 +1,9 @@
 import pkg from "whatsapp-web.js";
-const { Client, LocalAuth } = pkg;
+const { Client, LocalAuth, RemoteAuth } = pkg;
 import qrcode from "qrcode-terminal";
 import axios from "axios";
+import fs from "fs";
+import path from "path";
 
 class WhatsAppService {
   constructor() {
@@ -9,14 +11,23 @@ class WhatsAppService {
     this.isReady = false;
     this.currentQRCode = null;
     this.qrRetries = 0;
-    this.maxQrRetries = 5;
+    this.maxQrRetries = 10; // Aumentado o número de tentativas
+    this.connectionStatus = "disconnected"; // novo status para acompanhar o estado da conexão
+    this.lastQrTimestamp = null;
     this.initialize();
   }
 
   initialize() {
+    // Criar diretório para os dados se não existir
+    const authDir = path.resolve("./wwebjs_auth");
+    if (!fs.existsSync(authDir)) {
+      fs.mkdirSync(authDir, { recursive: true });
+    }
+
     this.client = new Client({
       authStrategy: new LocalAuth({
-        dataPath: "./wwebjs_auth", // Explicitamente definir o caminho para os dados de autenticação
+        dataPath: "./wwebjs_auth",
+        clientId: "barbearia-session", // ID fixo para manter a sessão
       }),
       puppeteer: {
         args: [
@@ -27,40 +38,84 @@ class WhatsAppService {
           "--no-first-run",
           "--no-zygote",
           "--disable-gpu",
+          "--disable-extensions",
+          "--disable-component-extensions-with-background-pages",
+          "--disable-default-apps",
+          "--mute-audio",
+          "--hide-scrollbars",
         ],
         headless: true,
-        timeout: 60000, // Aumentar timeout para 60 segundos
+        timeout: 90000, // Aumentado para 90 segundos
       },
-      qrMaxRetries: 5, // Número máximo de tentativas de QR code antes de dar erro
-      restartOnAuthFail: true, // Tenta reiniciar em caso de falha na autenticação
+      qrMaxRetries: 10,
+      restartOnAuthFail: true,
+      qrTimeoutMs: 120000, // 2 minutos para cada QR code
     });
 
     this.client.on("qr", (qr) => {
-      // Armazenar o QR code para disponibilizá-lo via API
-      this.currentQRCode = qr;
-      this.qrRetries++;
+      this.connectionStatus = "qr_received";
 
-      console.log(
-        `QR CODE PARA AUTENTICAÇÃO DO WHATSAPP (tentativa ${this.qrRetries}/${this.maxQrRetries}):`
-      );
-      qrcode.generate(qr, { small: true });
+      // Só atualiza o QR se for o primeiro ou se já passou pelo menos 1 minuto
+      const now = Date.now();
+      if (!this.lastQrTimestamp || now - this.lastQrTimestamp > 60000) {
+        this.currentQRCode = qr;
+        this.lastQrTimestamp = now;
+        this.qrRetries++;
+
+        console.log(
+          `QR CODE PARA AUTENTICAÇÃO DO WHATSAPP (tentativa ${this.qrRetries}/${this.maxQrRetries}):`
+        );
+        qrcode.generate(qr, { small: true });
+
+        // Salvar o QR code em um arquivo para facilitar o acesso
+        try {
+          fs.writeFileSync("./wwebjs_auth/current_qr.txt", qr);
+        } catch (err) {
+          console.error("Erro ao salvar QR code:", err);
+        }
+      } else {
+        console.log(
+          "Mantendo QR code atual para permitir tempo suficiente para escaneamento"
+        );
+      }
     });
 
-    this.client.on("ready", () => {
-      this.isReady = true;
-      this.currentQRCode = null; // Limpar QR code quando autenticado
-      this.qrRetries = 0; // Reiniciar contador de tentativas
-      console.log("Cliente WhatsApp está pronto!");
+    this.client.on("loading_screen", (percent, message) => {
+      this.connectionStatus = "loading";
+      console.log(`WhatsApp carregando: ${percent}% - ${message}`);
     });
 
     this.client.on("authenticated", () => {
+      this.connectionStatus = "authenticated";
       console.log("Autenticado com sucesso!");
-      this.qrRetries = 0; // Reiniciar contador de tentativas
+      this.qrRetries = 0;
+
+      // Limpar o arquivo de QR quando autenticado
+      try {
+        if (fs.existsSync("./wwebjs_auth/current_qr.txt")) {
+          fs.unlinkSync("./wwebjs_auth/current_qr.txt");
+        }
+      } catch (err) {
+        console.error("Erro ao remover arquivo de QR:", err);
+      }
     });
 
     this.client.on("auth_failure", (msg) => {
+      this.connectionStatus = "auth_failure";
       console.error("Falha na autenticação:", msg);
-      // Não reiniciar imediatamente para evitar loop de tentativas
+
+      // Limpar dados de autenticação para forçar nova sessão
+      try {
+        const authPath = path.join("./wwebjs_auth", "barbearia-session");
+        if (fs.existsSync(authPath)) {
+          fs.rmSync(authPath, { recursive: true, force: true });
+          console.log("Limpeza dos dados de autenticação realizada");
+        }
+      } catch (err) {
+        console.error("Erro ao limpar dados de autenticação:", err);
+      }
+
+      // Reiniciar após 10 segundos
       setTimeout(() => {
         if (this.qrRetries < this.maxQrRetries) {
           console.log("Tentando reconectar após falha na autenticação...");
@@ -72,20 +127,29 @@ class WhatsAppService {
             "Número máximo de tentativas excedido. Reinicie o servidor."
           );
         }
-      }, 5000);
+      }, 10000);
+    });
+
+    this.client.on("ready", () => {
+      this.isReady = true;
+      this.connectionStatus = "ready";
+      this.currentQRCode = null;
+      this.qrRetries = 0;
+      console.log("Cliente WhatsApp está pronto!");
     });
 
     this.client.on("disconnected", (reason) => {
-      console.log("Cliente WhatsApp desconectado:", reason);
       this.isReady = false;
+      this.connectionStatus = "disconnected";
+      console.log("Cliente WhatsApp desconectado:", reason);
 
-      // Tentar reconectar após 5 segundos
+      // Tentar reconectar após 10 segundos
       setTimeout(() => {
         console.log("Tentando reconectar...");
         this.client.initialize().catch((err) => {
           console.error("Erro ao reinicializar cliente WhatsApp:", err);
         });
-      }, 5000);
+      }, 10000);
     });
 
     // Processar mensagens recebidas
@@ -103,6 +167,7 @@ class WhatsAppService {
       }
     });
 
+    console.log("Inicializando cliente WhatsApp...");
     this.client.initialize().catch((err) => {
       console.error("Erro ao inicializar cliente WhatsApp:", err);
     });
@@ -116,6 +181,47 @@ class WhatsAppService {
   // Verificar se o cliente está autenticado
   isAuthenticated() {
     return this.isReady;
+  }
+
+  // Retorna o status atual da conexão
+  getConnectionStatus() {
+    return {
+      status: this.connectionStatus,
+      isReady: this.isReady,
+      qrRetries: this.qrRetries,
+      lastQrTimestamp: this.lastQrTimestamp,
+    };
+  }
+
+  // Método para forçar nova autenticação (apagando dados existentes)
+  async logout() {
+    try {
+      if (this.client && this.isReady) {
+        await this.client.logout();
+      }
+
+      // Limpar dados de autenticação
+      const authPath = path.join("./wwebjs_auth", "barbearia-session");
+      if (fs.existsSync(authPath)) {
+        fs.rmSync(authPath, { recursive: true, force: true });
+      }
+
+      this.isReady = false;
+      this.connectionStatus = "disconnected";
+      this.currentQRCode = null;
+
+      // Reiniciar o cliente
+      setTimeout(() => {
+        this.client.initialize().catch((err) => {
+          console.error("Erro ao reinicializar cliente WhatsApp:", err);
+        });
+      }, 5000);
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      return false;
+    }
   }
 
   async processMessage(from, message) {
