@@ -3,3 +3,9 @@ node_modules
 .env
 # Ignore uploaded files
 uploads/
+# Ignore WhatsApp authentication files
+auth_baileys_sessions/
+# Ignore WhatsApp credentials
+*_auth_info.json
+*_auth_info_*
+*_store.json

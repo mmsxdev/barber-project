@@ -10,6 +10,7 @@ import ClientScheduling from "./pages/ClientScheduling";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PermissionError } from "./components/PermissionError";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import WhatsAppAdmin from "./pages/WhatsAppAdmin";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/editar-usuario/:cpf" element={<UsersEdit />} />
               <Route path="/agendar" element={<ClientScheduling />} />
               <Route path="/permission-error" element={<PermissionError />} />
+              <Route path="/whatsapp-admin" element={<WhatsAppAdmin />} />
             </Routes>
           </AuthProvider>
         </ThemeProvider>

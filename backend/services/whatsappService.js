@@ -1,87 +1,179 @@
-import pkg from "whatsapp-web.js";
-const { Client, LocalAuth } = pkg;
-import qrcode from "qrcode-terminal";
-import axios from "axios";
+// backend/services/whatsappService.js
+import {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+} from "@whiskeysockets/baileys";
+import { Boom } from "@hapi/boom";
+import fs from "fs";
+
+// Garantir que o diretório de autenticação exista
+const AUTH_FOLDER = "./auth_baileys_sessions";
+if (!fs.existsSync(AUTH_FOLDER)) {
+  fs.mkdirSync(AUTH_FOLDER, { recursive: true });
+}
 
 class WhatsAppService {
   constructor() {
-    this.client = null;
+    this.socket = null;
+    this.qr = null;
     this.isReady = false;
-    this.currentQRCode = null;
     this.initialize();
   }
 
-  initialize() {
-    this.client = new Client({
-      authStrategy: new LocalAuth(),
-      puppeteer: {
-        args: ["--no-sandbox"],
-      },
+  async initialize() {
+    // Estado de autenticação - armazena sessão em arquivos
+    const { state, saveCreds } = await useMultiFileAuthState(AUTH_FOLDER);
+
+    // Criar socket do WhatsApp
+    this.socket = makeWASocket({
+      auth: state,
+      printQRInTerminal: true,
     });
 
-    this.client.on("qr", (qr) => {
-      // Armazenar o QR code para disponibilizá-lo via API
-      this.currentQRCode = qr;
+    // Processar eventos
+    this.socket.ev.on("connection.update", async (update) => {
+      const { connection, lastDisconnect, qr } = update;
 
-      // Ainda exibe no terminal para conveniência
-      console.log("QR CODE PARA AUTENTICAÇÃO DO WHATSAPP:");
-      qrcode.generate(qr, { small: true });
-    });
+      // Armazenar QR code para a interface web
+      if (qr) {
+        this.qr = qr;
+        console.log("QR Code disponível para leitura");
+      }
 
-    this.client.on("ready", () => {
-      this.isReady = true;
-      this.currentQRCode = null; // Limpar QR code quando autenticado
-      console.log("Cliente WhatsApp está pronto!");
-    });
+      if (connection === "close") {
+        const shouldReconnect =
+          lastDisconnect?.error instanceof Boom
+            ? lastDisconnect.error.output.statusCode !==
+              DisconnectReason.loggedOut
+            : true;
 
-    this.client.on("authenticated", () => {
-      console.log("Autenticado com sucesso!");
-    });
+        console.log(
+          "Conexão WhatsApp fechada: ",
+          lastDisconnect?.error?.message
+        );
 
-    this.client.on("auth_failure", (msg) => {
-      console.error("Falha na autenticação:", msg);
-    });
-
-    // Processar mensagens recebidas
-    this.client.on("message", async (message) => {
-      try {
-        console.log(`Mensagem recebida de ${message.from}: ${message.body}`);
-
-        // Processar apenas mensagens de chat (não de grupo)
-        if (message.from.endsWith("@c.us")) {
-          // Processar mensagem através da rota
-          await this.processMessage(message.from, message.body);
+        if (shouldReconnect) {
+          console.log("Reconectando WhatsApp...");
+          this.initialize();
         }
-      } catch (error) {
-        console.error("Erro ao processar mensagem recebida:", error);
+      } else if (connection === "open") {
+        this.isReady = true;
+        this.qr = null;
+        console.log("WhatsApp conectado!");
       }
     });
 
-    this.client.initialize().catch((err) => {
-      console.error("Erro ao inicializar cliente WhatsApp:", err);
+    // Salvar credenciais quando atualizadas
+    this.socket.ev.on("creds.update", saveCreds);
+
+    // Processar mensagens recebidas
+    this.socket.ev.on("messages.upsert", async (m) => {
+      if (m.type === "notify") {
+        for (const msg of m.messages) {
+          if (!msg.key.fromMe && msg.message) {
+            const textMessage =
+              msg.message.conversation ||
+              msg.message.extendedTextMessage?.text ||
+              "";
+
+            const sender = msg.key.remoteJid;
+
+            console.log(`Nova mensagem de ${sender}: ${textMessage}`);
+            try {
+              // Processar a mensagem - modifique para usar sua lógica
+              await this.processIncomingMessage(sender, textMessage);
+            } catch (error) {
+              console.error("Erro ao processar mensagem:", error);
+            }
+          }
+        }
+      }
     });
   }
 
-  // Método para obter o QR code atual
+  // Obter o QR Code atual
   getQRCode() {
-    return this.currentQRCode;
+    return this.qr;
   }
 
-  // Verificar se o cliente está autenticado
-  isAuthenticated() {
+  // Verificar se está conectado
+  isConnected() {
     return this.isReady;
   }
 
-  async processMessage(from, message) {
-    try {
-      // Remover o sufixo @c.us do número
-      const phoneNumber = from.replace("@c.us", "");
+  async processIncomingMessage(from, message) {
+    // Remover o sufixo @s.whatsapp.net se existir
+    const phoneNumber = from.split("@")[0];
 
-      // Enviar para a rota de processamento
-      await axios.post("http://localhost:3000/webhook/process-message", {
-        from: phoneNumber,
-        message: message,
-      });
+    // Se a mensagem for "CONFIRMAR" ou "CANCELAR", processar
+    const messageUpper = message.trim().toUpperCase();
+
+    if (messageUpper === "CONFIRMAR" || messageUpper === "CANCELAR") {
+      try {
+        // Use a mesma estrutura que você já tem
+        await this.processConfirmationOrCancellation(phoneNumber, messageUpper);
+      } catch (error) {
+        console.error("Erro ao processar confirmação/cancelamento:", error);
+      }
+    }
+  }
+
+  async processConfirmationOrCancellation(phone, messageText) {
+    try {
+      // Enviar requisição para API que processa isso
+      // Aqui você pode adaptar para chamar diretamente o serviço em vez de usar axios
+      const isConfirmation = messageText === "CONFIRMAR";
+      const isCancellation = messageText === "CANCELAR";
+
+      const schedulingService = (
+        await import("../services/schedulingService.js")
+      ).default;
+
+      // Buscar agendamentos pelo telefone
+      const schedulings = await schedulingService.getSchedulingByPhone(phone);
+
+      if (!schedulings || schedulings.length === 0) {
+        return await this.sendMessage(
+          phone,
+          "Não encontramos nenhum agendamento pendente para este número."
+        );
+      }
+
+      // Pegar o agendamento mais recente
+      const scheduling = schedulings[0];
+
+      if (isConfirmation) {
+        // Confirmar agendamento
+        await schedulingService.confirmScheduling(scheduling.id);
+
+        // Enviar mensagem de confirmação
+        const confirmMessage =
+          `*Agendamento Confirmado!*\n\n` +
+          `Obrigado por confirmar seu agendamento.\n` +
+          `Esperamos você no dia ${new Date(
+            scheduling.dateTime
+          ).toLocaleDateString("pt-BR")} ` +
+          `às ${new Date(scheduling.dateTime).toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.\n\n` +
+          `*Barbearia Style*`;
+
+        await this.sendMessage(phone, confirmMessage);
+      } else if (isCancellation) {
+        // Cancelar agendamento
+        await schedulingService.cancelScheduling(scheduling.id);
+
+        // Enviar mensagem de cancelamento
+        const cancelMessage =
+          `*Agendamento Cancelado*\n\n` +
+          `Seu agendamento foi cancelado conforme solicitado.\n` +
+          `Para reagendar, visite nosso site ou entre em contato conosco.\n\n` +
+          `*Barbearia Style*`;
+
+        await this.sendMessage(phone, cancelMessage);
+      }
 
       return true;
     } catch (error) {
@@ -92,7 +184,7 @@ class WhatsAppService {
 
   async sendMessage(to, message) {
     if (!this.isReady) {
-      console.log("Cliente WhatsApp não está pronto. Aguardando...");
+      console.log("WhatsApp não está conectado. Aguardando...");
       return false;
     }
 
@@ -101,11 +193,9 @@ class WhatsAppService {
       const cleanNumber = to.replace(/\D/g, "");
 
       // Verificar se é um número brasileiro sem o código do país
-      // (começa com DDD, que normalmente tem 2 dígitos, seguido do número com 8 ou 9 dígitos)
       let formattedNumber = cleanNumber;
 
-      // Se o número tem comprimento entre 10 e 11 dígitos (DDD + número), consideramos brasileiro
-      // e adicionamos o código do país +55
+      // Se o número tem comprimento entre 10 e 11 dígitos, adicionamos o prefixo 55
       if (cleanNumber.length >= 10 && cleanNumber.length <= 11) {
         formattedNumber = `55${cleanNumber}`;
         console.log(
@@ -113,28 +203,18 @@ class WhatsAppService {
         );
       }
 
-      // Adiciona @c.us ao final do número (formato usado pelo WhatsApp)
-      const chatId = `${formattedNumber}@c.us`;
+      // Adiciona @s.whatsapp.net (formato usado pelo Baileys)
+      const jid = `${formattedNumber}@s.whatsapp.net`;
 
-      await this.client.sendMessage(chatId, message);
+      // Enviar a mensagem
+      await this.socket.sendMessage(jid, { text: message });
+
       console.log(
         `Mensagem enviada para ${to} (formatado como ${formattedNumber})`
       );
       return true;
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
-      return false;
-    }
-  }
-
-  async confirmScheduling(phoneNumber, schedulingId) {
-    try {
-      // Atualizar o status do agendamento para CONFIRMED
-      // Este método será chamado quando o cliente confirmar pelo WhatsApp
-      console.log(`Agendamento ${schedulingId} confirmado`);
-      return true;
-    } catch (error) {
-      console.error("Erro ao confirmar agendamento:", error);
       return false;
     }
   }

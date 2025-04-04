@@ -12,6 +12,7 @@ import {
   Sun,
   Moon,
   ClipboardMinus,
+  MessageSquare,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -112,6 +113,25 @@ const Sidebar = ({
             <span className="font-medium">{link.label}</span>
           </div>
         ))}
+
+        {/* Link específico para a página WhatsApp Admin */}
+        {checkPermission(["ADMIN", "SECRETARY"]) && (
+          <Link
+            to="/whatsapp-admin"
+            className={`
+              ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-green-500/30 to-green-600/30 text-white hover:bg-black/40 hover:text-green-400"
+                  : "bg-gradient-to-r from-green-500/10 to-green-600/10 text-gray-700 hover:bg-gray-100 hover:text-green-600"
+              }
+              flex items-center gap-3 p-3 rounded-xl transition-all text-sm md:text-base cursor-pointer
+            `}
+            onClick={toggleSidebar}
+          >
+            <MessageSquare size={22} />
+            <span className="font-medium">WhatsApp</span>
+          </Link>
+        )}
       </nav>
 
       <div className="absolute bottom-6 w-full px-4 space-y-3">
