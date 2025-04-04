@@ -78,23 +78,6 @@ router.get("/whatsapp-qrcode", async (req, res) => {
   }
 });
 
-// Rota para obter o QR Code como JSON (para o frontend)
-router.get("/whatsapp-qrcode-data", async (req, res) => {
-  try {
-    const qrCode = whatsappService.getQRCode();
-    const isAuthenticated = whatsappService.isAuthenticated();
-
-    res.json({
-      authenticated: isAuthenticated,
-      qrCode: qrCode,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Erro ao gerar dados do QR code:", error);
-    res.status(500).json({ error: "Erro ao gerar dados do QR code" });
-  }
-});
-
 // Webhook para receber mensagens do WhatsApp
 router.post("/whatsapp", async (req, res) => {
   try {
