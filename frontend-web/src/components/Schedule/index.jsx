@@ -246,6 +246,70 @@ const Schedule = () => {
           .fc-event-main {
             padding: 0 !important;
           }
+          
+          /* Melhorias para mobile */
+          @media (max-width: 639px) {
+            .fc-header-toolbar {
+              flex-direction: column;
+              align-items: center;
+              gap: 8px;
+            }
+            
+            .fc-toolbar-chunk {
+              margin-bottom: 4px;
+              width: 100%;
+              justify-content: center;
+            }
+            
+            .fc-button {
+              font-size: 0.8rem;
+              padding: 0.5rem 0.75rem;
+              height: 40px;
+              min-width: 40px;
+            }
+            
+            .fc-col-header-cell-cushion {
+              font-size: 0.7rem;
+            }
+            
+            .fc-timegrid-axis-cushion, 
+            .fc-timegrid-slot-label-cushion {
+              font-size: 0.7rem;
+            }
+            
+            .fc-timegrid-event {
+              min-height: 50px !important;
+            }
+            
+            .fc-timegrid-slot {
+              height: 45px !important;
+            }
+            
+            .fc-view-harness {
+              height: auto !important;
+              min-height: 500px;
+            }
+            
+            .fc-daygrid-day-number {
+              font-size: 0.8rem;
+              padding: 6px;
+            }
+            
+            .fc-daygrid-event {
+              margin-top: 3px !important;
+            }
+            
+            /* Fix para botões mais clicáveis no mobile */
+            .fc-button-group {
+              gap: 4px;
+            }
+            
+            .fc-today-button {
+              margin: 0 4px !important;
+              height: 40px;
+            }
+          }
+          
           @media (min-width: 640px) {
             .fc-button {
               font-size: 0.875rem;
@@ -294,9 +358,9 @@ const Schedule = () => {
               <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center text-xs sm:text-sm"
+                  className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center text-xs sm:text-sm font-medium"
                 >
-                  <PlusCircleIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                  <PlusCircleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   Novo Agendamento
                 </button>
               </div>
@@ -481,7 +545,7 @@ const Schedule = () => {
                 select={handleDateSelect}
                 eventClick={handleEventClick}
                 locale={ptBrLocale}
-                height="calc(100vh - 200px)"
+                height={{ mobile: "auto", default: "calc(100vh - 200px)" }}
                 slotMinTime="08:00:00"
                 slotMaxTime="19:00:00"
                 allDaySlot={true}
@@ -506,6 +570,7 @@ const Schedule = () => {
                 eventContent={(eventInfo) => {
                   // Determinar se o evento é na visualização de mês ou semana/dia
                   const isMonthView = eventInfo.view.type === "dayGridMonth";
+                  const isMobile = window.innerWidth < 640;
 
                   // Renderização simplificada para visualização mensal
                   if (isMonthView) {
@@ -528,7 +593,31 @@ const Schedule = () => {
                     );
                   }
 
-                  // Renderização completa para visualização semanal/diária
+                  // Versão simplificada para mobile em visualização semanal
+                  if (isMobile && !isMonthView) {
+                    return (
+                      <div className="p-1 h-full flex flex-col justify-center">
+                        <div
+                          className={`w-full h-1 rounded-full mb-1 ${
+                            eventInfo.event.extendedProps.status === "CONFIRMED"
+                              ? "bg-green-500"
+                              : eventInfo.event.extendedProps.status ===
+                                "CANCELED"
+                              ? "bg-red-500"
+                              : "bg-yellow-500"
+                          }`}
+                        ></div>
+                        <div className="font-medium text-[10px] leading-tight truncate">
+                          {eventInfo.event.extendedProps.clientName}
+                        </div>
+                        <div className="text-[8px] opacity-80 truncate">
+                          {eventInfo.event.extendedProps.service}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Renderização completa para visualização semanal/diária em desktop
                   return (
                     <div className="flex flex-col p-2 h-full min-h-[50px] rounded-lg overflow-hidden relative backdrop-blur-sm">
                       {/* Faixa de status no topo do evento */}
@@ -646,6 +735,17 @@ const Schedule = () => {
                   }
                 }}
               />
+            </div>
+
+            {/* Mobile helper text */}
+            <div className="block sm:hidden mt-4 text-center">
+              <p
+                className={`text-xs ${
+                  isDarkMode ? "text-slate-400" : "text-gray-600"
+                }`}
+              >
+                Toque em um horário para agendar ou em um evento para editar
+              </p>
             </div>
 
             {/* Modal */}

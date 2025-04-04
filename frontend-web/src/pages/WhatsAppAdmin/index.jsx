@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import {
-  MessageSquare,
-  ArrowLeft,
-  ExternalLink,
-  RefreshCw,
-} from "lucide-react";
+import { MessageSquare, ArrowLeft, RefreshCw } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import axios from "axios";
 
@@ -171,23 +166,9 @@ function WhatsAppAdmin() {
 
                 <div className="mt-8 flex flex-col items-center">
                   <p className="text-center text-sm mb-2">
-                    Se o QR code não funcionar, você também pode abri-lo em uma
-                    nova aba:
+                    O QR code será atualizado automaticamente a cada 15
+                    segundos.
                   </p>
-                  <a
-                    href={`${backendUrl}/webhook/whatsapp-qrcode`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`px-4 py-2 rounded flex items-center mt-2 ${
-                      isDarkMode
-                        ? "bg-slate-700 hover:bg-slate-600 text-white"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
-                  >
-                    <ExternalLink className="mr-2" size={16} />
-                    Abrir QR Code em Nova Aba
-                  </a>
-
                   <button
                     onClick={fetchQRCode}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
@@ -206,29 +187,13 @@ function WhatsAppAdmin() {
                   Se o QR code não aparecer em alguns segundos, você pode
                   tentar:
                 </p>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={fetchQRCode}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
-                  >
-                    <RefreshCw className="mr-2" size={18} />
-                    Atualizar
-                  </button>
-
-                  <a
-                    href={`${backendUrl}/webhook/whatsapp-qrcode`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`px-4 py-2 rounded flex items-center ${
-                      isDarkMode
-                        ? "bg-slate-700 hover:bg-slate-600 text-white"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
-                  >
-                    <ExternalLink className="mr-2" size={16} />
-                    Abrir em Nova Aba
-                  </a>
-                </div>
+                <button
+                  onClick={fetchQRCode}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
+                >
+                  <RefreshCw className="mr-2" size={18} />
+                  Atualizar
+                </button>
               </div>
             )}
           </div>

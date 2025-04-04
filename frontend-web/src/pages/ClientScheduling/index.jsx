@@ -5,9 +5,17 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
-import { format, parseISO, addHours } from "date-fns";
+import { format, parseISO, addHours, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Scissors, ArrowLeft, Calendar, User, Phone } from "lucide-react";
+import {
+  Scissors,
+  ArrowLeft,
+  Calendar,
+  User,
+  Phone,
+  X,
+  Clock,
+} from "lucide-react";
 import { publicApi } from "../../services/api";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -27,6 +35,11 @@ const ClientScheduling = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [dateModalOpen, setDateModalOpen] = useState(false);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableHours, setAvailableHours] = useState([]);
+  const [selectedModalDate, setSelectedModalDate] = useState(null);
+  const [selectedModalHour, setSelectedModalHour] = useState(null);
 
   const [formData, setFormData] = useState({
     clientName: "",
@@ -191,6 +204,100 @@ const ClientScheduling = () => {
     });
     setSelectedDate(null);
     setStep(1);
+  };
+
+  // Generate available dates (next 7 days excluding Sundays)
+  useEffect(() => {
+    if (dateModalOpen) {
+      const dates = [];
+      const today = new Date();
+
+      for (let i = 0; i < 14; i++) {
+        const date = addDays(today, i);
+        // Skip Sundays (0 = Sunday)
+        if (date.getDay() !== 0) {
+          dates.push(date);
+        }
+      }
+
+      setAvailableDates(dates);
+      setSelectedModalDate(dates[0]); // Select first date by default
+      generateHoursForDate(dates[0]);
+    }
+  }, [dateModalOpen]);
+
+  // Generate available hours for selected date (8:00 - 18:30, 30min intervals)
+  const generateHoursForDate = (date) => {
+    const hours = [];
+    const now = new Date();
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+
+    // Start from 8:00 AM
+    let startHour = 8;
+    let startMinute = 0;
+
+    // If it's today, start from the next available slot
+    if (isToday) {
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+
+      if (currentHour >= 8) {
+        startHour = currentHour;
+        // Round up to next 30 min slot
+        startMinute = currentMinute >= 30 ? 0 : 30;
+
+        // Move to next hour if we're at minute 30+
+        if (currentMinute >= 30) {
+          startHour += 1;
+          startMinute = 0;
+        }
+      }
+    }
+
+    // Generate 30-minute slots from start time to 18:30
+    for (let hour = startHour; hour <= 18; hour++) {
+      for (
+        let minute = hour === startHour ? startMinute : 0;
+        minute < 60;
+        minute += 30
+      ) {
+        // Stop at 18:30
+        if (hour === 18 && minute === 30) break;
+
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
+        hours.push(timeString);
+      }
+    }
+
+    setAvailableHours(hours);
+    setSelectedModalHour(hours.length > 0 ? hours[0] : null);
+  };
+
+  const handleDateModalSelect = (date) => {
+    setSelectedModalDate(date);
+    generateHoursForDate(date);
+  };
+
+  const handleConfirmDateTime = () => {
+    if (!selectedModalDate || !selectedModalHour) return;
+
+    const [hour, minute] = selectedModalHour.split(":").map(Number);
+    const dateTime = new Date(selectedModalDate);
+    dateTime.setHours(hour, minute, 0, 0);
+
+    setSelectedDate(dateTime);
+    setFormData({
+      ...formData,
+      dateTime: format(dateTime, "yyyy-MM-dd'T'HH:mm"),
+    });
+
+    setDateModalOpen(false);
+    setStep(4);
   };
 
   const renderStepIndicator = () => (
@@ -382,6 +489,18 @@ const ClientScheduling = () => {
               <h2 className="text-xl font-semibold mb-4 text-center">
                 Escolha uma data e horário
               </h2>
+
+              {/* Botão para abrir modal de agendamento */}
+              <div className="mb-6 flex justify-center">
+                <button
+                  onClick={() => setDateModalOpen(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:from-blue-600 hover:to-purple-600 flex items-center justify-center gap-2 transition-all"
+                >
+                  <Calendar size={20} />
+                  Selecionar Data e Hora
+                </button>
+              </div>
+
               <div>
                 <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -440,6 +559,63 @@ const ClientScheduling = () => {
                     }
                     .fc-timegrid-slot {
                       height: 40px !important;
+                    }
+                    
+                    /* Melhorias para mobile */
+                    @media (max-width: 767px) {
+                      .fc-header-toolbar {
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                      }
+                      
+                      .fc-toolbar-chunk {
+                        margin-bottom: 4px;
+                        width: 100%;
+                        justify-content: center;
+                      }
+                      
+                      .fc-button {
+                        font-size: 0.8rem;
+                        padding: 0.5rem 0.75rem;
+                        height: 40px;
+                        min-width: 40px;
+                      }
+                      
+                      .fc-col-header-cell-cushion {
+                        font-size: 0.75rem;
+                      }
+                      
+                      .fc-timegrid-axis-cushion, 
+                      .fc-timegrid-slot-label-cushion {
+                        font-size: 0.7rem;
+                      }
+                      
+                      .fc-timegrid-slot {
+                        height: 50px !important;
+                      }
+                      
+                      .fc-view-harness {
+                        height: auto !important;
+                        min-height: 450px;
+                      }
+                      
+                      .fc-timegrid-slot-lane {
+                        min-height: 50px;
+                      }
+                      
+                      /* Fix para botões mais clicáveis no mobile */
+                      .fc-button-group {
+                        gap: 2px;
+                      }
+                      
+                      .fc-today-button {
+                        margin: 0 4px !important;
+                      }
+                      
+                      .fc-event, .fc-timegrid-event-harness {
+                        touch-action: pan-y;
+                      }
                     }
                   `}
                 </style>
@@ -568,8 +744,8 @@ const ClientScheduling = () => {
                         incluindo o DDD. <br />
                         <span className="text-xs">
                           Exemplo:{" "}
-                          <span className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">
-                            62983109185
+                          <span className="font-mono bg-slate-200 dark:bg-slate-800 dark:text-white px-1 rounded">
+                            6283109185
                           </span>{" "}
                           para (62) 98310-9185
                         </span>
@@ -743,6 +919,91 @@ const ClientScheduling = () => {
           )}
         </div>
       </main>
+
+      {/* Modal de seleção de data e hora */}
+      {dateModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div
+            className={`w-full max-w-md rounded-xl ${
+              isDarkMode ? "bg-slate-800" : "bg-white"
+            } p-5 shadow-2xl`}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Selecione Data e Hora</h3>
+              <button
+                onClick={() => setDateModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium mb-2">Data</label>
+              <div className="grid grid-cols-3 gap-2 md:grid-cols-4">
+                {availableDates.map((date, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDateModalSelect(date)}
+                    className={`px-2 py-3 rounded-lg text-center text-sm transition ${
+                      selectedModalDate &&
+                      selectedModalDate.getDate() === date.getDate() &&
+                      selectedModalDate.getMonth() === date.getMonth()
+                        ? "bg-blue-500 text-white"
+                        : isDarkMode
+                        ? "bg-slate-700 hover:bg-slate-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                    }`}
+                  >
+                    <div className="font-semibold mb-1">
+                      {format(date, "EEE", { locale: ptBR })}
+                    </div>
+                    <div className="text-sm">{format(date, "dd/MM")}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium mb-2">Horário</label>
+              <div className="h-48 overflow-y-auto grid grid-cols-3 gap-2">
+                {availableHours.length > 0 ? (
+                  availableHours.map((hour, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedModalHour(hour)}
+                      className={`p-2 rounded-lg flex items-center justify-center gap-1 transition ${
+                        selectedModalHour === hour
+                          ? "bg-blue-500 text-white"
+                          : isDarkMode
+                          ? "bg-slate-700 hover:bg-slate-600 text-white"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                      }`}
+                    >
+                      <Clock size={14} />
+                      <span>{hour}</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="col-span-3 text-center py-8 text-gray-500">
+                    Não há horários disponíveis para esta data
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={handleConfirmDateTime}
+                disabled={!selectedModalDate || !selectedModalHour}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirmar Horário
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer
