@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/DashBoard";
 import UsersList from "./pages/Listar Usuarios";
 import UsersDelete from "./pages/Deletar Usuarios";
 import UsersEdit from "./pages/Editar Usuarios";
