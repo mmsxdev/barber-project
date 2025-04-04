@@ -314,6 +314,7 @@ const WhatsAppAdmin = () => {
                 {qrCodeData ? (
                   <div className="flex flex-col items-center">
                     <div className="bg-white p-4 rounded-lg mb-4">
+                      {/* Mostrar QR code diretamente usando o componente React */}
                       <QRCode value={qrCodeData} size={256} />
                     </div>
                     <div className="text-sm text-amber-500 mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
