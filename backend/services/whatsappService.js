@@ -8,38 +8,84 @@ class WhatsAppService {
     this.client = null;
     this.isReady = false;
     this.currentQRCode = null;
+    this.qrRetries = 0;
+    this.maxQrRetries = 5;
     this.initialize();
   }
 
   initialize() {
     this.client = new Client({
-      authStrategy: new LocalAuth(),
+      authStrategy: new LocalAuth({
+        dataPath: "./wwebjs_auth", // Explicitamente definir o caminho para os dados de autenticação
+      }),
       puppeteer: {
-        args: ["--no-sandbox"],
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-accelerated-2d-canvas",
+          "--no-first-run",
+          "--no-zygote",
+          "--disable-gpu",
+        ],
+        headless: true,
+        timeout: 60000, // Aumentar timeout para 60 segundos
       },
+      qrMaxRetries: 5, // Número máximo de tentativas de QR code antes de dar erro
+      restartOnAuthFail: true, // Tenta reiniciar em caso de falha na autenticação
     });
 
     this.client.on("qr", (qr) => {
       // Armazenar o QR code para disponibilizá-lo via API
       this.currentQRCode = qr;
+      this.qrRetries++;
 
-      // Ainda exibe no terminal para conveniência
-      console.log("QR CODE PARA AUTENTICAÇÃO DO WHATSAPP:");
+      console.log(
+        `QR CODE PARA AUTENTICAÇÃO DO WHATSAPP (tentativa ${this.qrRetries}/${this.maxQrRetries}):`
+      );
       qrcode.generate(qr, { small: true });
     });
 
     this.client.on("ready", () => {
       this.isReady = true;
       this.currentQRCode = null; // Limpar QR code quando autenticado
+      this.qrRetries = 0; // Reiniciar contador de tentativas
       console.log("Cliente WhatsApp está pronto!");
     });
 
     this.client.on("authenticated", () => {
       console.log("Autenticado com sucesso!");
+      this.qrRetries = 0; // Reiniciar contador de tentativas
     });
 
     this.client.on("auth_failure", (msg) => {
       console.error("Falha na autenticação:", msg);
+      // Não reiniciar imediatamente para evitar loop de tentativas
+      setTimeout(() => {
+        if (this.qrRetries < this.maxQrRetries) {
+          console.log("Tentando reconectar após falha na autenticação...");
+          this.client.initialize().catch((err) => {
+            console.error("Erro ao reinicializar cliente WhatsApp:", err);
+          });
+        } else {
+          console.error(
+            "Número máximo de tentativas excedido. Reinicie o servidor."
+          );
+        }
+      }, 5000);
+    });
+
+    this.client.on("disconnected", (reason) => {
+      console.log("Cliente WhatsApp desconectado:", reason);
+      this.isReady = false;
+
+      // Tentar reconectar após 5 segundos
+      setTimeout(() => {
+        console.log("Tentando reconectar...");
+        this.client.initialize().catch((err) => {
+          console.error("Erro ao reinicializar cliente WhatsApp:", err);
+        });
+      }, 5000);
     });
 
     // Processar mensagens recebidas
