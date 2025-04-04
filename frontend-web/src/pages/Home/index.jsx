@@ -64,7 +64,7 @@ const Home = () => {
       className={`min-h-screen ${
         isDarkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800 text-white"
-          : "bg-gradient-to-br from-white to-gray-100 text-gray-900"
+          : "bg-gradient-to-br from-indigo-900/5 via-blue-500/10 to-purple-500/5 text-gray-800"
       }`}
     >
       {/* Navbar */}
@@ -73,7 +73,7 @@ const Home = () => {
           scrolled
             ? isDarkMode
               ? "bg-white/10"
-              : "bg-white/80"
+              : "bg-white/70 border-b border-white/20 shadow-sm"
             : "bg-transparent"
         }`}
       >
@@ -81,9 +81,8 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <a
               href="#hero"
-              className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent"
+              className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent"
             >
-              <Scissors className="inline-block mr-2" size={28} />
               Barbearia Style
             </a>
 
@@ -96,8 +95,8 @@ const Home = () => {
                   className={`${
                     isDarkMode
                       ? "text-slate-300 hover:text-blue-400"
-                      : "text-gray-600 hover:text-blue-600"
-                  } transition-colors`}
+                      : "text-gray-700 hover:text-blue-600 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-blue-600 after:transition-all"
+                  } transition-colors font-medium`}
                 >
                   {link.name}
                 </a>
@@ -107,7 +106,7 @@ const Home = () => {
                 className={`p-2 rounded-full ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
-                    : "text-gray-600 hover:text-blue-600"
+                    : "text-gray-700 hover:text-blue-600 bg-white/30 border border-white/20 shadow-inner"
                 } transition-colors`}
               >
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -121,7 +120,7 @@ const Home = () => {
                 className={`p-2 rounded-full ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
-                    : "text-gray-600 hover:text-blue-600"
+                    : "text-gray-700 hover:text-blue-600 bg-white/30 border border-white/20"
                 } transition-colors`}
               >
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -130,7 +129,7 @@ const Home = () => {
                 className={`p-2 ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
-                    : "text-gray-600 hover:text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
@@ -155,8 +154,10 @@ const Home = () => {
           {isMenuOpen && (
             <div
               className={`md:hidden mt-4 space-y-2 ${
-                isDarkMode ? "bg-white/10" : "bg-white/80"
-              } backdrop-blur-lg rounded-lg p-4`}
+                isDarkMode
+                  ? "bg-white/10"
+                  : "bg-white/40 backdrop-blur-lg border border-white/20"
+              } rounded-lg p-4 shadow-lg`}
             >
               {navLinks.map((link) => (
                 <a
@@ -165,7 +166,7 @@ const Home = () => {
                   className={`block px-4 py-2 ${
                     isDarkMode
                       ? "text-slate-300 hover:bg-white/10"
-                      : "text-gray-600 hover:bg-gray-100"
+                      : "text-gray-700 hover:bg-blue-500/10"
                   } rounded-lg transition-colors`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -183,16 +184,20 @@ const Home = () => {
         className={`pt-24 pb-12 ${
           isDarkMode
             ? "bg-gradient-to-r from-slate-800 to-slate-900"
-            : "bg-gradient-to-r from-gray-100 to-white"
+            : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600 via-indigo-700 to-purple-800"
         }`}
       >
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-6 animate-fade-in-up">
+          <h1
+            className={`text-5xl font-bold mb-6 animate-fade-in-up ${
+              isDarkMode ? "text-white" : "text-gray-900 px-4 py-2"
+            }`}
+          >
             Bem-vindo à Barbearia Style
           </h1>
           <p
             className={`text-xl mb-8 ${
-              isDarkMode ? "text-slate-300" : "text-gray-600"
+              isDarkMode ? "text-white/90" : "text-gray-800 px-3 py-1"
             }`}
           >
             Estilo e tradição em cada corte
@@ -200,16 +205,16 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/agendar"
-              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all w-full sm:w-auto"
+              className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-full hover:from-blue-600 hover:to-violet-600 transition-all w-full sm:w-auto shadow-lg shadow-blue-600/20 font-medium"
             >
               Agendar Online
             </a>
             <a
               href="#contato"
-              className={`px-8 py-3 rounded-lg transition-all border w-full sm:w-auto ${
+              className={`px-8 py-3 rounded-full transition-all border w-full sm:w-auto font-medium ${
                 isDarkMode
-                  ? "border-white/20 text-white hover:bg-white/10"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                  ? "border-white/30 backdrop-blur-sm bg-white/10 text-white hover:bg-white/20"
+                  : "border-slate-900/55 bg-blue-950/30 text-slate-900 hover:bg-blue-800 hover:text-white shadow-md"
               }`}
             >
               Falar com a Secretaria
@@ -221,21 +226,33 @@ const Home = () => {
       {/* Serviços Section */}
       <section
         id="servicos"
-        className={`py-20 ${isDarkMode ? "bg-slate-800" : "bg-gray-50"}`}
+        className={`py-20 ${
+          isDarkMode ? "bg-slate-800" : "bg-white/95 backdrop-blur-sm"
+        }`}
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Serviços
           </h2>
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-400">
+            Oferecemos serviços de alta qualidade para cuidar do seu estilo com
+            precisão e atenção aos detalhes.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {["Tratamento Capilar", "Barba", "Cabelo"].map((service) => (
               <div
                 key={service}
                 className={`p-6 ${
-                  isDarkMode ? "bg-white/5" : "bg-white"
-                } backdrop-blur-lg rounded-xl hover:shadow-xl transition-all`}
+                  isDarkMode
+                    ? "bg-white/5"
+                    : "bg-gradient-to-br from-white to-blue-50 backdrop-filter backdrop-blur-sm border border-white/50 shadow-xl"
+                } rounded-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden`}
               >
-                <Scissors className="mb-4 text-blue-400" size={32} />
+                <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500 opacity-10 rounded-full group-hover:scale-150 transition-all duration-500"></div>
+                <Scissors
+                  className="mb-4 text-blue-600 group-hover:text-blue-700 transition-colors duration-300"
+                  size={32}
+                />
                 <h3 className="text-xl font-semibold mb-2">{service}</h3>
                 <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
                   Descrição breve do serviço oferecido pela barbearia.
@@ -249,23 +266,48 @@ const Home = () => {
       {/* Equipe Section */}
       <section
         id="equipe"
-        className={`py-20 ${isDarkMode ? "bg-slate-900" : "bg-white"}`}
+        className={`py-20 ${
+          isDarkMode
+            ? "bg-slate-900"
+            : "bg-gradient-to-br from-indigo-100 to-blue-50"
+        }`}
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">Nossa Equipe</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Nossa Equipe</h2>
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+            Profissionais experientes e qualificados para cuidar do seu visual.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {["João Silva", "Pedro Almeida", "Carlos Mendes"].map((member) => (
               <div
                 key={member}
                 className={`text-center ${
-                  isDarkMode ? "bg-white/5" : "bg-gray-50"
-                } backdrop-blur-lg rounded-xl p-6 hover:shadow-xl transition-all`}
+                  isDarkMode
+                    ? "bg-white/5"
+                    : "bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-sm border border-white/60"
+                } rounded-xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300`}
               >
-                <div className="w-48 h-48 mx-auto bg-gray-200 rounded-full mb-4"></div>
+                <div className="w-40 h-40 mx-auto rounded-full mb-6 overflow-hidden border-4 border-white shadow-lg bg-gradient-to-b from-blue-100 to-white">
+                  <div className="w-full h-full bg-gray-200 rounded-full"></div>
+                </div>
                 <h3 className="text-xl font-semibold">{member}</h3>
                 <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
                   Especialista em cortes clássicos
                 </p>
+                <div className="flex justify-center mt-4 space-x-2">
+                  <a
+                    href="#"
+                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                  >
+                    <Instagram size={16} />
+                  </a>
+                  <a
+                    href="#"
+                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                  >
+                    <Facebook size={16} />
+                  </a>
+                </div>
               </div>
             ))}
           </div>
@@ -275,12 +317,18 @@ const Home = () => {
       {/* Produtos Section */}
       <section
         id="produtos"
-        className={`py-20 ${isDarkMode ? "bg-slate-800" : "bg-gray-50"}`}
+        className={`py-20 ${
+          isDarkMode ? "bg-slate-800" : "bg-white/95 backdrop-blur-sm"
+        }`}
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Produtos
           </h2>
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+            Produtos de alta qualidade para cuidar do seu cabelo e barba em
+            casa.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
@@ -312,29 +360,48 @@ const Home = () => {
               <div
                 key={index}
                 className={`${
-                  isDarkMode ? "bg-white/5" : "bg-white"
-                } backdrop-blur-lg rounded-xl overflow-hidden hover:shadow-xl transition-all`}
+                  isDarkMode
+                    ? "bg-white/5"
+                    : "bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-sm border border-white/60"
+                } rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group`}
               >
                 <div className="relative h-60">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <span className="text-white font-medium px-4 py-2">
+                      Ver detalhes
+                    </span>
+                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold mb-2">{product.name}</h3>
                   <p
-                    className={`${
-                      isDarkMode ? "text-slate-300" : "text-gray-600"
-                    } text-sm mb-4`}
+                    className={
+                      isDarkMode
+                        ? "text-slate-300"
+                        : "text-gray-600 text-sm mb-4"
+                    }
                   >
                     {product.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-blue-400">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                       {product.price}
                     </span>
+                    <button className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -346,16 +413,25 @@ const Home = () => {
       {/* Localização Section */}
       <section
         id="localizacao"
-        className={`py-20 ${isDarkMode ? "bg-slate-900" : "bg-white"}`}
+        className={`py-20 ${
+          isDarkMode
+            ? "bg-slate-900"
+            : "bg-gradient-to-br from-indigo-100 to-blue-50"
+        }`}
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
             Nossa Localização
           </h2>
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+            Visite-nos em nosso endereço e conheça nosso espaço.
+          </p>
           <div
             className={`${
-              isDarkMode ? "bg-white/5" : "bg-gray-50"
-            } backdrop-blur-lg rounded-xl overflow-hidden`}
+              isDarkMode
+                ? "bg-white/5"
+                : "bg-white/90 backdrop-blur-sm border border-white/60"
+            } rounded-xl overflow-hidden shadow-xl`}
           >
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.075426745292!2d-46.65342658502224!3d-23.565734367638634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1647541561235!5m2!1spt-BR!2sbr"
@@ -373,15 +449,17 @@ const Home = () => {
       {/* Contato Section */}
       <section
         id="contato"
-        className={`py-20 ${isDarkMode ? "bg-slate-900" : "bg-white"}`}
+        className={`py-20 ${
+          isDarkMode ? "bg-slate-900" : "bg-white/95 backdrop-blur-sm"
+        }`}
       >
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-4">Contato</h2>
-          <p className="text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-center mb-12 max-w-2xl mx-auto text-gray-600">
             Para agendamentos rápidos, use nosso{" "}
             <a
               href="/agendar"
-              className="text-blue-500 font-semibold hover:underline"
+              className="text-blue-600 font-semibold hover:underline"
             >
               sistema online
             </a>
@@ -389,21 +467,26 @@ const Home = () => {
             formulário abaixo para iniciar uma conversa pelo WhatsApp.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="flex justify-center px-4">
             <div
-              className={`${
-                isDarkMode ? "bg-white/5" : "bg-gray-50"
-              } backdrop-blur-lg rounded-xl p-6 hover:shadow-xl transition-all`}
+              className={`w-full max-w-md ${
+                isDarkMode
+                  ? "bg-white/5"
+                  : "bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-sm border border-white/60"
+              } rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden`}
             >
-              <h3 className="text-xl font-semibold mb-4">
+              <div className="absolute -right-32 -bottom-20 w-64 h-64 bg-blue-500 opacity-10 rounded-full"></div>
+              <div className="absolute -left-32 -top-20 w-64 h-64 bg-purple-500 opacity-10 rounded-full"></div>
+
+              <h3 className="text-xl font-semibold mb-6 relative">
                 Fale com a Secretaria
               </h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6 relative">
                 <div>
                   <label
                     htmlFor="name"
-                    className={`block mb-1 ${
-                      isDarkMode ? "text-slate-300" : "text-gray-600"
+                    className={`block mb-2 font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-gray-700"
                     }`}
                   >
                     Nome
@@ -415,18 +498,18 @@ const Home = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className={`w-full px-3 py-2 rounded-lg ${
+                    className={`w-full px-4 py-3 rounded-lg ${
                       isDarkMode
                         ? "bg-white/10 text-white border-slate-600"
-                        : "bg-gray-50 text-gray-900 border-gray-300"
-                    } border focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                        : "bg-white/80 text-gray-900 border-blue-200 focus:border-blue-400"
+                    } border focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300`}
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="phone"
-                    className={`block mb-1 ${
-                      isDarkMode ? "text-slate-300" : "text-gray-600"
+                    className={`block mb-2 font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-gray-700"
                     }`}
                   >
                     Telefone
@@ -438,18 +521,18 @@ const Home = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className={`w-full px-3 py-2 rounded-lg ${
+                    className={`w-full px-4 py-3 rounded-lg ${
                       isDarkMode
                         ? "bg-white/10 text-white border-slate-600"
-                        : "bg-gray-50 text-gray-900 border-gray-300"
-                    } border focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                        : "bg-white/80 text-gray-900 border-blue-200 focus:border-blue-400"
+                    } border focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300`}
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="message"
-                    className={`block mb-1 ${
-                      isDarkMode ? "text-slate-300" : "text-gray-600"
+                    className={`block mb-2 font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-gray-700"
                     }`}
                   >
                     Mensagem (opcional)
@@ -461,16 +544,16 @@ const Home = () => {
                     onChange={handleChange}
                     placeholder="Ex: Gostaria de agendar um corte de cabelo para amanhã às 15h"
                     rows="3"
-                    className={`w-full px-3 py-2 rounded-lg ${
+                    className={`w-full px-4 py-3 rounded-lg ${
                       isDarkMode
                         ? "bg-white/10 text-white border-slate-600"
-                        : "bg-gray-50 text-gray-900 border-gray-300"
-                    } border focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                        : "bg-white/80 text-gray-900 border-blue-200 focus:border-blue-400"
+                    } border focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300`}
                   ></textarea>
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all flex items-center justify-center space-x-2 text-lg font-medium"
+                  className="w-full bg-gradient-to-r from-blue-500 to-violet-600 text-white px-6 py-4 rounded-lg hover:from-blue-600 hover:to-violet-700 transition-all flex items-center justify-center space-x-2 text-lg font-medium shadow-lg shadow-blue-500/20"
                 >
                   <svg
                     className="w-5 h-5"
@@ -490,8 +573,10 @@ const Home = () => {
       {/* Footer */}
       <footer
         className={`py-12 ${
-          isDarkMode ? "bg-slate-900" : "bg-gray-100"
-        } border-t ${isDarkMode ? "border-slate-800" : "border-gray-200"}`}
+          isDarkMode
+            ? "bg-slate-900"
+            : "bg-gradient-to-br from-indigo-900 to-blue-900 text-white"
+        } border-t border-indigo-800`}
       >
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -499,16 +584,12 @@ const Home = () => {
             <div className="space-y-4">
               <a
                 href="#hero"
-                className="inline-flex items-center text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent"
+                className="inline-flex items-center text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
               >
-                <Scissors className="mr-2" size={28} />
+                <Scissors className="mr-2 text-blue-400" size={28} />
                 Barbearia Style
               </a>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <p className="text-sm text-indigo-200">
                 Transformando vidas através de cortes de cabelo excepcionais e
                 atendimento de qualidade.
               </p>
@@ -516,11 +597,7 @@ const Home = () => {
 
             {/* Links Rápidos */}
             <div>
-              <h3
-                className={`text-lg font-semibold mb-4 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <h3 className="text-lg font-semibold mb-4 text-white">
                 Links Rápidos
               </h3>
               <ul className="space-y-2">
@@ -528,10 +605,22 @@ const Home = () => {
                   <li key={link.name}>
                     <a
                       href={link.href}
-                      className={`text-sm hover:text-blue-400 transition-colors ${
-                        isDarkMode ? "text-slate-400" : "text-gray-600"
-                      }`}
+                      className="text-sm hover:text-blue-300 transition-colors text-indigo-200 flex items-center"
                     >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
                       {link.name}
                     </a>
                   </li>
@@ -541,33 +630,59 @@ const Home = () => {
 
             {/* Horário de Funcionamento */}
             <div>
-              <h3
-                className={`text-lg font-semibold mb-4 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <h3 className="text-lg font-semibold mb-4 text-white">
                 Horário de Funcionamento
               </h3>
               <ul className="space-y-2">
-                <li
-                  className={`text-sm ${
-                    isDarkMode ? "text-slate-400" : "text-gray-600"
-                  }`}
-                >
+                <li className="text-sm text-indigo-200 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                   Segunda - Sexta: 09:00 - 20:00
                 </li>
-                <li
-                  className={`text-sm ${
-                    isDarkMode ? "text-slate-400" : "text-gray-600"
-                  }`}
-                >
+                <li className="text-sm text-indigo-200 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                   Sábado: 09:00 - 18:00
                 </li>
-                <li
-                  className={`text-sm ${
-                    isDarkMode ? "text-slate-400" : "text-gray-600"
-                  }`}
-                >
+                <li className="text-sm text-indigo-200 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                   Domingo: Fechado
                 </li>
               </ul>
@@ -575,41 +690,23 @@ const Home = () => {
 
             {/* Contato e Redes Sociais */}
             <div>
-              <h3
-                className={`text-lg font-semibold mb-4 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Contato
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">Contato</h3>
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <MapPin className="text-blue-400" size={16} />
-                  <span
-                    className={`text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
-                    }`}
-                  >
+                  <span className="text-sm text-indigo-200">
                     Av. Paulista, 1000 - São Paulo, SP
                   </span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Smartphone className="text-blue-400" size={16} />
-                  <span
-                    className={`text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
-                    }`}
-                  >
+                  <span className="text-sm text-indigo-200">
                     (11) 9999-9999
                   </span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Mail className="text-blue-400" size={16} />
-                  <span
-                    className={`text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-gray-600"
-                    }`}
-                  >
+                  <span className="text-sm text-indigo-200">
                     contato@barbeariastyle.com
                   </span>
                 </li>
@@ -617,49 +714,28 @@ const Home = () => {
               <div className="mt-6 flex space-x-4">
                 <a
                   href="#"
-                  className={`p-2 rounded-full ${
-                    isDarkMode ? "bg-white/10" : "bg-white"
-                  } hover:bg-blue-400 transition-colors`}
+                  className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
-                  <Facebook
-                    size={18}
-                    className={isDarkMode ? "text-slate-300" : "text-gray-600"}
-                  />
+                  <Facebook size={18} className="text-white" />
                 </a>
                 <a
                   href="#"
-                  className={`p-2 rounded-full ${
-                    isDarkMode ? "bg-white/10" : "bg-white"
-                  } hover:bg-blue-400 transition-colors`}
+                  className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
-                  <Instagram
-                    size={18}
-                    className={isDarkMode ? "text-slate-300" : "text-gray-600"}
-                  />
+                  <Instagram size={18} className="text-white" />
                 </a>
                 <a
                   href="#"
-                  className={`p-2 rounded-full ${
-                    isDarkMode ? "bg-white/10" : "bg-white"
-                  } hover:bg-blue-400 transition-colors`}
+                  className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
-                  <Twitter
-                    size={18}
-                    className={isDarkMode ? "text-slate-300" : "text-gray-600"}
-                  />
+                  <Twitter size={18} className="text-white" />
                 </a>
               </div>
             </div>
           </div>
 
           {/* Copyright */}
-          <div
-            className={`mt-12 pt-8 border-t text-center text-sm ${
-              isDarkMode
-                ? "border-slate-800 text-slate-400"
-                : "border-gray-200 text-gray-500"
-            }`}
-          >
+          <div className="mt-12 pt-8 border-t border-indigo-800/50 text-center text-sm text-indigo-200">
             © {new Date().getFullYear()} Barbearia Style. Todos os direitos
             reservados.
           </div>

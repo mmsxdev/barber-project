@@ -57,7 +57,7 @@ const Sidebar = ({
       lg:translate-x-0
     `}
     >
-      <div className="px-6 mb-12">
+      <div className="px-6 mb-6">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
           <Link to="/dashboard">Dashboard</Link>
         </h2>
