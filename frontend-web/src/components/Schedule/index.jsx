@@ -596,7 +596,7 @@ const Schedule = () => {
                   // Versão simplificada para mobile em visualização semanal
                   if (isMobile && !isMonthView) {
                     return (
-                      <div className="p-1 h-full flex flex-col justify-center">
+                      <div className="p-1 h-full flex flex-col justify-center ">
                         <div
                           className={`w-full h-1 rounded-full mb-1 ${
                             eventInfo.event.extendedProps.status === "CONFIRMED"
@@ -619,7 +619,11 @@ const Schedule = () => {
 
                   // Renderização completa para visualização semanal/diária em desktop
                   return (
-                    <div className="flex flex-col p-2 h-full min-h-[50px] rounded-lg overflow-hidden relative backdrop-blur-sm">
+                    <div
+                      className={`flex flex-col p-2 h-full min-h-[50px] rounded-lg overflow-hidden relative backdrop-blur-sm ${
+                        isDarkMode ? "text-white" : "text-neutral-950"
+                      }`}
+                    >
                       {/* Faixa de status no topo do evento */}
                       <div
                         className={`absolute top-0 left-0 right-0 h-1.5 ${
