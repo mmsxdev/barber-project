@@ -11,54 +11,54 @@ router.post("/monthly", async (req, res) => {
   try {
     const { startDate, endDate, format, useAI } = req.body;
 
+    // Validação
     if (!startDate || !endDate) {
       return res
         .status(400)
         .json({ error: "Datas obrigatórias não informadas" });
     }
 
-    let reportData;
-    try {
-      if (useAI) {
-        reportData = await reportService.generateMonthlyReportWithAI(
-          startDate,
-          endDate
-        );
-      } else {
-        reportData = await reportService.generateMonthlyReport(
-          startDate,
-          endDate
-        );
-      }
-    } catch (error) {
-      console.error("Erro ao gerar relatório:", error);
-      return res.status(500).json({
-        error:
-          "Erro ao gerar relatório: " + (error.message || "Erro desconhecido"),
-      });
-    }
+    // Gerar dados
+    const reportData = useAI
+      ? await reportService.generateMonthlyReportWithAI(startDate, endDate)
+      : await reportService.generateMonthlyReport(startDate, endDate);
 
+    // Gerar arquivo
     const fileName = `relatorio_${
       new Date().toISOString().split("T")[0]
     }.${format}`;
+    const filePath =
+      format === "excel"
+        ? await reportService.generateExcelReport(reportData, fileName)
+        : await reportService.generatePDFReport(reportData, fileName);
 
-    let filePath;
-    if (format === "excel") {
-      filePath = await reportService.generateExcelReport(reportData, fileName);
-    } else if (format === "pdf") {
-      filePath = await reportService.generatePDFReport(reportData, fileName);
-    } else {
-      return res.status(400).json({ error: "Formato inválido" });
-    }
+    // Download e limpeza
+    res.download(filePath, async (err) => {
+      if (err) {
+        console.error("Erro no download:", {
+          error: err,
+          path: filePath,
+          exists: fs.existsSync(filePath),
+        });
+        return;
+      }
 
-    res.download(filePath, (err) => {
-      if (err) console.error("Erro no download:", err);
-      fs.unlink(filePath, (err) => {
-        if (err) console.error("Erro ao deletar arquivo:", err);
-      });
+      // Limpar arquivo apenas em produção após 5 minutos
+      if (process.env.NODE_ENV === "production") {
+        setTimeout(() => {
+          fs.unlink(filePath, (err) => {
+            if (err) console.error("Erro na limpeza:", err);
+          });
+        }, 300000); // 5 minutos
+      }
     });
   } catch (error) {
-    console.error("Erro completo na rota:", error);
+    console.error("Erro completo:", {
+      message: error.message,
+      stack: error.stack,
+      body: req.body,
+    });
+
     res.status(500).json({
       error: "Falha ao gerar relatório",
       details: process.env.NODE_ENV === "development" ? error.message : null,

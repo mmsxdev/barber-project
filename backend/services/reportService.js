@@ -18,6 +18,22 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+// Configuração do diretório de uploads
+const getUploadsDir = () => {
+  if (process.env.NODE_ENV === "production") {
+    return "/tmp/uploads";
+  }
+  return path.join(__dirname, "../uploads");
+};
+
+const createUploadsDir = () => {
+  const dir = getUploadsDir();
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+createUploadsDir();
+
 class ReportService {
   async generateMonthlyReport(startDate, endDate) {
     try {
@@ -950,6 +966,10 @@ class ReportService {
       }
 
       doc.end();
+
+      // Esperar o stream terminar de escrever
+      await new Promise((resolve) => stream.on("finish", resolve));
+
       return filePath;
     } catch (error) {
       console.error("Erro no generatePDFReport:", error);

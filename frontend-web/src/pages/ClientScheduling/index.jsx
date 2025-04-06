@@ -29,9 +29,10 @@ const services = [
 const ClientScheduling = () => {
   const { isDarkMode } = useTheme();
   const [events, setEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
   const [barbers, setBarbers] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [step, setStep] = useState(1); // 1: Service, 2: Barber, 3: Date, 4: Form, 5: Confirmation
+  const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,20 +77,19 @@ const ClientScheduling = () => {
 
         switch (s.status) {
           case "CONFIRMED":
-            bgColor = "#4ade80"; // verde
+            bgColor = "#4ade80";
             borderColor = "#22c55e";
             break;
           case "PENDING":
-            bgColor = "#facc15"; // amarelo
+            bgColor = "#facc15";
             borderColor = "#eab308";
             break;
           case "CANCELED":
-            bgColor = "#f87171"; // vermelho
+            bgColor = "#f87171";
             borderColor = "#ef4444";
             break;
           default:
-            bgColor = "#facc15"; // amarelo (default)
-            borderColor = "#eab308";
+            bgColor = "#facc15";
         }
 
         return {
@@ -105,9 +105,17 @@ const ClientScheduling = () => {
           backgroundColor: bgColor,
           borderColor: borderColor,
           display: "block",
+          extendedProps: {
+            barberId: s.barberId,
+          },
         };
       });
-      setEvents(formattedEvents);
+      setAllEvents(formattedEvents);
+      setEvents(
+        formattedEvents.filter(
+          (event) => event.extendedProps.barberId === formData.barberId
+        )
+      );
     } catch {
       setError("Não foi possível carregar os horários.");
     }
@@ -116,26 +124,38 @@ const ClientScheduling = () => {
   useEffect(() => {
     fetchBarbers();
     fetchEvents();
-  }, []);
+  }, [formData.barberId]);
 
   const handleDateSelect = (selectInfo) => {
-    // Verificar se a data não é no passado
     const now = new Date();
     if (selectInfo.start < now) {
       setError("Não é possível agendar em datas passadas.");
       return;
     }
 
-    // Verificar se o horário está dentro do expediente (8h às 19h)
     const hour = selectInfo.start.getHours();
     if (hour < 8 || hour >= 19) {
       setError("Horários disponíveis apenas das 8h às 19h.");
       return;
     }
 
-    // Verificar se não é domingo (0 = domingo)
     if (selectInfo.start.getDay() === 0) {
       setError("Não realizamos agendamentos aos domingos.");
+      return;
+    }
+
+    const hasConflict = allEvents.some((event) => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      return (
+        event.extendedProps.barberId === formData.barberId &&
+        selectInfo.start >= eventStart &&
+        selectInfo.start < eventEnd
+      );
+    });
+
+    if (hasConflict) {
+      setError("Este barbeiro já possui agendamento neste horário.");
       return;
     }
 
@@ -176,14 +196,12 @@ const ClientScheduling = () => {
     setIsLoading(true);
 
     try {
-      // Validar formulário
       if (!formData.clientName || !formData.phone || !formData.dateTime) {
         setError("Preencha todos os campos obrigatórios.");
         setIsLoading(false);
         return;
       }
 
-      // Enviar agendamento
       await publicApi.post("/public/scheduling/appointments", formData);
       setSuccess("Agendamento realizado com sucesso!");
       setStep(5);
@@ -206,7 +224,6 @@ const ClientScheduling = () => {
     setStep(1);
   };
 
-  // Generate available dates (next 7 days excluding Sundays)
   useEffect(() => {
     if (dateModalOpen) {
       const dates = [];
@@ -214,19 +231,17 @@ const ClientScheduling = () => {
 
       for (let i = 0; i < 14; i++) {
         const date = addDays(today, i);
-        // Skip Sundays (0 = Sunday)
         if (date.getDay() !== 0) {
           dates.push(date);
         }
       }
 
       setAvailableDates(dates);
-      setSelectedModalDate(dates[0]); // Select first date by default
+      setSelectedModalDate(dates[0]);
       generateHoursForDate(dates[0]);
     }
   }, [dateModalOpen]);
 
-  // Generate available hours for selected date (8:00 - 18:30, 30min intervals)
   const generateHoursForDate = (date) => {
     const hours = [];
     const now = new Date();
@@ -235,21 +250,17 @@ const ClientScheduling = () => {
       date.getMonth() === now.getMonth() &&
       date.getFullYear() === now.getFullYear();
 
-    // Start from 8:00 AM
     let startHour = 8;
     let startMinute = 0;
 
-    // If it's today, start from the next available slot
     if (isToday) {
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
 
       if (currentHour >= 8) {
         startHour = currentHour;
-        // Round up to next 30 min slot
         startMinute = currentMinute >= 30 ? 0 : 30;
 
-        // Move to next hour if we're at minute 30+
         if (currentMinute >= 30) {
           startHour += 1;
           startMinute = 0;
@@ -257,14 +268,12 @@ const ClientScheduling = () => {
       }
     }
 
-    // Generate 30-minute slots from start time to 18:30
     for (let hour = startHour; hour <= 18; hour++) {
       for (
         let minute = hour === startHour ? startMinute : 0;
         minute < 60;
         minute += 30
       ) {
-        // Stop at 18:30
         if (hour === 18 && minute === 30) break;
 
         const timeString = `${hour.toString().padStart(2, "0")}:${minute
@@ -274,8 +283,25 @@ const ClientScheduling = () => {
       }
     }
 
-    setAvailableHours(hours);
-    setSelectedModalHour(hours.length > 0 ? hours[0] : null);
+    const availableSlots = hours.filter((time) => {
+      const [hour, minute] = time.split(":").map(Number);
+      const slotStart = new Date(date);
+      slotStart.setHours(hour, minute, 0, 0);
+      const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+
+      return !allEvents.some((event) => {
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
+        return (
+          event.extendedProps.barberId === formData.barberId &&
+          slotStart < eventEnd &&
+          slotEnd > eventStart
+        );
+      });
+    });
+
+    setAvailableHours(availableSlots);
+    setSelectedModalHour(availableSlots[0] || null);
   };
 
   const handleDateModalSelect = (date) => {
@@ -290,12 +316,26 @@ const ClientScheduling = () => {
     const dateTime = new Date(selectedModalDate);
     dateTime.setHours(hour, minute, 0, 0);
 
+    const isAvailable = !allEvents.some((event) => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      return (
+        event.extendedProps.barberId === formData.barberId &&
+        dateTime >= eventStart &&
+        dateTime < eventEnd
+      );
+    });
+
+    if (!isAvailable) {
+      setError("Horário indisponível. Por favor selecione outro.");
+      return;
+    }
+
     setSelectedDate(dateTime);
     setFormData({
       ...formData,
       dateTime: format(dateTime, "yyyy-MM-dd'T'HH:mm"),
     });
-
     setDateModalOpen(false);
     setStep(4);
   };
@@ -341,7 +381,6 @@ const ClientScheduling = () => {
           : "bg-gradient-to-br from-white to-gray-100 text-gray-900"
       }`}
     >
-      {/* Header */}
       <header
         className={`p-4 shadow-md ${
           isDarkMode ? "bg-slate-800/80" : "bg-white/80"
@@ -367,7 +406,6 @@ const ClientScheduling = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
           Agendamento Online
@@ -392,7 +430,6 @@ const ClientScheduling = () => {
             isDarkMode ? "bg-slate-800/50" : "bg-white"
           } rounded-xl shadow-xl backdrop-blur-lg p-6`}
         >
-          {/* Step 1: Select Service */}
           {step === 1 && (
             <>
               <h2 className="text-xl font-semibold mb-4 text-center">
@@ -423,7 +460,6 @@ const ClientScheduling = () => {
             </>
           )}
 
-          {/* Step 2: Select Barber */}
           {step === 2 && (
             <>
               <button
@@ -474,7 +510,6 @@ const ClientScheduling = () => {
             </>
           )}
 
-          {/* Step 3: Select Date/Time */}
           {step === 3 && (
             <>
               <button
@@ -490,7 +525,6 @@ const ClientScheduling = () => {
                 Escolha uma data e horário
               </h2>
 
-              {/* Botão para abrir modal de agendamento */}
               <div className="mb-6 flex justify-center">
                 <button
                   onClick={() => setDateModalOpen(true)}
@@ -518,7 +552,10 @@ const ClientScheduling = () => {
                   selectMirror={true}
                   dayMaxEvents={true}
                   weekends={true}
-                  events={events}
+                  events={events.filter(
+                    (event) =>
+                      event.extendedProps.barberId === formData.barberId
+                  )}
                   locale={ptBrLocale}
                   select={handleDateSelect}
                   slotDuration="00:30:00"
@@ -561,7 +598,6 @@ const ClientScheduling = () => {
                       height: 40px !important;
                     }
                     
-                    /* Melhorias para mobile */
                     @media (max-width: 767px) {
                       .fc-header-toolbar {
                         flex-direction: column;
@@ -603,19 +639,6 @@ const ClientScheduling = () => {
                       .fc-timegrid-slot-lane {
                         min-height: 50px;
                       }
-                      
-                      /* Fix para botões mais clicáveis no mobile */
-                      .fc-button-group {
-                        gap: 2px;
-                      }
-                      
-                      .fc-today-button {
-                        margin: 0 4px !important;
-                      }
-                      
-                      .fc-event, .fc-timegrid-event-harness {
-                        touch-action: pan-y;
-                      }
                     }
                   `}
                 </style>
@@ -642,7 +665,6 @@ const ClientScheduling = () => {
             </>
           )}
 
-          {/* Step 4: Client Information */}
           {step === 4 && (
             <>
               <button
@@ -799,7 +821,6 @@ const ClientScheduling = () => {
             </>
           )}
 
-          {/* Step 5: Confirmation */}
           {step === 5 && (
             <div className="text-center py-6">
               <div
@@ -920,7 +941,6 @@ const ClientScheduling = () => {
         </div>
       </main>
 
-      {/* Modal de seleção de data e hora */}
       {dateModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
           <div
@@ -1005,7 +1025,6 @@ const ClientScheduling = () => {
         </div>
       )}
 
-      {/* Footer */}
       <footer
         className={`mt-12 py-6 ${
           isDarkMode ? "bg-slate-800/50" : "bg-gray-100"
