@@ -9,10 +9,12 @@ import { ptBR } from "date-fns/locale";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import api from "../../services/api";
 import { useTheme } from "../../contexts/ThemeContext";
+import { serviceService } from "../../services/businessServices";
 
 const Schedule = () => {
   const [events, setEvents] = useState([]);
   const [barbers, setBarbers] = useState([]);
+  const [services, setServices] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -36,6 +38,15 @@ const Schedule = () => {
     }
   }, [error, success]);
 
+  const loadServices = useCallback(async () => {
+    try {
+      const data = await serviceService.list();
+      setServices(data);
+    } catch (error) {
+      error && setError("Erro ao carregar serviços");
+    }
+  }, []);
+
   const loadBarbers = useCallback(async () => {
     try {
       const response = await api.get("/schedulings/barbers");
@@ -48,56 +59,97 @@ const Schedule = () => {
   const fetchEvents = async () => {
     try {
       const response = await api.get("/schedulings");
-      const formattedEvents = response.data.map((s) => {
-        // Definir cores com base no status
-        let bgColor, borderColor;
+      
+      // Se a resposta vier vazia (pode acontecer em caso de erro no backend)
+      if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
+        console.log("Resposta vazia recebida:", response.data);
+        setEvents([]);
+        return;
+      }
+      
+      const formattedEvents = response.data
+        .filter(s => s && s.id && s.dateTime) // Garantir que só processamos dados válidos
+        .map((s) => {
+          try {
+            // Garantir que temos valores seguros para exibição
+            const clientName = s.clientName || (s.client?.name) || "Cliente sem nome";
+            const serviceName = s.service?.name || (typeof s.service === 'string' ? s.service : "Serviço não identificado");
+            const barberName = s.barber?.name || "Barbeiro não identificado";
+            
+            // Definir cores com base no status
+            let bgColor, borderColor;
 
-        switch (s.status) {
-          case "CONFIRMED":
-            bgColor = "#4ade80"; // verde
-            borderColor = "#22c55e";
-            break;
-          case "PENDING":
-            bgColor = "#facc15"; // amarelo
-            borderColor = "#eab308";
-            break;
-          case "CANCELED":
-            bgColor = "#f87171"; // vermelho
-            borderColor = "#ef4444";
-            break;
-          default:
-            bgColor = "#facc15"; // amarelo (default)
-            borderColor = "#eab308";
-        }
+            switch (s.status) {
+              case "CONFIRMED":
+                bgColor = "#4ade80"; // verde
+                borderColor = "#22c55e";
+                break;
+              case "PENDING":
+                bgColor = "#facc15"; // amarelo
+                borderColor = "#eab308";
+                break;
+              case "CANCELED":
+                bgColor = "#f87171"; // vermelho
+                borderColor = "#ef4444";
+                break;
+              default:
+                bgColor = "#facc15"; // amarelo (default)
+                borderColor = "#eab308";
+            }
 
-        return {
-          id: s.id,
-          title: `${s.clientName} • ${s.service}`,
-          start: parseISO(s.dateTime),
-          end: new Date(parseISO(s.dateTime).getTime() + 60 * 60 * 1000),
-          status: s.status,
-          barber: s.barber?.name,
-          backgroundColor: bgColor,
-          borderColor: borderColor,
-          extendedProps: {
-            clientName: s.clientName,
-            service: s.service,
-            barberId: s.barberId,
-            status: s.status,
-            barber: s.barber?.name,
-          },
-        };
-      });
+            // Garantir que a data é válida
+            let startDate;
+            try {
+              startDate = s.dateTime ? parseISO(s.dateTime) : new Date();
+              // Verificar se a data é válida
+              if (isNaN(startDate.getTime())) {
+                startDate = new Date();
+              }
+            } catch (dateError) {
+              console.error("Erro ao processar data:", dateError);
+              startDate = new Date();
+            }
+
+            return {
+              id: s.id || Math.random().toString(36).substr(2, 9),
+              title: `${clientName} • ${serviceName}`,
+              start: startDate,
+              end: new Date(startDate.getTime() + 60 * 60 * 1000),
+              status: s.status || "PENDING",
+              barber: barberName,
+              backgroundColor: bgColor,
+              borderColor: borderColor,
+              extendedProps: {
+                clientName,
+                service: serviceName,
+                barberId: s.barberId,
+                status: s.status || "PENDING",
+                barber: barberName,
+              },
+            };
+          } catch (itemError) {
+            console.error("Erro ao processar agendamento:", itemError, s);
+            return null; // Pular este item
+          }
+        }).filter(event => event !== null); // Remover itens nulos
+      
       setEvents(formattedEvents);
     } catch (error) {
-      error && setError("Erro ao carregar agendamentos");
+      console.error("Erro ao buscar agendamentos:", error);
+      setError(
+        error.response?.data?.error || 
+        error.message || 
+        "Erro ao carregar agendamentos. Tente novamente."
+      );
+      setEvents([]); // Limpar eventos em caso de erro
     }
   };
 
   useEffect(() => {
     fetchEvents();
     loadBarbers();
-  }, [loadBarbers]);
+    loadServices();
+  }, [loadBarbers, loadServices]);
 
   const handleDateSelect = (selectInfo) => {
     setFormData({
@@ -367,19 +419,74 @@ const Schedule = () => {
             </div>
 
             {/* Alertas */}
-            {(error || success) && (
-              <div
-                className={`fixed top-4 right-2 sm:right-4 p-2.5 sm:p-4 rounded-lg border shadow-lg z-50 transition-opacity duration-300 ${
-                  error
-                    ? "bg-red-500/10 border-red-500/20 text-red-500"
-                    : "bg-green-500/10 border-green-500/20 text-green-500"
-                }`}
-              >
-                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                  {error ? "❌" : "✅"} {error || success}
+            <div>
+              {error && (
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                  <div className="flex items-center">
+                    <div className="py-1">
+                      <svg
+                        className="h-6 w-6 text-red-500 mr-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-bold">Erro</p>
+                      <p>{error}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        fetchEvents();
+                        loadBarbers();
+                        loadServices();
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+              
+              {success && (
+                <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
+                  <div className="flex">
+                    <div className="py-1">
+                      <svg
+                        className="h-6 w-6 text-green-500 mr-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-bold">Sucesso</p>
+                      <p>{success}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Resumo de Agendamentos */}
             <div
@@ -848,11 +955,13 @@ const Schedule = () => {
                       >
                         Serviço *
                       </label>
-                      <input
-                        type="text"
+                      <select
                         value={formData.service}
                         onChange={(e) =>
-                          setFormData({ ...formData, service: e.target.value })
+                          setFormData({
+                            ...formData,
+                            service: e.target.value,
+                          })
                         }
                         className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 text-xs sm:text-sm ${
                           isDarkMode
@@ -860,7 +969,17 @@ const Schedule = () => {
                             : "bg-white border-gray-300 text-gray-900"
                         }`}
                         required
-                      />
+                      >
+                        <option value="">Selecione um serviço</option>
+                        {services.map((service) => (
+                          <option key={service.id} value={service.name}>
+                            {service.name} - {new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(service.price)}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>

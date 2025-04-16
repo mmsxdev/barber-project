@@ -18,8 +18,9 @@ const calculateTotalExpenses = (financialData) => {
 const getPopularServices = (appointments) => {
   const serviceCount = {};
   appointments.forEach((appointment) => {
-    serviceCount[appointment.service] =
-      (serviceCount[appointment.service] || 0) + 1;
+    // Verificar se o serviço existe e tem um nome
+    const serviceName = appointment.service?.name || appointment.service || "Serviço não especificado";
+    serviceCount[serviceName] = (serviceCount[serviceName] || 0) + 1;
   });
   return Object.entries(serviceCount)
     .sort(([, a], [, b]) => b - a)
@@ -31,6 +32,74 @@ const getLowStockProducts = (inventory) => {
   return inventory
     .filter((product) => product.quantityInStock < 10)
     .map((product) => `${product.name}: ${product.quantityInStock} unidades`);
+};
+
+// Adicionar função para calcular comissões
+const calculateCommissions = (appointments, commissions) => {
+  if (!appointments || !commissions) return { totalCommission: 0, details: [], barberCommissions: [] };
+  
+  const commissionDetails = appointments.map(appointment => {
+    // Encontrar a comissão correspondente
+    const commission = commissions.find(c => 
+      c.barberId === appointment.barberId && 
+      c.serviceId === appointment.serviceId
+    );
+    
+    const rate = commission?.percentage || 0;
+    const servicePrice = appointment.service?.price || 0;
+    const commissionValue = (servicePrice * rate) / 100;
+    
+    return {
+      date: appointment.dateTime,
+      service: appointment.service?.name || "Serviço não especificado",
+      servicePrice,
+      commissionRate: rate,
+      commissionValue,
+      barberId: appointment.barberId,
+      barberName: appointment.barber?.name || "Barbeiro não especificado"
+    };
+  });
+  
+  const totalCommission = commissionDetails.reduce(
+    (sum, detail) => sum + detail.commissionValue, 
+    0
+  );
+  
+  // Calcular comissões por barbeiro
+  const barberCommissions = {};
+  commissionDetails.forEach(detail => {
+    if (!barberCommissions[detail.barberId]) {
+      barberCommissions[detail.barberId] = {
+        barberName: detail.barberName,
+        totalServices: 0,
+        totalCommission: 0,
+        services: {}
+      };
+    }
+    
+    barberCommissions[detail.barberId].totalServices++;
+    barberCommissions[detail.barberId].totalCommission += detail.commissionValue;
+    
+    if (!barberCommissions[detail.barberId].services[detail.service]) {
+      barberCommissions[detail.barberId].services[detail.service] = {
+        count: 0,
+        commissionRate: detail.commissionRate,
+        totalCommission: 0
+      };
+    }
+    
+    barberCommissions[detail.barberId].services[detail.service].count++;
+    barberCommissions[detail.barberId].services[detail.service].totalCommission += detail.commissionValue;
+  });
+  
+  // Converter para array para facilitar o uso
+  const barberCommissionsArray = Object.values(barberCommissions);
+  
+  return {
+    totalCommission,
+    details: commissionDetails,
+    barberCommissions: barberCommissionsArray
+  };
 };
 
 export const generateReport = async (data) => {
@@ -47,6 +116,14 @@ export const generateReport = async (data) => {
     const totalExpenses = calculateTotalExpenses(data.financialData);
     const popularServices = getPopularServices(data.appointments);
     const lowStockProducts = getLowStockProducts(data.inventory);
+    
+    // Obter a data atual para o relatório
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
 
     const prompt = `
       Você é um assistente especializado em análise de dados de barbearia.
@@ -73,6 +150,7 @@ export const generateReport = async (data) => {
       - Destaque números e valores importantes usando antes e depois dois asteriscos (ex: **R$ 5.000,00**) para indicar formatação em negrito
       - Use marcadores com hífen (-) para listas
       - Mantenha cada seção bem estruturada e organizada
+      - IMPORTANTE: Use a data atual (${formattedDate}) no cabeçalho do relatório, não crie uma data fictícia
       
       CONTEÚDO DO RELATÓRIO (use exatamente esta estrutura e estes números de seções):
       1. Resumo Executivo (breve visão geral dos pontos mais importantes)

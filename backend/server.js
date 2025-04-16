@@ -7,6 +7,9 @@ import schedulingRoutes from "./routes/scheduling.js";
 import publicSchedulingRoutes from "./routes/public-scheduling.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
+import servicesRoutes from "./routes/services.js";
+import clientsRoutes from "./routes/clients.js";
+import commissionsRoutes from "./routes/commissions.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
@@ -57,6 +60,9 @@ app.use("/", auth, productsRoutes);
 app.use("/", auth, financeRoutes);
 app.use("/", auth, schedulingRoutes);
 app.use("/reports", auth, reportRoutes);
+app.use("/services", auth, servicesRoutes);
+app.use("/clients", auth, clientsRoutes);
+app.use("/commissions", auth, commissionsRoutes);
 
 prisma
   .$connect()

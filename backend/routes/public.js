@@ -1,6 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs"
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { checkRole } from "../Middleware/role.js";

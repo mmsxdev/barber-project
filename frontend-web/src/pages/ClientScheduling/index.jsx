@@ -19,18 +19,12 @@ import {
 import { publicApi } from "../../services/api";
 import { useTheme } from "../../contexts/ThemeContext";
 
-const services = [
-  { id: 1, name: "Corte de Cabelo", price: 35 },
-  { id: 2, name: "Barba", price: 25 },
-  { id: 3, name: "Corte e Barba", price: 55 },
-  { id: 4, name: "Tratamento Capilar", price: 45 },
-];
-
 const ClientScheduling = () => {
   const { isDarkMode } = useTheme();
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
   const [barbers, setBarbers] = useState([]);
+  const [services, setServices] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
@@ -59,6 +53,16 @@ const ClientScheduling = () => {
       return () => clearTimeout(timer);
     }
   }, [error, success]);
+
+  const fetchServices = async () => {
+    try {
+      const response = await publicApi.get("/public/scheduling/services");
+      setServices(response.data);
+    } catch (error) {
+      setError("Não foi possível carregar a lista de serviços.");
+      console.error(error);
+    }
+  };
 
   const fetchBarbers = async () => {
     try {
@@ -123,6 +127,7 @@ const ClientScheduling = () => {
 
   useEffect(() => {
     fetchBarbers();
+    fetchServices();
     fetchEvents();
   }, [formData.barberId]);
 
@@ -194,6 +199,7 @@ const ClientScheduling = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       if (!formData.clientName || !formData.phone || !formData.dateTime) {
@@ -202,11 +208,46 @@ const ClientScheduling = () => {
         return;
       }
 
-      await publicApi.post("/public/scheduling/appointments", formData);
-      setSuccess("Agendamento realizado com sucesso!");
+      // Validar formato do telefone - deve ter pelo menos 10 dígitos
+      const phoneDigits = formData.phone.replace(/\D/g, '');
+      if (phoneDigits.length < 10) {
+        setError("Número de telefone inválido. Digite DDD + número.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Validar a data - não pode ser no passado
+      const selectedDate = new Date(formData.dateTime);
+      if (selectedDate < new Date()) {
+        setError("A data e hora selecionadas já passaram. Escolha uma data futura.");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await publicApi.post("/public/scheduling/appointments", formData);
+      setSuccess(response.data.message || "Agendamento realizado com sucesso!");
       setStep(5);
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao realizar agendamento.");
+      console.error("Erro ao agendar:", err);
+      
+      // Exibe a mensagem de erro retornada pela API ou uma mensagem padrão
+      const errorMsg = err.response?.data?.error || 
+                      "Ocorreu um erro ao realizar o agendamento. Tente novamente.";
+      
+      setError(errorMsg);
+      
+      // Se o erro for relacionado ao serviço, volta para a seleção de serviços
+      if (errorMsg.toLowerCase().includes("serviço")) {
+        setStep(1);
+      }
+      // Se o erro for relacionado ao barbeiro, volta para a seleção de barbeiros
+      else if (errorMsg.toLowerCase().includes("barbeiro") || errorMsg.toLowerCase().includes("profissional")) {
+        setStep(2);
+      }
+      // Se o erro for relacionado ao horário, volta para a seleção de horário
+      else if (errorMsg.toLowerCase().includes("horário") || errorMsg.toLowerCase().includes("agendamento")) {
+        setStep(3);
+      }
     } finally {
       setIsLoading(false);
     }

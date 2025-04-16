@@ -82,6 +82,18 @@ router.post("/appointments", async (request, response) => {
       return response.status(400).json({ error: "Barbeiro inválido" });
     }
 
+    // Verificar se o serviço existe
+    const serviceExists = await prisma.service.findFirst({
+      where: { 
+        name: service,
+        active: true
+      }
+    });
+
+    if (!serviceExists) {
+      return response.status(400).json({ error: "Serviço não encontrado ou inativo" });
+    }
+
     // Criar o agendamento através do serviço
     const scheduling = await schedulingService.createScheduling({
       clientName,
@@ -97,13 +109,58 @@ router.post("/appointments", async (request, response) => {
       scheduling: {
         id: scheduling.id,
         dateTime: scheduling.dateTime,
-        service: scheduling.service,
+        service: scheduling.service.name,
         status: scheduling.status,
       },
     });
   } catch (error) {
     console.error("Erro ao criar agendamento de cliente:", error);
-    response.status(500).json({ error: "Erro ao processar seu agendamento." });
+    
+    // Mensagem de erro mais específica dependendo do tipo de erro
+    let errorMessage = "Erro ao processar seu agendamento.";
+    let statusCode = 500;
+    
+    if (error.message && error.message.includes("Serviço não encontrado")) {
+      errorMessage = "Serviço selecionado não está disponível.";
+      statusCode = 400;
+    } else if (error.code === "P2025") {
+      errorMessage = "Dados de agendamento inválidos.";
+      statusCode = 400;
+    } else if (error.name === "PrismaClientValidationError") {
+      errorMessage = "Erro de validação dos dados. Tente novamente.";
+      statusCode = 400;
+    } else if (error.name === "PrismaClientKnownRequestError") {
+      if (error.code === "P2002") {
+        errorMessage = "Já existe um agendamento neste horário.";
+        statusCode = 409;
+      } else if (error.code === "P2003") {
+        errorMessage = "Referência inválida de usuário ou serviço.";
+        statusCode = 400;
+      }
+    }
+    
+    response.status(statusCode).json({ error: errorMessage });
+  }
+});
+
+// Listar serviços disponíveis (rota pública)
+router.get("/services", async (req, res) => {
+  try {
+    const services = await prisma.service.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+      select: { 
+        id: true, 
+        name: true, 
+        price: true, 
+        duration: true,
+        description: true 
+      }
+    });
+    res.json(services);
+  } catch (error) {
+    console.error("Erro ao buscar serviços:", error);
+    res.status(500).json({ error: "Erro ao carregar serviços" });
   }
 });
 

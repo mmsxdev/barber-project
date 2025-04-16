@@ -11,6 +11,9 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { PermissionError } from "./components/PermissionError";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import WhatsAppAdmin from "./pages/WhatsAppAdmin";
+import CommissionsPage from "./pages/Commissions";
+import { ClientList } from "./components/ClientList";
+import { ServiceList } from "./components/ServiceList";
 
 function App() {
   return (
@@ -29,6 +32,9 @@ function App() {
               <Route path="/agendar" element={<ClientScheduling />} />
               <Route path="/permission-error" element={<PermissionError />} />
               <Route path="/whatsapp-admin" element={<WhatsAppAdmin />} />
+              <Route path="/servicos" element={<ServiceList/>} />
+              <Route path="/clientes" element={<ClientList/>} />
+              <Route path="/comissoes" element={<CommissionsPage />} />
             </Routes>
           </AuthProvider>
         </ThemeProvider>

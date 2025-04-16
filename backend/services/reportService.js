@@ -85,6 +85,13 @@ class ReportService {
               name: true,
             },
           },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+            },
+          },
         },
       });
 
@@ -233,8 +240,8 @@ class ReportService {
       data.appointments.forEach((item) => {
         const row = appointmentsSheet.addRow({
           dateTime: item.dateTime.toLocaleString("pt-BR"),
-          clientName: item.clientName,
-          service: item.service,
+          clientName: item.clientName || "N/A",
+          service: item.service?.name || "N/A",
           status: item.status,
           barber: item.barber?.name || "N/A",
           createdBy: item.createdBy?.name || "N/A",
@@ -762,8 +769,8 @@ class ReportService {
 
       const serviceCount = {};
       data.appointments.forEach((appointment) => {
-        serviceCount[appointment.service] =
-          (serviceCount[appointment.service] || 0) + 1;
+        serviceCount[appointment.service?.name] =
+          (serviceCount[appointment.service?.name] || 0) + 1;
       });
 
       addSubHeader("Serviços Mais Populares");

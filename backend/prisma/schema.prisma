@@ -34,6 +34,17 @@ enum SchedulingStatus {
   CANCELED
 }
 
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum NotificationType {
+  SCHEDULING
+  COMMISSION_UPDATE
+}
+
 model User {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   cpf      String    @unique
@@ -43,6 +54,8 @@ model User {
   createdSchedulings Scheduling[] @relation("CreatedSchedulings")
   barberSchedulings  Scheduling[] @relation("BarberSchedulings")
   finances           Finance[]
+  commissions        Commission[]
+  notifications      Notification[]
 }
 
 model Product {
@@ -69,16 +82,73 @@ model Finance {
   createdAt   DateTime   @default(now())
 }
 
+model Notification {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  scheduling    Scheduling?      @relation(fields: [schedulingId], references: [id])
+  schedulingId  String?          @db.ObjectId
+  userId        String           @db.ObjectId
+  user          User             @relation(fields: [userId], references: [id])
+  message       String
+  type          NotificationType @default(SCHEDULING)
+  scheduledFor  DateTime
+  status        NotificationStatus @default(PENDING)
+  sentAt        DateTime?
+  error         String?
+  createdAt     DateTime         @default(now())
+}
+
+model Service {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  duration    Int       // Duração em minutos
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  schedulings Scheduling[]
+  commissions Commission[]
+}
+
+model Client {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  phone       String?
+  email       String?
+  birthDate   DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  schedulings Scheduling[]
+}
+
 model Scheduling {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  clientName  String
+  client      Client     @relation(fields: [clientId], references: [id])
+  clientId    String     @db.ObjectId
+  clientName  String?    // Permite que o nome do cliente seja nulo
+  phone       String?    // Telefone para contato/WhatsApp
   dateTime    DateTime
-  service     String
+  service     Service    @relation(fields: [serviceId], references: [id])
+  serviceId   String     @db.ObjectId
   status      SchedulingStatus @default(PENDING)
-  phone       String?
   createdBy   User       @relation("CreatedSchedulings", fields: [userId], references: [id])
   userId      String     @db.ObjectId
   barber      User       @relation("BarberSchedulings", fields: [barberId], references: [id])
   barberId    String     @db.ObjectId
   createdAt   DateTime   @default(now())
+  notifications Notification[]
+}
+
+model Commission {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  barber      User      @relation(fields: [barberId], references: [id])
+  barberId    String    @db.ObjectId
+  service     Service   @relation(fields: [serviceId], references: [id])
+  serviceId   String    @db.ObjectId
+  percentage  Float     // Porcentagem da comissão
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([barberId, serviceId])
 }

@@ -7,9 +7,9 @@ const allowedOrigins = [
 ];
 
 const auth = (request, response, next) => {
-  const token = request.headers.authorization;
+  const authHeader = request.headers.authorization;
 
-  if (!token) {
+  if (!authHeader) {
     return response
       .status(401)
       .header("WWW-Authenticate", 'Bearer realm="Access to admin API"')
@@ -17,9 +17,17 @@ const auth = (request, response, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET, {
+    // Verifica se o header começa com "Bearer "
+    if (!authHeader.startsWith('Bearer ')) {
+      throw new Error('Token inválido');
+    }
+
+    // Remove o prefixo "Bearer " e verifica o token
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, JWT_SECRET, {
       algorithms: ["HS256"],
     });
+    
     // Cria um objeto user para manter os dados do usuário
     request.user = { id: decoded.id, role: decoded.role };
   } catch (error) {

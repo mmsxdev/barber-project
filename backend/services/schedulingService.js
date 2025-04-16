@@ -6,19 +6,59 @@ const prisma = new PrismaClient();
 class SchedulingService {
   async createScheduling(data) {
     try {
+      // Verificar se o cliente já existe pelo telefone
+      let client = await prisma.client.findFirst({
+        where: { 
+          phone: data.phone
+        }
+      });
+
+      // Se não existe, criar o cliente
+      if (!client) {
+        client = await prisma.client.create({
+          data: {
+            name: data.clientName,
+            phone: data.phone
+          }
+        });
+      }
+
+      // Buscar o serviço pelo nome
+      const service = await prisma.service.findFirst({
+        where: { 
+          name: data.service,
+          active: true
+        }
+      });
+
+      if (!service) {
+        throw new Error("Serviço não encontrado ou inativo");
+      }
+
       // Criar o agendamento com status PENDING
       const scheduling = await prisma.scheduling.create({
         data: {
           clientName: data.clientName,
           dateTime: new Date(data.dateTime),
-          service: data.service,
-          status: "PENDING", // Agora sempre começa como pendente
-          barberId: data.barberId,
-          userId: data.barberId, // Usa o barbeiro como criador
-          phone: data.phone, // Armazena o telefone
+          status: "PENDING",
+          phone: data.phone,
+          client: {
+            connect: { id: client.id }
+          },
+          service: {
+            connect: { id: service.id }
+          },
+          createdBy: {
+            connect: { id: data.barberId }
+          },
+          barber: {
+            connect: { id: data.barberId }
+          }
         },
         include: {
           barber: { select: { name: true } },
+          client: true,
+          service: true
         },
       });
 
@@ -41,7 +81,7 @@ class SchedulingService {
         // Criar mensagem
         const message =
           `*Olá ${scheduling.clientName}!*\n\n` +
-          `Recebemos seu agendamento na Barbearia Style para ${scheduling.service} com ${barberName} no dia ${formattedDate} às ${formattedTime}.\n\n` +
+          `Recebemos seu agendamento na Barbearia Style para ${scheduling.service.name} com ${barberName} no dia ${formattedDate} às ${formattedTime}.\n\n` +
           `Por favor, responda com *CONFIRMAR* para confirmar seu agendamento ou *CANCELAR* caso precise remarcar.\n\n` +
           `Agradecemos a preferência!\n` +
           `*Barbearia Style*`;
