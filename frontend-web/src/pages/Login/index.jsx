@@ -2,11 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import api from "../../services/api";
 import { validateCPF, formatCPF } from "../../utils/cpfValidator";
+import { useAuth } from "../../contexts/useAuth";
 
 function Login() {
   const navigate = useNavigate();
   const [cpfError, setCpfError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { refreshUser } = useAuth();
 
   const handleCPFChange = (e) => {
     const input = e.target;
@@ -23,11 +26,13 @@ function Login() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setIsLoading(true);
 
     // Valida o CPF antes de enviar
     const validation = validateCPF(cpfRef.current.value);
     if (!validation.isValid) {
       setCpfError(validation.message);
+      setIsLoading(false);
       return;
     }
 
@@ -44,10 +49,15 @@ function Login() {
       }
 
       localStorage.setItem("token", token);
+      
+      // Aguarda o carregamento do usuário antes de redirecionar
+      await refreshUser();
       navigate("/dashboard");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Senha ou CPF inválidos");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -159,14 +169,14 @@ function Login() {
 
           <button
             type="submit"
-            disabled={!!cpfError}
+            disabled={!!cpfError || isLoading}
             className={`w-full py-3.5 rounded-lg font-semibold text-white transition-all hover:scale-[1.01] active:scale-95 shadow-lg hover:shadow-xl ${
-              cpfError
+              cpfError || isLoading
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
             }`}
           >
-            Entrar
+            {isLoading ? "Carregando..." : "Entrar"}
           </button>
         </form>
 

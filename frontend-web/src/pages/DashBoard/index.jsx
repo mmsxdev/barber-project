@@ -35,6 +35,13 @@ function Dashboard() {
     setIsSidebarOpen(true);
   }, [navigate]);
 
+  // Aguarda o término do carregamento do contexto de autenticação
+  useEffect(() => {
+    if (!loading && user) {
+      setIsSidebarOpen(true);
+    }
+  }, [loading, user]);
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -111,53 +118,61 @@ function Dashboard() {
           : "bg-gradient-to-br from-gray-50 to-white"
       }`}
     >
-      <button
-        onClick={toggleSidebar}
-        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${
-          isDarkMode
-            ? "bg-white/10 text-white hover:bg-white/20"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        } focus:outline-none`}
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
-
-      <Sidebar
-        handleLogout={handleLogout}
-        toggleMenu={toggleMenu}
-        isMenuOpen={isMenuOpen}
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      />
-
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={toggleSidebar}
-        />
-      )}
-
-      <main
-        className={`flex-grow p-6 ml-0 transition-all md:p-8 lg:ml-64 ${
-          isDarkMode ? "text-white" : "text-gray-900"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto">
-          <Suspense fallback={<Loading />}>{renderSection()}</Suspense>
+      {loading ? (
+        <div className="w-full h-screen flex items-center justify-center">
+          <Loading message="Carregando seu dashboard..." />
         </div>
-      </main>
+      ) : (
+        <>
+          <button
+            onClick={toggleSidebar}
+            className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${
+              isDarkMode
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            } focus:outline-none`}
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+
+          <Sidebar
+            handleLogout={handleLogout}
+            toggleMenu={toggleMenu}
+            isMenuOpen={isMenuOpen}
+            isSidebarOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+          />
+
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+              onClick={toggleSidebar}
+            />
+          )}
+
+          <main
+            className={`flex-grow p-6 ml-0 transition-all md:p-8 lg:ml-64 ${
+              isDarkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            <div className="max-w-7xl mx-auto">
+              <Suspense fallback={<Loading />}>{renderSection()}</Suspense>
+            </div>
+          </main>
+        </>
+      )}
     </div>
   );
 }
