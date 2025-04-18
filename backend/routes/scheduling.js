@@ -119,58 +119,32 @@ router.get("/schedulings", auth, async (req, res) => {
       ...(status && { status }),
     };
 
-    // Primeiro, obter apenas os IDs e informações básicas dos agendamentos
-    // sem incluir campos que podem ter valores nulos
-    const schedulingIds = await prisma.scheduling.findMany({
+    // Fazer uma única consulta otimizada com todos os relacionamentos necessários
+    const schedulings = await prisma.scheduling.findMany({
       where,
-      select: { id: true },
+      include: {
+        barber: { select: { name: true } },
+        createdBy: { select: { name: true } },
+        client: true,
+        service: true,
+      },
       orderBy: { dateTime: "asc" },
     });
 
-    // Processar os agendamentos um por um para evitar erros em massa
-    const schedulings = [];
-    
-    for (const item of schedulingIds) {
-      try {
-        // Buscar cada agendamento individualmente com tratamento de erro
-        const scheduling = await prisma.scheduling.findUnique({
-          where: { id: item.id },
-          include: {
-            barber: { select: { name: true } },
-            createdBy: { select: { name: true } },
-            client: true,
-            service: true,
-          },
-        });
+    // Processar os resultados para garantir valores padrão
+    const processedSchedulings = schedulings.map(scheduling => ({
+      ...scheduling,
+      clientName: scheduling.clientName || 
+                 (scheduling.client ? scheduling.client.name : "Cliente sem nome"),
+      barber: scheduling.barber || { name: "Barbeiro não identificado" },
+      createdBy: scheduling.createdBy || { name: "Usuário não identificado" },
+      service: scheduling.service || { name: "Serviço não identificado", price: 0, duration: 30 }
+    }));
 
-        // Verificar se o agendamento foi encontrado
-        if (scheduling) {
-          // Criar um objeto com valores padrão para campos que podem estar faltando
-          const processedScheduling = {
-            ...scheduling,
-            // Garantir que clientName nunca é nulo
-            clientName: scheduling.clientName || 
-                       (scheduling.client ? scheduling.client.name : "Cliente sem nome"),
-            // Garantir que os objetos relacionados nunca são nulos
-            barber: scheduling.barber || { name: "Barbeiro não identificado" },
-            createdBy: scheduling.createdBy || { name: "Usuário não identificado" },
-            service: scheduling.service || { name: "Serviço não identificado", price: 0, duration: 30 }
-          };
-          
-          schedulings.push(processedScheduling);
-        }
-      } catch (itemError) {
-        console.error(`Erro ao processar agendamento ${item.id}:`, itemError);
-        // Continue para o próximo agendamento se houver erro
-      }
-    }
-
-    res.json(schedulings);
+    res.json(processedSchedulings);
   } catch (error) {
     console.error("Erro ao buscar agendamentos:", error);
-    
-    // Se encontrarmos um erro, ainda retornar uma lista vazia em vez de falhar completamente
-    res.json([]);
+    res.status(500).json({ error: "Erro ao buscar agendamentos" });
   }
 });
 

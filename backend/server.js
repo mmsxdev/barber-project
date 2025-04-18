@@ -13,8 +13,11 @@ import commissionsRoutes from "./routes/commissions.js";
 import auth from "./Middleware/auth.js";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-// Importar o serviço do WhatsApp para inicializar
-import "./services/whatsappService.js";
+import compression from "compression";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import routes from "./routes/index.js";
+import whatsappService from "./services/whatsappService.js";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -36,6 +39,21 @@ app.use(
 app.set("trust proxy", 1);
 
 app.use(express.json());
+
+// Rate limiting para prevenir sobrecarga
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100 // limite de 100 requisições por IP
+});
+app.use(limiter);
+
+// Cache-Control para respostas estáticas
+app.use((req, res, next) => {
+  if (req.path.startsWith('/uploads/')) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 ano
+  }
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("Backend Barber Online");
@@ -64,6 +82,9 @@ app.use("/services", auth, servicesRoutes);
 app.use("/clients", auth, clientsRoutes);
 app.use("/commissions", auth, commissionsRoutes);
 
+// Rotas
+app.use("/api", routes);
+
 prisma
   .$connect()
   .then(() => {
@@ -73,8 +94,23 @@ prisma
     console.log("Erro ao conectar no banco de dados: ", error);
   });
 
+// Inicialização do WhatsApp
+whatsappService.initialize();
+
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM recebido. Encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    prisma.$disconnect();
+    process.exit(0);
+  });
+});
+
+export default app;

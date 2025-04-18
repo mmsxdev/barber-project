@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { getMonthlyReport } from '../controllers/commissionController.js';
+
 const router = express.Router();
-const { getMonthlyReport } = require('../controllers/commissionController');
 
 // Rota para obter relatório mensal de comissões
 router.get('/monthly-report', getMonthlyReport);
 
-module.exports = router; 
+export default router; 

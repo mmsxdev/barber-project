@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
   CalendarDays,
@@ -10,6 +10,15 @@ import {
 import api from "../../services/api";
 import { format, startOfDay, endOfDay } from "date-fns";
 import ptBR from "date-fns/locale/pt-BR";
+
+// Cache para armazenar os dados por 5 minutos
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
+let dataCache = {
+  appointments: null,
+  products: null,
+  finances: null,
+  lastFetch: null
+};
 
 function WelcomeDashboard() {
   const [isVisible, setIsVisible] = useState(false);
@@ -32,46 +41,61 @@ function WelcomeDashboard() {
     return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente
   }, []);
 
-  // Carregar dados do resumo
-  useEffect(() => {
-    const loadSummary = async () => {
-      try {
-        const today = new Date();
+  // Função para carregar dados com cache
+  const loadSummary = useCallback(async () => {
+    try {
+      const now = Date.now();
+      const shouldRefetch = !dataCache.lastFetch || (now - dataCache.lastFetch) > CACHE_DURATION;
+
+      if (shouldRefetch) {
         const [appointmentsRes, productsRes, financesRes] = await Promise.all([
           api.get("/schedulings"),
           api.get("/produtos"),
           api.get("/finances/summary"),
         ]);
 
-        // Filtrar agendamentos de hoje
-        const todayAppointments = appointmentsRes.data.filter((appointment) => {
-          const appointmentDate = new Date(appointment.dateTime);
-          return (
-            appointmentDate >= startOfDay(today) &&
-            appointmentDate <= endOfDay(today)
-          );
-        });
-
-        // Produtos com estoque baixo (menos de 5 unidades)
-        const lowStockProducts = productsRes.data.filter(
-          (product) => product.quantityInStock < 5
-        );
-
-        setSummary({
-          totalAppointments: appointmentsRes.data.length,
-          totalProducts: productsRes.data.length,
-          totalIncome: financesRes.data.totalIncome || 0,
-          todayAppointments: todayAppointments.length,
-          lowStockProducts: lowStockProducts.length,
-          monthlyGrowth: financesRes.data.monthlyGrowth || 0,
-        });
-      } catch (error) {
-        console.error("Erro ao carregar resumo:", error);
+        // Atualizar cache
+        dataCache = {
+          appointments: appointmentsRes.data,
+          products: productsRes.data,
+          finances: financesRes.data,
+          lastFetch: now
+        };
       }
-    };
 
-    loadSummary();
+      const today = new Date();
+      const todayAppointments = dataCache.appointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.dateTime);
+        return (
+          appointmentDate >= startOfDay(today) &&
+          appointmentDate <= endOfDay(today)
+        );
+      });
+
+      const lowStockProducts = dataCache.products.filter(
+        (product) => product.quantityInStock < 5
+      );
+
+      setSummary({
+        totalAppointments: dataCache.appointments.length,
+        totalProducts: dataCache.products.length,
+        totalIncome: dataCache.finances.totalIncome || 0,
+        todayAppointments: todayAppointments.length,
+        lowStockProducts: lowStockProducts.length,
+        monthlyGrowth: dataCache.finances.monthlyGrowth || 0,
+      });
+    } catch (error) {
+      console.error("Erro ao carregar resumo:", error);
+    }
   }, []);
+
+  // Carregar dados do resumo
+  useEffect(() => {
+    loadSummary();
+    // Atualizar dados a cada 5 minutos
+    const interval = setInterval(loadSummary, CACHE_DURATION);
+    return () => clearInterval(interval);
+  }, [loadSummary]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("pt-BR", {

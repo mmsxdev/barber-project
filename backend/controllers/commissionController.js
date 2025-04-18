@@ -1,6 +1,6 @@
-const { calculateMonthlyCommission } = require('../services/commissionService');
+import commissionService from '../services/commissionService.js';
 
-const getMonthlyReport = async (req, res) => {
+export const getMonthlyReport = async (req, res) => {
   try {
     const { barberId, month, year } = req.query;
 
@@ -30,7 +30,7 @@ const getMonthlyReport = async (req, res) => {
     }
 
     // Calcular relatório
-    const report = await calculateMonthlyCommission(barberId, parsedMonth, parsedYear);
+    const report = await commissionService.calculateMonthlyCommission(barberId, parsedMonth, parsedYear);
 
     return res.json(report);
   } catch (error) {
@@ -39,8 +39,4 @@ const getMonthlyReport = async (req, res) => {
       error: 'Erro ao gerar relatório de comissões'
     });
   }
-};
-
-module.exports = {
-  getMonthlyReport
 }; 

@@ -66,6 +66,8 @@ model Product {
   quantityInStock Int
   createdAt       DateTime  @default(now())
   finances        Finance[]
+
+  @@index([quantityInStock])
 }
 
 model Finance {
@@ -80,6 +82,10 @@ model Finance {
   userId      String     @db.ObjectId
   user        User       @relation(fields: [userId], references: [id])
   createdAt   DateTime   @default(now())
+
+  @@index([date])
+  @@index([type, date])
+  @@index([category, date])
 }
 
 model Notification {
@@ -138,6 +144,10 @@ model Scheduling {
   barberId    String     @db.ObjectId
   createdAt   DateTime   @default(now())
   notifications Notification[]
+
+  @@index([dateTime])
+  @@index([barberId, dateTime])
+  @@index([status, dateTime])
 }
 
 model Commission {

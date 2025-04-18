@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import commissionRoutes from './commissionRoutes.js';
+
 const router = express.Router();
-const commissionRoutes = require('./commissionRoutes');
 
 // Rotas de comissões
 router.use('/commissions', commissionRoutes);
 
-module.exports = router; 
+export default router; 
