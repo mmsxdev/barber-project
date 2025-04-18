@@ -24,13 +24,15 @@ function Dashboard() {
   const section = searchParams.get("section") || "boas-vindas"; // Seção padrão é "boas-vindas"
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { isDarkMode } = useTheme();
   const { user, loading } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
+    // Garante que a SideBar esteja visível após o login
+    setIsSidebarOpen(true);
   }, [navigate]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
