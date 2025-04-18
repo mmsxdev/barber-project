@@ -12,7 +12,6 @@ import {
   Phone,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
-import OptimizedImage from "../components/OptimizedImage";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,8 +97,8 @@ const Home = () => {
             >
               Barbearia Style
             </a>
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden"
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
@@ -120,60 +119,60 @@ const Home = () => {
                 </a>
               ))}
             </nav>
-          </div>
+            </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <main id="main-content">
-        <section
-          id="hero"
-          className={`pt-24 pb-12 ${
-            isDarkMode
-              ? "bg-gradient-to-r from-slate-800 to-slate-900"
-              : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600 via-indigo-700 to-purple-800"
-          }`}
+      <section
+        id="hero"
+        className={`pt-24 pb-12 ${
+          isDarkMode
+            ? "bg-gradient-to-r from-slate-800 to-slate-900"
+            : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600 via-indigo-700 to-purple-800"
+        }`}
           role="banner"
-        >
-          <div className="container mx-auto px-6 text-center">
-            <h1
-              className={`text-5xl font-bold mb-6 animate-fade-in-up ${
-                isDarkMode ? "text-white" : "text-gray-900 px-4 py-2"
-              }`}
-            >
-              Bem-vindo à Barbearia Style
-            </h1>
-            <p
-              className={`text-xl mb-8 ${
-                isDarkMode ? "text-white/90" : "text-gray-800 px-3 py-1"
-              }`}
-            >
-              Estilo e tradição em cada corte
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="/agendar"
-                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-full hover:from-blue-600 hover:to-violet-600 transition-all w-full sm:w-auto shadow-lg shadow-blue-600/20 font-medium"
+      >
+        <div className="container mx-auto px-6 text-center">
+          <h1
+            className={`text-5xl font-bold mb-6 animate-fade-in-up ${
+              isDarkMode ? "text-white" : "text-gray-900 px-4 py-2"
+            }`}
+          >
+            Bem-vindo à Barbearia Style
+          </h1>
+          <p
+            className={`text-xl mb-8 ${
+              isDarkMode ? "text-white/90" : "text-gray-800 px-3 py-1"
+            }`}
+          >
+            Estilo e tradição em cada corte
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="/agendar"
+              className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-full hover:from-blue-600 hover:to-violet-600 transition-all w-full sm:w-auto shadow-lg shadow-blue-600/20 font-medium"
                 role="button"
                 aria-label="Agendar horário online"
-              >
-                Agendar Online
-              </a>
-              <a
-                href="#contato"
-                className={`px-8 py-3 rounded-full transition-all border w-full sm:w-auto font-medium ${
-                  isDarkMode
-                    ? "border-white/30 backdrop-blur-sm bg-white/10 text-white hover:bg-white/20"
-                    : "border-slate-900/55 bg-blue-950/30 text-slate-900 hover:bg-blue-800 hover:text-white shadow-md"
-                }`}
+            >
+              Agendar Online
+            </a>
+            <a
+              href="#contato"
+              className={`px-8 py-3 rounded-full transition-all border w-full sm:w-auto font-medium ${
+                isDarkMode
+                  ? "border-white/30 backdrop-blur-sm bg-white/10 text-white hover:bg-white/20"
+                  : "border-slate-900/55 bg-blue-950/30 text-slate-900 hover:bg-blue-800 hover:text-white shadow-md"
+              }`}
                 role="button"
                 aria-label="Entrar em contato com a secretaria"
-              >
-                Falar com a Secretaria
-              </a>
-            </div>
+            >
+              Falar com a Secretaria
+            </a>
           </div>
-        </section>
+        </div>
+      </section>
       </main>
 
       {/* Serviços Section */}
@@ -334,12 +333,11 @@ const Home = () => {
                 role="listitem"
               >
                 <div className="relative h-60">
-                  <OptimizedImage
+                  <img
                     src={product.image}
                     alt={`Imagem do produto ${product.name}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    width={300}
-                    height={300}
+                    loading="lazy"
                   />
                   <div 
                     className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end"
@@ -443,39 +441,39 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-6" aria-label="Formulário de contato">
-              <div>
+                <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Nome
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode
+                    Nome
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg ${
+                      isDarkMode
                       ? "bg-slate-800 border-slate-700 text-white"
                       : "bg-white border-gray-300"
                   } border focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
                   required
                   aria-required="true"
                   placeholder="Seu nome completo"
-                />
-              </div>
+                  />
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode
+                    Telefone
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg ${
+                      isDarkMode
                       ? "bg-slate-800 border-slate-700 text-white"
                       : "bg-white border-gray-300"
                   } border focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
@@ -488,31 +486,31 @@ const Home = () => {
                 <span id="phone-format" className="text-xs text-gray-500 mt-1">
                   Formato: (00) 00000-0000
                 </span>
-              </div>
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="message" className="block text-sm font-medium mb-2">
                   Mensagem
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                   rows="4"
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode
+                    className={`w-full px-4 py-3 rounded-lg ${
+                      isDarkMode
                       ? "bg-slate-800 border-slate-700 text-white"
                       : "bg-white border-gray-300"
                   } border focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
                   required
                   aria-required="true"
                   placeholder="Digite sua mensagem"
-                ></textarea>
-              </div>
+                  ></textarea>
+                </div>
 
-              <button
-                type="submit"
+                <button
+                  type="submit"
                 className="w-full bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-violet-600 transition-all shadow-lg shadow-blue-600/20 font-medium focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 aria-label="Enviar mensagem"
               >
@@ -678,27 +676,27 @@ const Home = () => {
               <div className="pt-4">
                 <h4 className="text-sm font-semibold text-white mb-3">Redes Sociais</h4>
                 <div className="flex space-x-4">
-                  <a
-                    href="#"
+                <a
+                  href="#"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Facebook"
-                  >
+                >
                     <Facebook size={20} aria-hidden="true" />
-                  </a>
-                  <a
-                    href="#"
+                </a>
+                <a
+                  href="#"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Instagram"
-                  >
+                >
                     <Instagram size={20} aria-hidden="true" />
-                  </a>
-                  <a
-                    href="#"
+                </a>
+                <a
+                  href="#"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Twitter"
-                  >
+                >
                     <Twitter size={20} aria-hidden="true" />
-                  </a>
+                </a>
                 </div>
               </div>
             </div>
