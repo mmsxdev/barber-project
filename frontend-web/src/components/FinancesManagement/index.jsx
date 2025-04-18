@@ -449,9 +449,10 @@ export default function Finance() {
         </div>
 
         {/* Gráficos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5 sm:gap-4 mb-2 sm:mb-4 md:mb-6">
+        <div className="mb-2 sm:mb-4 md:mb-6">
+          {/* Fluxo de Caixa - Full width */}
           <div
-            className={`p-2 sm:p-4 rounded-lg ${
+            className={`p-2 sm:p-4 rounded-lg mb-2 sm:mb-4 ${
               isDarkMode
                 ? "bg-white/5 border-white/10"
                 : "bg-white border-gray-200"
@@ -464,178 +465,183 @@ export default function Finance() {
               <Line data={chartData} />
             </div>
           </div>
-          <div
-            className={`p-2 sm:p-4 rounded-lg ${
-              isDarkMode
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-gray-200"
-            } border shadow-lg`}
-          >
-            <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-1.5 sm:mb-4">
-              Distribuição por Categoria
-            </h3>
-            <div className="flex justify-center items-center">
-              <div className="w-full max-w-md h-[200px] sm:h-[300px] lg:h-[400px] px-1 sm:px-4 lg:px-6">
-                <Pie data={categoryData} options={pieOptions} />
+
+          {/* Grid for Formula and Pizza Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5 sm:gap-4">
+            {/* Formulário */}
+            <div
+              className={`p-2 sm:p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-white/5 border-white/10"
+                  : "bg-white border-gray-200"
+              } border shadow-lg`}
+            >
+              <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">
+                {editingId ? "Editar Registro" : "Novo Registro"}
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
+                <div className="grid grid-cols-1 gap-1.5 sm:gap-4">
+                  <div>
+                    <label
+                      className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                        isDarkMode ? "text-slate-300" : "text-gray-700"
+                      }`}
+                    >
+                      Tipo
+                    </label>
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                        isDarkMode
+                          ? "bg-slate-700 border-slate-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      required
+                    >
+                      <option value="INCOME">Receita</option>
+                      <option value="EXPENSE">Despesa</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                        isDarkMode ? "text-slate-300" : "text-gray-700"
+                      }`}
+                    >
+                      Valor
+                    </label>
+                    <input
+                      type="number"
+                      name="value"
+                      value={formData.value}
+                      onChange={handleInputChange}
+                      step="0.01"
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                        isDarkMode
+                          ? "bg-slate-700 border-slate-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                        isDarkMode ? "text-slate-300" : "text-gray-700"
+                      }`}
+                    >
+                      Descrição
+                    </label>
+                    <input
+                      type="text"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                        isDarkMode
+                          ? "bg-slate-700 border-slate-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                        isDarkMode ? "text-slate-300" : "text-gray-700"
+                      }`}
+                    >
+                      Categoria
+                    </label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                        isDarkMode
+                          ? "bg-slate-700 border-slate-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      required
+                    >
+                      <option value="SERVICE">Serviço</option>
+                      <option value="PRODUCT_SALE">Produto</option>
+                      <option value="SALARY">Salário</option>
+                      <option value="RENT">Aluguel</option>
+                      <option value="MAINTENANCE">Manutenção</option>
+                      <option value="OTHER">Outro</option>
+                    </select>
+                  </div>
+                  {formData.category === "PRODUCT_SALE" && (
+                    <div>
+                      <label
+                        className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        Produto
+                      </label>
+                      <select
+                        name="productId"
+                        value={formData.productId}
+                        onChange={handleInputChange}
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
+                          isDarkMode
+                            ? "bg-slate-700 border-slate-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        required
+                      >
+                        <option value="">Selecione um produto</option>
+                        {products.map((product) => (
+                          <option key={product.id} value={product.id}>
+                            {product.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-1.5 sm:gap-3">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+                  >
+                    {editingId ? "Atualizar" : "Criar"}
+                  </button>
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Gráfico de Pizza */}
+            <div
+              className={`p-2 sm:p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-white/5 border-white/10"
+                  : "bg-white border-gray-200"
+              } border shadow-lg`}
+            >
+              <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-1.5 sm:mb-4">
+                Distribuição por Categoria
+              </h3>
+              <div className="flex justify-center items-center">
+                <div className="w-full max-w-md h-[200px] sm:h-[300px] lg:h-[400px] px-1 sm:px-4 lg:px-6">
+                  <Pie data={categoryData} options={pieOptions} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Formulário */}
-        <div
-          className={`p-2 sm:p-4 rounded-lg mb-2 sm:mb-4 md:mb-6 ${
-            isDarkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-gray-200"
-          } border shadow-lg`}
-        >
-          <h3 className="text-xs sm:text-base lg:text-lg font-semibold mb-2 sm:mb-4">
-            {editingId ? "Editar Registro" : "Novo Registro"}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-4">
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Tipo
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  required
-                >
-                  <option value="INCOME">Receita</option>
-                  <option value="EXPENSE">Despesa</option>
-                </select>
-              </div>
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Valor
-                </label>
-                <input
-                  type="number"
-                  name="value"
-                  value={formData.value}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Descrição
-                </label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
-                    isDarkMode ? "text-slate-300" : "text-gray-700"
-                  }`}
-                >
-                  Categoria
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDarkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  required
-                >
-                  <option value="SERVICE">Serviço</option>
-                  <option value="PRODUCT_SALE">Produto</option>
-                  <option value="SALARY">Salário</option>
-                  <option value="RENT">Aluguel</option>
-                  <option value="MAINTENANCE">Manutenção</option>
-                  <option value="OTHER">Outro</option>
-                </select>
-              </div>
-              {formData.category === "PRODUCT_SALE" && (
-                <div>
-                  <label
-                    className={`block text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
-                      isDarkMode ? "text-slate-300" : "text-gray-700"
-                    }`}
-                  >
-                    Produto
-                  </label>
-                  <select
-                    name="productId"
-                    value={formData.productId}
-                    onChange={handleInputChange}
-                    className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                      isDarkMode
-                        ? "bg-slate-700 border-slate-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    required
-                  >
-                    <option value="">Selecione um produto</option>
-                    {products.map((product) => (
-                      <option key={product.id} value={product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            <div className="flex gap-1.5 sm:gap-3">
-              <button
-                type="submit"
-                className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
-              >
-                {editingId ? "Atualizar" : "Criar"}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm"
-                >
-                  Cancelar
-                </button>
-              )}
-            </div>
-          </form>
         </div>
 
         {/* Lista de Registros */}
