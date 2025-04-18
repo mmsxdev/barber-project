@@ -1,13 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://barber-project-nine.vercel.app/sitemap.xml
-
-# Diretórios e arquivos que não devem ser indexados
-Disallow: /admin/
-Disallow: /private/
-Disallow: /api/
-Disallow: /*.json$
-Disallow: /*.js$
-Disallow: /*.css$ 
+Sitemap: https://barber-project-nine.vercel.app/sitemap.xml 
