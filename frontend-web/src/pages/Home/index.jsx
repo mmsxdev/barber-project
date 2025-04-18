@@ -12,7 +12,6 @@ import {
   Phone,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
-import OptimizedImage from "../../components/OptimizedImage";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -334,12 +333,11 @@ const Home = () => {
                 role="listitem"
               >
                 <div className="relative h-60">
-                  <OptimizedImage
+                  <img
                     src={product.image}
                     alt={`Imagem do produto ${product.name}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    width={300}
-                    height={300}
+                    loading="lazy"
                   />
                   <div 
                     className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end"
