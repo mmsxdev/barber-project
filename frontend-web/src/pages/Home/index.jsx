@@ -68,6 +68,14 @@ const Home = () => {
           : "bg-gradient-to-br from-indigo-900/5 via-blue-500/10 to-purple-500/5 text-gray-800"
       }`}
     >
+      {/* Skip Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white focus:left-4 focus:top-4 focus:rounded-lg"
+      >
+        Pular para o conteúdo principal
+      </a>
+
       {/* Navbar */}
       <nav
         className={`fixed w-full z-50 transition-all duration-300 backdrop-blur-lg ${
@@ -116,54 +124,56 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section
-        id="hero"
-        className={`pt-24 pb-12 ${
-          isDarkMode
-            ? "bg-gradient-to-r from-slate-800 to-slate-900"
-            : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600 via-indigo-700 to-purple-800"
-        }`}
-        role="banner"
-      >
-        <div className="container mx-auto px-6 text-center">
-          <h1
-            className={`text-5xl font-bold mb-6 animate-fade-in-up ${
-              isDarkMode ? "text-white" : "text-gray-900 px-4 py-2"
-            }`}
-          >
-            Bem-vindo à Barbearia Style
-          </h1>
-          <p
-            className={`text-xl mb-8 ${
-              isDarkMode ? "text-white/90" : "text-gray-800 px-3 py-1"
-            }`}
-          >
-            Estilo e tradição em cada corte
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="/agendar"
-              className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-full hover:from-blue-600 hover:to-violet-600 transition-all w-full sm:w-auto shadow-lg shadow-blue-600/20 font-medium"
-              role="button"
-              aria-label="Agendar horário online"
-            >
-              Agendar Online
-            </a>
-            <a
-              href="#contato"
-              className={`px-8 py-3 rounded-full transition-all border w-full sm:w-auto font-medium ${
-                isDarkMode
-                  ? "border-white/30 backdrop-blur-sm bg-white/10 text-white hover:bg-white/20"
-                  : "border-slate-900/55 bg-blue-950/30 text-slate-900 hover:bg-blue-800 hover:text-white shadow-md"
+      <main id="main-content">
+        <section
+          id="hero"
+          className={`pt-24 pb-12 ${
+            isDarkMode
+              ? "bg-gradient-to-r from-slate-800 to-slate-900"
+              : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600 via-indigo-700 to-purple-800"
+          }`}
+          role="banner"
+        >
+          <div className="container mx-auto px-6 text-center">
+            <h1
+              className={`text-5xl font-bold mb-6 animate-fade-in-up ${
+                isDarkMode ? "text-white" : "text-gray-900 px-4 py-2"
               }`}
-              role="button"
-              aria-label="Entrar em contato com a secretaria"
             >
-              Falar com a Secretaria
-            </a>
+              Bem-vindo à Barbearia Style
+            </h1>
+            <p
+              className={`text-xl mb-8 ${
+                isDarkMode ? "text-white/90" : "text-gray-800 px-3 py-1"
+              }`}
+            >
+              Estilo e tradição em cada corte
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="/agendar"
+                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-8 py-3 rounded-full hover:from-blue-600 hover:to-violet-600 transition-all w-full sm:w-auto shadow-lg shadow-blue-600/20 font-medium"
+                role="button"
+                aria-label="Agendar horário online"
+              >
+                Agendar Online
+              </a>
+              <a
+                href="#contato"
+                className={`px-8 py-3 rounded-full transition-all border w-full sm:w-auto font-medium ${
+                  isDarkMode
+                    ? "border-white/30 backdrop-blur-sm bg-white/10 text-white hover:bg-white/20"
+                    : "border-slate-900/55 bg-blue-950/30 text-slate-900 hover:bg-blue-800 hover:text-white shadow-md"
+                }`}
+                role="button"
+                aria-label="Entrar em contato com a secretaria"
+              >
+                Falar com a Secretaria
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* Serviços Section */}
       <section
@@ -217,13 +227,15 @@ const Home = () => {
             ? "bg-slate-900"
             : "bg-gradient-to-br from-indigo-100 to-blue-50"
         }`}
+        role="region"
+        aria-labelledby="equipe-titulo"
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-4">Nossa Equipe</h2>
+          <h2 id="equipe-titulo" className="text-3xl font-bold text-center mb-4">Nossa Equipe</h2>
           <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
             Profissionais experientes e qualificados para cuidar do seu visual.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8" role="list">
             {["João Silva", "Pedro Almeida", "Carlos Mendes"].map((member) => (
               <div
                 key={member}
@@ -232,26 +244,33 @@ const Home = () => {
                     ? "bg-white/5"
                     : "bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-sm border border-white/60"
                 } rounded-xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300`}
+                role="listitem"
               >
-                <div className="w-40 h-40 mx-auto rounded-full mb-6 overflow-hidden border-4 border-white shadow-lg bg-gradient-to-b from-blue-100 to-white">
+                <div 
+                  className="w-40 h-40 mx-auto rounded-full mb-6 overflow-hidden border-4 border-white shadow-lg bg-gradient-to-b from-blue-100 to-white"
+                  role="img"
+                  aria-label={`Foto do profissional ${member}`}
+                >
                   <div className="w-full h-full bg-gray-200 rounded-full"></div>
                 </div>
                 <h3 className="text-xl font-semibold">{member}</h3>
                 <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
                   Especialista em cortes clássicos
                 </p>
-                <div className="flex justify-center mt-4 space-x-2">
+                <div className="flex justify-center mt-4 space-x-2" role="list" aria-label="Redes sociais">
                   <a
                     href="#"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                    aria-label={`Siga ${member} no Instagram`}
                   >
-                    <Instagram size={16} />
+                    <Instagram size={16} aria-hidden="true" />
                   </a>
                   <a
                     href="#"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                    aria-label={`Siga ${member} no Facebook`}
                   >
-                    <Facebook size={16} />
+                    <Facebook size={16} aria-hidden="true" />
                   </a>
                 </div>
               </div>
@@ -266,16 +285,17 @@ const Home = () => {
         className={`py-20 ${
           isDarkMode ? "bg-slate-800" : "bg-white/95 backdrop-blur-sm"
         }`}
+        role="region"
+        aria-labelledby="produtos-titulo"
       >
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-4">
+          <h2 id="produtos-titulo" className="text-3xl font-bold text-center mb-4">
             Nossos Produtos
           </h2>
           <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
-            Produtos de alta qualidade para cuidar do seu cabelo e barba em
-            casa.
+            Produtos de alta qualidade para cuidar do seu cabelo e barba em casa.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" role="list">
             {[
               {
                 name: "Pomada Modeladora",
@@ -310,14 +330,19 @@ const Home = () => {
                     ? "bg-white/5"
                     : "bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-sm border border-white/60"
                 } rounded-xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group`}
+                role="listitem"
               >
                 <div className="relative h-60">
                   <img
                     src={product.image}
-                    alt={product.name}
+                    alt={`Imagem do produto ${product.name}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <div 
+                    className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end"
+                    aria-hidden="true"
+                  >
                     <span className="text-white font-medium px-4 py-2">
                       Ver detalhes
                     </span>
@@ -338,12 +363,16 @@ const Home = () => {
                     <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                       {product.price}
                     </span>
-                    <button className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
+                    <button 
+                      className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                      aria-label={`Adicionar ${product.name} ao carrinho`}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                       </svg>
