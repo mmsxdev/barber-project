@@ -241,7 +241,11 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Serviços
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-500">
+          <p
+            className={`text-center mx-auto max-w-2xl mb-12 ${
+              isDarkMode ? "text-slate-200" : "text-gray-700"
+            }`}
+          >
             Oferecemos serviços de alta qualidade para cuidar do seu estilo com
             precisão e atenção aos detalhes.
           </p>
@@ -261,7 +265,7 @@ const Home = () => {
                   size={32}
                 />
                 <h3 className="text-xl font-semibold mb-2">{service}</h3>
-                <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
+                <p className={isDarkMode ? "text-slate-200" : "text-gray-700"}>
                   Descrição breve do serviço oferecido pela barbearia.
                 </p>
               </div>
@@ -281,7 +285,11 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-4">Nossa Equipe</h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
+          <p
+            className={`text-center mx-auto max-w-2xl mb-12 ${
+              isDarkMode ? "text-slate-200" : "text-gray-800"
+            }`}
+          >
             Profissionais experientes e qualificados para cuidar do seu visual.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -298,19 +306,21 @@ const Home = () => {
                   <div className="w-full h-full bg-gray-200 rounded-full"></div>
                 </div>
                 <h3 className="text-xl font-semibold">{member}</h3>
-                <p className={isDarkMode ? "text-slate-300" : "text-gray-600"}>
+                <p className={isDarkMode ? "text-slate-200" : "text-gray-700"}>
                   Especialista em cortes clássicos
                 </p>
                 <div className="flex justify-center mt-4 space-x-2">
                   <a
                     href="#"
-                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                    aria-label={`Perfil do ${member} no Instagram`}
+                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md hover:from-blue-600 hover:to-indigo-700"
                   >
                     <Instagram size={16} />
                   </a>
                   <a
                     href="#"
-                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                    aria-label={`Perfil do ${member} no Facebook`}
+                    className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md hover:from-blue-600 hover:to-indigo-700"
                   >
                     <Facebook size={16} />
                   </a>
@@ -332,7 +342,11 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Produtos
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
+          <p
+            className={`text-center mx-auto max-w-2xl mb-12 ${
+              isDarkMode ? "text-slate-200" : "text-gray-800"
+            }`}
+          >
             Produtos de alta qualidade para cuidar do seu cabelo e barba em
             casa.
           </p>
@@ -434,7 +448,11 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossa Localização
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
+          <p
+            className={`text-center mx-auto max-w-2xl mb-12 ${
+              isDarkMode ? "text-slate-200" : "text-gray-800"
+            }`}
+          >
             Visite-nos em nosso endereço e conheça nosso espaço.
           </p>
           <div
@@ -467,11 +485,17 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-4">Contato</h2>
-          <p className="text-center mb-12 max-w-2xl mx-auto text-gray-700">
+          <p
+            className={`text-center mb-12 max-w-2xl mx-auto ${
+              isDarkMode ? "text-slate-200" : "text-gray-800"
+            }`}
+          >
             Para agendamentos rápidos, use nosso{" "}
             <a
               href="/agendar"
-              className="text-blue-700 font-semibold hover:underline"
+              className={`font-semibold hover:underline ${
+                isDarkMode ? "text-blue-400" : "text-blue-700"
+              }`}
             >
               sistema online
             </a>
@@ -726,18 +750,21 @@ const Home = () => {
               <div className="mt-6 flex space-x-4">
                 <a
                   href="#"
+                  aria-label="Siga-nos no Facebook"
                   className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
                   <Facebook size={18} className="text-white" />
                 </a>
                 <a
                   href="#"
+                  aria-label="Siga-nos no Instagram"
                   className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
                   <Instagram size={18} className="text-white" />
                 </a>
                 <a
                   href="#"
+                  aria-label="Siga-nos no Twitter"
                   className="p-2 rounded-full bg-white/10 hover:bg-blue-500 transition-colors"
                 >
                   <Twitter size={18} className="text-white" />
