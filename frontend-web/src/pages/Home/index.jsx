@@ -259,14 +259,14 @@ const Home = () => {
                 </p>
                 <div className="flex justify-center mt-4 space-x-2" role="list" aria-label="Redes sociais">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
                     aria-label={`Siga ${member} no Instagram`}
                   >
                     <Instagram size={16} aria-hidden="true" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
                     aria-label={`Siga ${member} no Facebook`}
                   >
@@ -535,7 +535,7 @@ const Home = () => {
                 <div>
                   <h3 className="font-medium mb-1">Telefone</h3>
                   <a
-                    href="tel:+5511999999999"
+                    href="tel:+5562996535236"
                     className={`${
                       isDarkMode ? "text-slate-300" : "text-gray-600"
                     } hover:text-blue-500 transition-colors`}
@@ -564,21 +564,21 @@ const Home = () => {
                 <h3 className="font-medium mb-4">Redes Sociais</h3>
                 <div className="flex space-x-4">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                     aria-label="Siga-nos no Facebook"
                   >
                     <Facebook size={20} aria-hidden="true" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                     aria-label="Siga-nos no Instagram"
                   >
                     <Instagram size={20} aria-hidden="true" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                     aria-label="Siga-nos no Twitter"
                   >
@@ -677,21 +677,21 @@ const Home = () => {
                 <h4 className="text-sm font-semibold text-white mb-3">Redes Sociais</h4>
                 <div className="flex space-x-4">
                 <a
-                  href="#"
+                  href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Facebook"
                 >
                     <Facebook size={20} aria-hidden="true" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Instagram"
                 >
                     <Instagram size={20} aria-hidden="true" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="text-indigo-200 hover:text-white transition-colors"
                     aria-label="Siga-nos no Twitter"
                 >
