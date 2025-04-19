@@ -103,6 +103,9 @@ const Home = () => {
               ))}
               <button
                 onClick={toggleTheme}
+                aria-label={
+                  isDarkMode ? "Ativar modo claro" : "Ativar modo escuro"
+                }
                 className={`p-2 rounded-full ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
@@ -117,6 +120,9 @@ const Home = () => {
             <div className="md:hidden flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
+                aria-label={
+                  isDarkMode ? "Ativar modo claro" : "Ativar modo escuro"
+                }
                 className={`p-2 rounded-full ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
@@ -126,6 +132,7 @@ const Home = () => {
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
               <button
+                aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
                 className={`p-2 ${
                   isDarkMode
                     ? "text-slate-300 hover:text-blue-400"
@@ -234,7 +241,7 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Serviços
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-400">
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-500">
             Oferecemos serviços de alta qualidade para cuidar do seu estilo com
             precisão e atenção aos detalhes.
           </p>
@@ -274,7 +281,7 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-4">Nossa Equipe</h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
             Profissionais experientes e qualificados para cuidar do seu visual.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -325,7 +332,7 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossos Produtos
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
             Produtos de alta qualidade para cuidar do seu cabelo e barba em
             casa.
           </p>
@@ -392,12 +399,16 @@ const Home = () => {
                     <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                       {product.price}
                     </span>
-                    <button className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
+                    <button
+                      className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                      aria-label={`Adicionar ${product.name} ao carrinho`}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                       </svg>
@@ -423,7 +434,7 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             Nossa Localização
           </h2>
-          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-600">
+          <p className="text-center mx-auto max-w-2xl mb-12 text-gray-700">
             Visite-nos em nosso endereço e conheça nosso espaço.
           </p>
           <div
@@ -441,6 +452,7 @@ const Home = () => {
               allowFullScreen
               loading="lazy"
               className="rounded-xl"
+              title="Localização da Barbearia Style na Avenida Paulista"
             ></iframe>
           </div>
         </div>
@@ -455,11 +467,11 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-4">Contato</h2>
-          <p className="text-center mb-12 max-w-2xl mx-auto text-gray-600">
+          <p className="text-center mb-12 max-w-2xl mx-auto text-gray-700">
             Para agendamentos rápidos, use nosso{" "}
             <a
               href="/agendar"
-              className="text-blue-600 font-semibold hover:underline"
+              className="text-blue-700 font-semibold hover:underline"
             >
               sistema online
             </a>
