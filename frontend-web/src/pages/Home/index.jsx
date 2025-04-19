@@ -262,6 +262,7 @@ const Home = () => {
                     href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
                     aria-label={`Siga ${member} no Instagram`}
+                    role="listitem"
                   >
                     <Instagram size={16} aria-hidden="true" />
                   </a>
@@ -269,6 +270,7 @@ const Home = () => {
                     href="https://www.instagram.com/miguelmsx7/?igsh=MTFjejJubG4zaTk1bQ%3D%3D"
                     className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
                     aria-label={`Siga ${member} no Facebook`}
+                    role="listitem"
                   >
                     <Facebook size={16} aria-hidden="true" />
                   </a>
@@ -409,6 +411,7 @@ const Home = () => {
             } rounded-xl overflow-hidden shadow-xl`}
           >
             <iframe
+              title="Mapa da Barbearia Style"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.075426745292!2d-46.65342658502224!3d-23.565734367638634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1647541561235!5m2!1spt-BR!2sbr"
               width="100%"
               height="450"
