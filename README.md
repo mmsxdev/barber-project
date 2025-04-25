@@ -1,16 +1,23 @@
-# Barber Project
+---
 
-Aplicativo web que estou desenvolvendo com a finalidade de agregar meu portfólio!
+# 💈 Barber Project
 
-- Se trata de uma Home que é basicamente o site estruturado em apenas uma página.
-- Gerenciador de Finanças
-- Gerenciador de Agendamentos
-- Gerenciador de produtos em Estoque
-- Dashboard
-- Cadastro
-- Login
+Projeto de aplicativo web desenvolvido como parte do meu portfólio. A ideia é simular uma plataforma completa de gestão para barbearias, reunindo várias funcionalidades em uma única aplicação responsiva e moderna.
 
-E outras funções extras para otimizar a segurança, e funcionalidade do app web.
+## ⚙️ Funcionalidades
 
-Para testar a aplicação: https://barber-project-nine.vercel.app/
-minha aplicação foi de maneira gratuita pelo render.com
+- Página única (One Page) com design profissional
+- 🧾 **Gerenciador de Finanças**
+- 📅 **Gerenciador de Agendamentos**
+- 📦 **Controle de Produtos em Estoque**
+- 💸 **Visualização e Controle de Comissões**
+- 💬 **Conexão com WhatsappWeb para mensagens automaticas e predefinidas**
+- 📊 **Dashboard com métricas**
+- 👤 **Sistema de Cadastro e Login**
+- 🔐 Funcionalidades extras de segurança e usabilidade
+
+### 🔗 Acesse a aplicação:
+[👉 Barber Project Online (Vercel)](https://barber-project-nine.vercel.app/)  
+Deploy realizado de forma gratuita usando **Render.com** e **Vercel**.
+
+---
